@@ -1,3 +1,4 @@
 rpi-rf
 matplotlib
 adafruit-circuitpython-bmp3xx
+websockets

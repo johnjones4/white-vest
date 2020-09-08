@@ -1,0 +1,52 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: black;
+  font-size: 16px;
+  padding: 1em 0.5em;
+  color: white;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.graphs {
+  display: flex;
+}
+
+.graph {
+  width: 50%;
+  border: solid 1px white;
+  padding: 1em;
+  margin: 0 0.5em;
+}
+
+.graph-label {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.graph-current-data {
+  border: solid 1px white;
+  padding: 1em;
+  margin: 0.5em 0;
+}
+
+.graph-current-data-value-major {
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.graph-current-data-value-minor {
+  font-size: 2.5em;
+}
+
+svg text {
+  fill: white;
+}
+
+svg line, svg path {
+  stroke: white;
+  stroke-width: 1px;
+}
+
