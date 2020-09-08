@@ -8,7 +8,7 @@ def next_y(x):
         y = -16 * math.pow(x - apogee_point, 2) + 1
     else:
         y = -1.776 * math.pow(x - apogee_point, 2) + 1
-    jitter = ((random.random() - 0.5) * 0.00001)
+    jitter = ((random.random() - 0.5) * 0.0001)
     return y + jitter
 
 def generate_data():
