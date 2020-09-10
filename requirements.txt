@@ -1,4 +1,6 @@
 rpi-rf
-matplotlib
+adafruit-blinka
+RPI.GPIO
 adafruit-circuitpython-bmp3xx
 websockets
+adafruit-circuitpython-lsm303dlh-mag

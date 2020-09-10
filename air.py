@@ -9,8 +9,9 @@ from rpi_rf import RFDevice
 import logging
 from threading import Thread
 import picamera
-import csv
 from collections import Queue
+import adafruit_lsm303_accel
+import adafruit_lis2mdl
 
 # Queue to manage data synchronization between sensor reading, transmission, and data logging
 DATA_QUEUE = Queue()
@@ -28,6 +29,14 @@ def init_altimeter():
     return bmp
 
 
+def init_magnetometer_accelerometer():
+    """Initialize the sensor for magnetic and acceleration"""
+    i2c = busio.I2C(board.SCL, board.SDA)
+    mag = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
+    accel = adafruit_lsm303_accel.LSM303_Accel(i2c)
+    return mag, accel
+
+
 def init_transmitter():
     """Initialize the data transmitter"""
     logging.info("Initializing transmitter")
@@ -36,46 +45,45 @@ def init_transmitter():
     return tx
 
 
-def init_testing_data():
-    """Read test data from CSV"""
-    mock_data = list()
-    with open("./test_data.csv") as csvfile:
-        csv_reader = csv.reader(csvfile)
-        for row in csv_reader:
-            (pressure, temperature, altitude) = row
-            mock_data.append((float(pressure), float(temperature), float(altitude)))
-    return mock_data
-
-
 def sensor_reading_loop(data_queue):
     """Read from the sensors every 10th of a second on infinite loop, transmit the altitude, and queue the rest for logging"""
     try:
         logging.info("Starting sensor measurement loop")
-        testing_mode = os.getenv("TESTING_MODE", False)
-        if testing_mode:
-            logging.info("Will simulate altimeter data")
-            mock_index = 0
-            mock_data = init_testing_data()
-        else:
-            logging.info("Will use real altimeter data")
-            bmp = init_altimeter()
+        bmp = init_altimeter()
+        mag, accel = init_magnetometer_accelerometer()
         tx = init_transmitter()
         while True:
             try:
                 now = time.time()
-                if testing_mode:
-                    (pressure, temperature, altitude) = mock_data[mock_index]
-                    if mock_index < len(mock_data) - 1:
-                        mock_index += 1
-                    else:
-                        sys.exit(0)
-                else:
-                    altitude = bmp.altitude
-                    temperature = bmp.temperature
-                    pressure = bmp.pressure
-                    logging.debug("Read %f %f %f", pressure, temperature, altitude)
-                data_queue.put((now, pressure, temperature, altitude))
-                tx.tx_code(int(altitude * 100))
+                altitude = bmp.altitude
+                temperature = bmp.temperature
+                pressure = bmp.pressure
+                (acceleration_x, acceleration_y, acceleration_z) = accel.acceleration
+                (magnetic_x, magnetic_y, magnetic_z) = mag.magnetic
+                logging.debug("Read %f %f %f %f %f %f %f %f %f", 
+                    pressure,
+                    temperature,
+                    altitude,
+                    acceleration_x,
+                    acceleration_y,
+                    acceleration_z,
+                    magnetic_x,
+                    magnetic_y,
+                    magnetic_z
+                )
+                data_queue.put((
+                    now,
+                    pressure,
+                    temperature,
+                    altitude,
+                    acceleration_x,
+                    acceleration_y,
+                    acceleration_z,
+                    magnetic_x,
+                    magnetic_y,
+                    magnetic_z
+                ))
+                tx.tx_code(altitude)
                 time.sleep(0.1)
             except Exception as ex:
                 logging.error("Telemetry measurement point reading failure: %s", str(ex))
@@ -91,8 +99,8 @@ def write_sensor_buffer(start_time, data_queue):
         with open(f"data/sensor_log_{int(start_time)}.csv", "a") as outfile:
             while not data_queue.empty():
                 try:
-                    (now, pressure, temperature, altitude) = data_queue.get()
-                    row_str = ",".join([str(now), str(pressure), str(temperature), str(altitude)])
+                    row = data_queue.get()
+                    row_str = ",".join([str(p) in p for row])
                     logging.debug("Writing %s", row_str)
                     outfile.write(row_str + "\n")
                     time.sleep(0)
