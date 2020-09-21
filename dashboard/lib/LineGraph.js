@@ -1,5 +1,5 @@
 const graphPadding = 40
-const graphAspectRatio = 0.6
+const graphAspectRatio = 0.55
 
 class LineGraph extends Graph {
   constructor (data, id, name, units, showRocket, defaultMin, defaultMax, dataPointIndex) {

@@ -8,12 +8,18 @@ body {
   padding: 10px;
   color: white;
   font-family: Helvetica, sans-serif;
+  border: solid 10px black;
+}
+
+.status-not-receiving {
+  border-color: red;
+}
+
+.status-receiving {
+  border-color: green;
 }
 
 .header {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 10px;
   margin: 0 0 10px 0;
   border-bottom: solid 4px white;
   padding-bottom: 10px;
@@ -29,14 +35,6 @@ body {
 
 .flight-time {
   background-color: blue;
-}
-
-.status-not-receiving {
-  background-color: red;
-}
-
-.status-receiving {
-  background-color: green;
 }
 
 .graphs {
@@ -86,4 +84,5 @@ svg line, svg path {
   width: 90px;
   display: block;
   margin: 10px auto;
+  transition: transform 0.5s;
 }

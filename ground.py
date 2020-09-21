@@ -59,7 +59,7 @@ def telemetry_reception_loop(new_data_queue):
                 if packet:
                     info = struct.unpack("ffffffffff", packet)
                     logging.debug(info)
-                    new_data_queue.put(info)
+                    new_data_queue.put((*info, rfm9x.last_rssi))
                 time.sleep(0)
             except Exception as ex:
                 logging.error("Telemetry point reading failure: %s", str(ex))

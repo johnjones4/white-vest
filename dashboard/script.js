@@ -10,10 +10,11 @@
     MAGNETIC_X:         7,
     MAGNETIC_Y:         8,
     MAGNETIC_Z:         9,
-    VELOCITY:           10,
-    PITCH:              11,
-    ROLL:               12,
-    YAW:                13
+    RSSI:               10,
+    VELOCITY:           11,
+    PITCH:              12,
+    ROLL:               13,
+    YAW:                14
   }
 
   const data = []
@@ -23,6 +24,7 @@
   let receivingData = false
   let receivingDataTimeout = null
   let graphs = [
+    new LineGraph(data, 'rssi', 'Signal Strength', 'RSSI', false, -100, 0, INDEX.RSSI),
     new LineGraph(data, 'altitude', 'Altitude', 'm', true, 0, 100, INDEX.ALTITUDE),
     new LineGraph(data, 'velocity', 'Velocity', 'm/s', false, -10, 10, INDEX.VELOCITY),
     new LineGraph(data, 'temperature', 'Temperature', 'C', false, 0, 50, INDEX.TEMPERATURE),
@@ -60,14 +62,12 @@
   }
 
   const refresh = () => {
-    if (receivingData && !statusElement.classList.contains('status-receiving')) {
-      statusElement.classList.remove('status-not-receiving')
-      statusElement.classList.add('status-receiving')
-      statusElement.textContent = 'Receiving data'
-    } else if (!receivingData && !statusElement.classList.contains('status-not-receiving')) {
-      statusElement.classList.remove('status-receiving')
-      statusElement.classList.add('status-not-receiving')
-      statusElement.textContent = 'Not receiving data'
+    if (receivingData && !document.body.classList.contains('status-receiving')) {
+      document.body.classList.remove('status-not-receiving')
+      document.body.classList.add('status-receiving')
+    } else if (!receivingData && !document.body.classList.contains('status-not-receiving')) {
+      document.body.classList.remove('status-receiving')
+      document.body.classList.add('status-not-receiving')
     }
     
     graphs.forEach(g => g.refresh())
