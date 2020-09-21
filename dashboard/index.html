@@ -7,29 +7,23 @@
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <div class="graphs">
-            <div class="graph">
-                <div class="graph-label">
-                    Altitude
-                </div>
-                <div class="graph-current-data">
-                    <div class="graph-current-data-value-major" id="altitude-m"></div>
-                    <div class="graph-current-data-value-minor" id="altitude-f"></div>
-                </div>
-                <div id="altitude"></div>
-            </div>
-            <div class="graph">
-                <div class="graph-label">
-                    Velocity
-                </div>
-                <div class="graph-current-data">
-                    <div class="graph-current-data-value-major" id="velocity-mps"></div>
-                    <div class="graph-current-data-value-minor" id="velocity-fps"></div>
-                </div>
-                <div id="velocity"></div>
-            </div>
+        <div class="header">
+            <div class="header-block" id="status"></div>
+            <div class="header-block flight-time" id="flight-time"></div>
         </div>
-        <script src="https://d3js.org/d3.v4.js"></script>
+        <div class="graphs" id="graphs"></div>
+        <script id="graph-template" type="x-tmpl-mustache">
+            <div class="graph-label">
+                {{ name }}
+            </div>
+            <div class="graph-current-data"></div>
+            <div class="graph-svg-wrapper"></div>
+        </script>
+        <script src="vendor/d3.js"></script>
+        <script src="vendor/mustache.js"></script>
+        <script src="lib/Graph.js"></script>
+        <script src="lib/LineGraph.js"></script>
+        <script src="lib/RocketAngleGraph.js"></script>
         <script src="script.js"></script>
     </body>
 </html>

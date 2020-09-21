@@ -5,40 +5,65 @@
 body {
   background: black;
   font-size: 16px;
-  padding: 1em 0.5em;
+  padding: 10px;
   color: white;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: Helvetica, sans-serif;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 10px;
+  margin: 0 0 10px 0;
+  border-bottom: solid 4px white;
+  padding-bottom: 10px;
+}
+
+.header-block {
+  padding: 10px 10px 4px 10px;
+  font-weight: bold;
+  font-size: 40px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.flight-time {
+  background-color: blue;
+}
+
+.status-not-receiving {
+  background-color: red;
+}
+
+.status-receiving {
+  background-color: green;
 }
 
 .graphs {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 10px;
 }
 
 .graph {
-  width: 50%;
   border: solid 1px white;
-  padding: 1em;
-  margin: 0 0.5em;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .graph-label {
   font-size: 1.5em;
   font-weight: bold;
+  text-transform: uppercase;
 }
 
 .graph-current-data {
   border: solid 1px white;
-  padding: 1em;
-  margin: 0.5em 0;
-}
-
-.graph-current-data-value-major {
-  font-size: 3em;
+  padding: 10px 10px 4px 10px;
+  margin: 5px 0;
+  font-size: 30px;
   font-weight: bold;
-}
-
-.graph-current-data-value-minor {
-  font-size: 2.5em;
 }
 
 svg text {
@@ -50,3 +75,15 @@ svg line, svg path {
   stroke-width: 1px;
 }
 
+.rocket-angle-graph .graph-svg-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.rocket-angle {
+  width: 90px;
+  display: block;
+  margin: 10px auto;
+}

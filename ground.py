@@ -1,6 +1,6 @@
 import os
 import logging
-from threading import Thread
+from threading import Thread, Lock
 import time
 from queue import Queue
 import csv
@@ -10,65 +10,56 @@ import websockets
 import websockets.exceptions
 import json
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+import adafruit_rfm9x
+import struct
+import busio
+import board
+import digitalio
+from digitalio import DigitalInOut
 
-logging.getLogger().setLevel(logging.INFO)
 
-# Don't import the RF library if we're in testing mode. This let's us test when not on a Raspberry Pi
-if not os.getenv("TEST_DATE_FILE", False):
-    from rpi_rf import RFDevice
+class SafeBuffer():
+    def __init__(self):
+        self.data_buffer = list()
+        self.lock = Lock()
 
-# Queue to manage data synchronization between telemetry reception and data logging
-ALTITUDE_QUEUE = Queue()
-# List to cache processed telemetry readings
-ALTITUDE_BUFFER = list()
+    def append(self, reading):
+        with self.lock:
+            self.data_buffer.append(reading)
+
+    def get_range(self, start, end):
+        logging.debug("Sending %d to %d", start, end)
+        with self.lock:
+            return self.data_buffer[start : end]
+
+    def size(self):
+        with self.lock:
+            return len(self.data_buffer)
+
 
 def init_receiver():
     """Initialize the telemetry receiver"""
     logging.info("Initializing receiver")
-    tx = RFDevice(17)
-    tx.enable_rx()
-    return tx
+    spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
+    cs = DigitalInOut(board.CE1)
+    reset = DigitalInOut(board.D25)
+    rfm9x = adafruit_rfm9x.RFM9x(spi, cs, reset, 915.0, baudrate=1000000)
+    return rfm9x
 
-def init_testing_data():
-    """Read test data from CSV"""
-    mock_data = list()
-    with open(os.getenv("TEST_DATE_FILE")) as csvfile:
-        csv_reader = csv.reader(csvfile)
-        for row in csv_reader:
-            (_, _, altitude) = row
-            mock_data.append(int(float(altitude) * 100))
-    return mock_data
 
-def telemetry_reception_loop(altitude_queue):
+def telemetry_reception_loop(new_data_queue):
     """Loop forever reading telemetry and passing to the processing queue"""
     try:
         logging.info("Starting telemetry reading loop")
-        testing_mode = os.getenv("TEST_DATE_FILE", False)
-        if testing_mode:
-            logging.info("Will simulate altimeter data")
-            mock_data = init_testing_data()
-            mock_index = 0
-        else:
-            logging.info("Will use real altimeter data")
-            rx = init_receiver()
-        last_rx_code_timestamp = None
+        logging.info("Will use real altimeter data")
+        rfm9x = init_receiver()
         while True:
             try:
-                if testing_mode:
-                    current_rx_code_timestamp = int(time.time() * 10)
-                    if not last_rx_code_timestamp or current_rx_code_timestamp != last_rx_code_timestamp:
-                        received_data = mock_data[mock_index]
-                        if mock_index < len(mock_data) - 1:
-                            mock_index += 1
-                        else:
-                            sys.exit(0)
-                else:
-                    current_rx_code_timestamp = rx.rx_code_timestamp
-                    received_data = rx.rx_code
-                if not last_rx_code_timestamp or current_rx_code_timestamp != last_rx_code_timestamp:
-                    last_rx_code_timestamp = current_rx_code_timestamp
-                    altitude = float(received_data) / 100.0
-                    altitude_queue.put((time.time(), altitude))
+                packet = rfm9x.receive()
+                if packet:
+                    info = struct.unpack("ffffffffff", packet)
+                    logging.debug(info)
+                    new_data_queue.put(info)
                 time.sleep(0)
             except Exception as ex:
                 logging.error("Telemetry point reading failure: %s", str(ex))
@@ -77,42 +68,31 @@ def telemetry_reception_loop(altitude_queue):
         logging.error("Telemetry reading failure: %s", str(ex))
         logging.exception(ex)
 
-
-def write_telemetry_buffer(start_time, altitude_queue, buffer):
-    """Write all queued data to the log and buffer"""
-    try:
-        with open(f"data/telemetry_log_{int(start_time)}.csv", "a") as outfile:
-            while not altitude_queue.empty():
-                try:
-                    (timestamp, altitude) = altitude_queue.get()
-                    buffer.append((timestamp, altitude))
-                    row_str = ",".join([str(timestamp), str(altitude)])
-                    logging.debug(row_str)
-                    outfile.write(row_str + "\n")
-                    time.sleep(0.1)
-                except Exception as ex:
-                    logging.error("Telemetry log line writing failure: %s", str(ex))
-                    logging.exception(ex)
-        time.sleep(1)
-    except Exception as ex:
-        logging.error("Telemetry log output writing failure: %s", str(ex))
-        logging.exception(ex)
-
-
-def telemetry_log_writing_loop(altitude_queue, buffer):
+def telemetry_log_writing_loop(new_data_queue, data_buffer):
     """Loop forever clearing the data queue"""
     try:
         logging.info("Starting telemetry log writing loop")
         start_time = time.time()
-        while True:
-            write_telemetry_buffer(start_time, altitude_queue, buffer)
+        with open(f"data/telemetry_log_{int(start_time)}.csv", "w") as outfile:
+            while True:
+                try:
+                    if not new_data_queue.empty():
+                        info = new_data_queue.get()
+                        data_buffer.append(info)
+                        row_str = ",".join([str(v) for v in info])
+                        logging.debug(row_str)
+                        outfile.write(row_str + "\n")
+                    time.sleep(0)
+                except Exception as ex:
+                    logging.error("Telemetry log line writing failure: %s", str(ex))
+                    logging.exception(ex)
     except Exception as ex:
         logging.error("Telemetry log writing failure: %s", str(ex))
         logging.exception(ex)
 
 
-def telemetry_streaming_server(buffer):
-    """Serve the buffer over websocket"""
+def telemetry_streaming_server(data_buffer):
+    """Serve the data_buffer over websocket"""
 
     async def data_stream(websocket, path):
         """Handle a connection on a websocket"""
@@ -122,12 +102,11 @@ def telemetry_streaming_server(buffer):
             while True:
                 if websocket.closed:
                     return
-                end_index = len(buffer)
+                end_index = data_buffer.size()
                 if end_index > last_index:
-                    await websocket.send(json.dumps(buffer[last_index : end_index]))
+                    await websocket.send(json.dumps(data_buffer.get_range(last_index, end_index)))
                     last_index = end_index
-                else:
-                    time.sleep(1)
+                await asyncio.sleep(1)
         except websockets.exceptions.ConnectionClosed:
             logging.info("Client disconnected from streaming server")
         except Exception as ex:
@@ -159,13 +138,20 @@ def telemetry_dashboard_server():
 
 
 if __name__ == "__main__":
-    WRITE_THREAD = Thread(target=telemetry_log_writing_loop, args=(ALTITUDE_QUEUE, ALTITUDE_BUFFER,), daemon=True)
+    logging.getLogger().setLevel(logging.INFO)
+
+    # Queue to manage data synchronization between telemetry reception and data logging
+    NEW_DATA_QUEUE = Queue()
+    # List to cache processed telemetry readings
+    DATA_BUFFER = SafeBuffer()
+
+    WRITE_THREAD = Thread(target=telemetry_log_writing_loop, args=(NEW_DATA_QUEUE, DATA_BUFFER,), daemon=True)
     WRITE_THREAD.start()
 
-    STREAMING_SERVER_THREAD = Thread(target=telemetry_streaming_server, args=(ALTITUDE_BUFFER,), daemon=True)
+    STREAMING_SERVER_THREAD = Thread(target=telemetry_streaming_server, args=(DATA_BUFFER,), daemon=True)
     STREAMING_SERVER_THREAD.start()
 
     DASHBOARD_SERVER_THREAD = Thread(target=telemetry_dashboard_server, daemon=True)
     DASHBOARD_SERVER_THREAD.start()
 
-    telemetry_reception_loop(ALTITUDE_QUEUE)
+    telemetry_reception_loop(NEW_DATA_QUEUE)

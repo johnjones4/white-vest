@@ -1,12 +1,40 @@
 (() => {
+  const INDEX = {
+    TIMESTAMP:          0,
+    PRESSURE:           1,
+    TEMPERATURE:        2,
+    ALTITUDE:           3,
+    ACCELERATION_X:     4,
+    ACCELERATION_Y:     5,
+    ACCELERATION_Z:     6,
+    MAGNETIC_X:         7,
+    MAGNETIC_Y:         8,
+    MAGNETIC_Z:         9,
+    VELOCITY:           10,
+    PITCH:              11,
+    ROLL:               12,
+    YAW:                13
+  }
+
   const data = []
-  const velocityMpsElement = document.getElementById('velocity-mps')
-  const velocityFpsElement = document.getElementById('velocity-fps')
-  const altitudeMetersElement = document.getElementById('altitude-m')
-  const altitudeFeetElement = document.getElementById('altitude-f')
-  const altitudeGraph = document.getElementById('altitude')
-  const velocityGraph = document.getElementById('velocity')
-  const graphAspectRatio = 3/4
+
+  const statusElement = document.getElementById('status')
+  const flightTimeElement = document.getElementById('flight-time')
+  let receivingData = false
+  let receivingDataTimeout = null
+  let graphs = [
+    new LineGraph(data, 'altitude', 'Altitude', 'm', true, 0, 100, INDEX.ALTITUDE),
+    new LineGraph(data, 'velocity', 'Velocity', 'm/s', false, -10, 10, INDEX.VELOCITY),
+    new LineGraph(data, 'temperature', 'Temperature', 'C', false, 0, 50, INDEX.TEMPERATURE),
+    new LineGraph(data, 'pressure', 'Pressure', 'mbar', false, 1000, 1050, INDEX.PRESSURE),
+    new RocketAngleGraph(data, 'pitch', 'Pitch', '°', INDEX.PITCH, 'rocket.svg'),
+    new RocketAngleGraph(data, 'roll', 'Roll', '°', INDEX.ROLL, 'rocket.svg'),
+    new RocketAngleGraph(data, 'yaw', 'Yaw', '°', INDEX.YAW, 'rocket_top.svg'),
+  ]
+
+  const setupGraphs = () => {
+    graphs.forEach(g => g.setup())
+  }
 
   const setupSocket = () => {
     if (window.location.hostname === '') {
@@ -15,156 +43,45 @@
     let ws = new WebSocket(`ws://${window.location.hostname}:5678/`)
     ws.onmessage = event => {
       JSON.parse(event.data).forEach(dataPoint => {
-        const [timestamp, meters] = dataPoint
-        const metersPerSecond = data.length > 0 ? (meters - data[data.length - 1][1]) / (timestamp - data[data.length - 1][0]) : 0
-        data.push([timestamp, meters, metersPerSecond])
+        dataPoint.push(data.length > 0 ? (dataPoint[INDEX.ALTITUDE] - data[data.length - 1][INDEX.ALTITUDE]) / (dataPoint[INDEX.TIMESTAMP] - data[data.length - 1][INDEX.TIMESTAMP]) : 0)
+        dataPoint.push(Math.atan2(-1.0 * dataPoint[INDEX.ACCELERATION_X], dataPoint[INDEX.ACCELERATION_Z]) * (180.0 / Math.PI))
+        dataPoint.push(Math.atan2(-1.0 * dataPoint[INDEX.ACCELERATION_Y], dataPoint[INDEX.ACCELERATION_Z]) * (180.0 / Math.PI))
+        dataPoint.push((Math.atan2(dataPoint[INDEX.MAGNETIC_Y], dataPoint[INDEX.MAGNETIC_X]) * 180.0) / Math.PI)
+        data.push(dataPoint)
       })
-      // console.log(JSON.stringify(data))
-    }
-  }
-
-  const generateXScale = (width) => {
-    const defaultLimit = 60
-    if (data.length === 0) {
-      return d3.scaleLinear()
-        .domain([0, defaultLimit])
-        .range([0, width])
-    } else {
-      const dataLimit = data[data.length - 1][0] - data[0][0]
-      return d3.scaleLinear()
-        .domain([0, Math.max(defaultLimit, dataLimit)])
-        .range([0, width])
-    }
-  }
-
-  const generateYScale = (height, defaultMin, defaultMax, dataPointIndex) => {
-    if (data.length === 0) {
-      return d3.scaleLinear()
-        .domain([
-          defaultMin,
-          defaultMax
-        ])
-        .range([ height, 0 ])
-    } else {
-      return d3.scaleLinear()
-        .domain([
-          Math.min(defaultMin, d3.min(data, d => d[dataPointIndex])),
-          Math.max(defaultMax, d3.max(data, d => d[dataPointIndex]))
-        ])
-        .range([ height, 0 ])
-    }
-  }
-
-  const setupGraph = (showRocket, element, defaultMin, defaultMax, dataPointIndex) => {
-    const padding = 40
-    const width = element.clientWidth - (padding * 2)
-    const height = (element.clientWidth * graphAspectRatio)
-    let svg = d3.select(element)
-      .append('svg')
-        .attr('width', width + (padding * 2))
-        .attr('height', height + (padding * 2))
-      .append('g')
-        .attr('transform', `translate(${padding},${padding})`)
-    
-    const xScale = generateXScale(width)
-    const yScale = generateYScale(height, defaultMin, defaultMax, dataPointIndex)
-
-    const xAxis = svg.append('g')
-      .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(xScale))
-    
-    const yAxis = svg.append('g')
-      .call(d3.axisLeft(yScale))
-    
-    const path = svg.append('path')
-      .datum(data)
-      .attr('d', d3.line()
-        .x(d => xScale(d[0] - data[0][0]))
-        .y(d => yScale(d[dataPointIndex]))
-      )
-
-    let rocket = null
-    if (showRocket) {
-      rocket = svg.append('image')
-        .attr('width', 20)
-        .attr('height', 48)
-        .attr('x', -100)
-        .attr('y', 0)
-        .attr('xlink:href', 'rocket.svg')
-    }
-
-    return {
-      width,
-      height,
-      xAxis,
-      yAxis,
-      path,
-      defaultMin,
-      defaultMax,
-      dataPointIndex,
-      rocket
-    }
-  }
-
-  const refreshGraph = ({width, height, xAxis, yAxis, path, defaultMin, defaultMax, dataPointIndex, rocket}) => {
-    const xScale = generateXScale(width)
-    xAxis.call(d3.axisBottom(xScale))
-
-    const yScale = generateYScale(height, defaultMin, defaultMax, dataPointIndex)
-    yAxis.call(d3.axisLeft(yScale))
-
-    path
-      .datum(data)
-      .attr('d', d3.line()
-        .x(d => xScale(d[0] - data[0][0]))
-        .y(d => yScale(d[dataPointIndex]))
-      )
-
-    if (rocket) {
-      const backIndex = Math.max(0, data.length - 4)
-      const slope = (
-        (
-          yScale(data[data.length - 1][1]) 
-          - yScale(data[backIndex][1])
-        )
-        /
-        (
-          xScale(data[data.length - 1][0]) 
-          - xScale(data[backIndex][0])
-        )
-      ) * -1 
-      const rad = Math.atan(slope)
-      const rotation = 90 - (rad * (180 / Math.PI))
-      const x = xScale(data[data.length - 1][0] - data[0][0])
-      const y = yScale(data[data.length - 1][dataPointIndex])
-      rocket
-        .attr('x', x)
-        .attr('y', y)
-        .attr('transform', `translate(-10,-24) rotate(${rotation}, ${x + 10}, ${y + 24})`)
+      receivingData = true
+      if (receivingDataTimeout) {
+        clearTimeout(receivingDataTimeout)
+      }
+      receivingDataTimeout = setTimeout(() => {
+        receivingData = false
+      }, 5000)
     }
   }
 
   const refresh = () => {
-    if (data.length == 0) {
-      return
+    if (receivingData && !statusElement.classList.contains('status-receiving')) {
+      statusElement.classList.remove('status-not-receiving')
+      statusElement.classList.add('status-receiving')
+      statusElement.textContent = 'Receiving data'
+    } else if (!receivingData && !statusElement.classList.contains('status-not-receiving')) {
+      statusElement.classList.remove('status-receiving')
+      statusElement.classList.add('status-not-receiving')
+      statusElement.textContent = 'Not receiving data'
     }
-    const latest = data[data.length - 1]
-    const velocityMps = latest[2]
-    const velocityFps = velocityMps * 3.28084
-    velocityMpsElement.textContent = `${velocityMps.toFixed(2)} meters/second`
-    velocityFpsElement.textContent = `${velocityFps.toFixed(2)} feet/second`
-    const altitudeMeters = latest[1]
-    const altitudeFeet = altitudeMeters * 3.28084
-    altitudeMetersElement.textContent = `${altitudeMeters.toFixed(2)} meters`
-    altitudeFeetElement.textContent = `${altitudeFeet.toFixed(2)} feet`
+    
+    graphs.forEach(g => g.refresh())
 
-    refreshGraph(altitudeGraphInfo)
-    refreshGraph(velocityGraphInfo)
+    if (data.length > 0) {
+      const time = data[data.length - 1][0]
+      const minutes = Math.floor(time / 60)
+      const seconds = (time - minutes * 60).toFixed(1)
+      flightTimeElement.textContent = `Flight Time: ${minutes}:${seconds}`
+    }
   }
 
+  setupGraphs()
   setupSocket()
-  const altitudeGraphInfo = setupGraph(true, altitudeGraph, 0, 100, 1)
-  const velocityGraphInfo = setupGraph(false, velocityGraph, -10, 10, 2)
   setInterval(refresh, 1000)
   refresh()
 })()
