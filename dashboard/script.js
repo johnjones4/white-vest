@@ -19,7 +19,6 @@
 
   const data = []
 
-  const statusElement = document.getElementById('status')
   const flightTimeElement = document.getElementById('flight-time')
   let receivingData = false
   let receivingDataTimeout = null
