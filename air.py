@@ -1,33 +1,39 @@
 """Inboard data capture and transmission script"""
-import time
-import board
-import busio
-import adafruit_bmp3xx
-import digitalio
-from digitalio import DigitalInOut
-import os
 import logging
-from threading import Thread, Lock
-import picamera
+import os
+import os.path
+import struct
+import time
 from queue import Queue
+from threading import Lock, Thread
+
+import adafruit_bmp3xx
 import adafruit_lsm303_accel
 import adafruit_lsm303dlh_mag
 import adafruit_rfm9x
-import struct
-import os.path
+import board
+import busio
+import digitalio
+import picamera
+from digitalio import DigitalInOut
 
 
-class CurrentReading():
+class CurrentReading:
+    """Thread-safe class for holding the most recent readings"""
+
     def __init__(self):
+        """Initialize the class"""
         self.reading = None
         self.lock = Lock()
 
     def try_update(self, reading):
+        """Try to update the latest reading without blocking"""
         if self.lock.acquire(False):
             self.reading = reading
             self.lock.release()
 
     def value(self):
+        """Block until the latest reading is available"""
         with self.lock:
             return self.reading
 
@@ -46,9 +52,9 @@ def init_radio():
 def init_altimeter():
     """Initialize the sensor for pressure, temperature, and altitude"""
     logging.info("Initializing altimeter")
-    SPI = busio.SPI(board.SCK, board.MOSI, board.MISO)
-    CS = digitalio.DigitalInOut(board.D5)
-    bmp = adafruit_bmp3xx.BMP3XX_SPI(SPI, CS)
+    spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
+    cs = digitalio.DigitalInOut(board.D5)
+    bmp = adafruit_bmp3xx.BMP3XX_SPI(spi, cs)
     bmp.sea_level_pressure = float(os.getenv("PRESSURE_AT_SEA_LEVEL", 1013.25))
     return bmp
 
@@ -62,7 +68,7 @@ def init_magnetometer_accelerometer():
 
 
 def sensor_reading_loop(start_time, current_reading, data_queue):
-    """Read from the sensors every 10th of a second on infinite loop, transmit the altitude, and queue the rest for logging"""
+    """Read from the sensors on and infinite loop and queue it for transmission and logging"""
     try:
         logging.info("Starting sensor measurement loop")
         bmp = init_altimeter()
@@ -84,14 +90,16 @@ def sensor_reading_loop(start_time, current_reading, data_queue):
                     acceleration_z,
                     magnetic_x,
                     magnetic_y,
-                    magnetic_z
+                    magnetic_z,
                 )
                 logging.debug("Read (At %f) %f %f %f %f %f %f %f %f %f", *info)
                 data_queue.put(info)
                 current_reading.try_update(info)
                 time.sleep(0)
             except Exception as ex:
-                logging.error("Telemetry measurement point reading failure: %s", str(ex))
+                logging.error(
+                    "Telemetry measurement point reading failure: %s", str(ex)
+                )
                 logging.exception(ex)
     except Exception as ex:
         logging.error("Telemetry measurement reading failure: %s", str(ex))
@@ -104,7 +112,9 @@ def sensor_log_writing_loop(start_time, runtime_limit, data_queue, output_direct
         logging.info("Starting sensor log writing loop")
         last_queue_check = time.time()
         lines_written = 0
-        with open(os.path.join(output_directory, f"sensor_log_{int(start_time)}.csv"), "w") as outfile:
+        with open(
+            os.path.join(output_directory, f"sensor_log_{int(start_time)}.csv"), "w"
+        ) as outfile:
             while time.time() - start_time <= runtime_limit:
                 try:
                     if not data_queue.empty():
@@ -115,7 +125,9 @@ def sensor_log_writing_loop(start_time, runtime_limit, data_queue, output_direct
                         lines_written += 1
                         if last_queue_check + 10.0 < time.time():
                             last_queue_check = time.time()
-                            logging.info(f"Queue: {data_queue.qsize()} / Lines written: {lines_written} / {last_queue_check - start_time} seconds")
+                            logging.info(
+                                f"Queue: {data_queue.qsize()} / Lines written: {lines_written} / {last_queue_check - start_time} seconds"
+                            )
                         time.sleep(0)
                     else:
                         time.sleep(1)
@@ -133,7 +145,9 @@ def camera_thread(start_time, runtime_limit, output_directory):
     try:
         logging.info("Starting video capture")
         camera = picamera.PiCamera(framerate=90)
-        camera.start_recording(os.path.join(output_directory, f"video_{int(start_time)}.h264"))
+        camera.start_recording(
+            os.path.join(output_directory, f"video_{int(start_time)}.h264")
+        )
         camera.wait_recording(runtime_limit)
         camera.stop_recording()
         logging.info("Video capture complete")
@@ -143,7 +157,7 @@ def camera_thread(start_time, runtime_limit, output_directory):
 
 
 def transmitter_thread(start_time, current_reading):
-    """Start the radio transmitter thread"""
+    """Transmit the latest data"""
     try:
         rfm9x = init_radio()
         last_check = time.time()
@@ -163,7 +177,9 @@ def transmitter_thread(start_time, current_reading):
                     readings_sent += 1
                     if last_check + 10.0 < time.time():
                         last_check = time.time()
-                        logging.info(f"Readings sent: {readings_sent} / {last_check - start_time} seconds")
+                        logging.info(
+                            f"Readings sent: {readings_sent} / {last_check - start_time} seconds"
+                        )
                 else:
                     logging.error(f"Bad info! ({info})")
             time.sleep(0)
@@ -190,14 +206,28 @@ if __name__ == "__main__":
     # Thread safe place to store altitude reading
     CURRENT_READING = CurrentReading()
 
-
-    WRITE_THREAD = Thread(target=sensor_log_writing_loop, args=(START_TIME, RUNTIME_LIMIT, DATA_QUEUE, OUTPUT_DIRECTORY), daemon=True)
+    WRITE_THREAD = Thread(
+        target=sensor_log_writing_loop,
+        args=(START_TIME, RUNTIME_LIMIT, DATA_QUEUE, OUTPUT_DIRECTORY),
+        daemon=True,
+    )
     WRITE_THREAD.start()
 
-    CAMERA_THREAD = Thread(target=camera_thread, args=(START_TIME, RUNTIME_LIMIT, OUTPUT_DIRECTORY), daemon=True)
+    CAMERA_THREAD = Thread(
+        target=camera_thread,
+        args=(START_TIME, RUNTIME_LIMIT, OUTPUT_DIRECTORY),
+        daemon=True,
+    )
     CAMERA_THREAD.start()
 
-    TRANSMITTER_THREAD = Thread(target=transmitter_thread, args=(START_TIME, CURRENT_READING,), daemon=True)
+    TRANSMITTER_THREAD = Thread(
+        target=transmitter_thread,
+        args=(
+            START_TIME,
+            CURRENT_READING,
+        ),
+        daemon=True,
+    )
     TRANSMITTER_THREAD.start()
 
     sensor_reading_loop(START_TIME, CURRENT_READING, DATA_QUEUE)

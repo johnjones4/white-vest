@@ -1,8 +1,8 @@
-import board
-import busio
 import adafruit_bmp3xx
 import adafruit_lsm303_accel
 import adafruit_lsm303dlh_mag
+import board
+import busio
 
 i2c = busio.I2C(board.SCL, board.SDA)
 mag = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)

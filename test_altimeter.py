@@ -1,8 +1,9 @@
+import os
+
+import adafruit_bmp3xx
 import board
 import busio
-import adafruit_bmp3xx
 import digitalio
-import os
 
 SPI = busio.SPI(board.SCK, board.MOSI, board.MISO)
 CS = digitalio.DigitalInOut(board.D5)

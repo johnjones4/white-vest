@@ -1,38 +1,46 @@
-import os
-import logging
-from threading import Thread, Lock
-import time
-from queue import Queue
-import csv
-import sys
+"""Ground based telemetry reception and saving script"""
 import asyncio
+import csv
+import json
+import logging
+import os
+import struct
+import sys
+import time
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+from queue import Queue
+from threading import Lock, Thread
+
+import adafruit_rfm9x
+import board
+import busio
+import digitalio
 import websockets
 import websockets.exceptions
-import json
-from http.server import HTTPServer, SimpleHTTPRequestHandler
-import adafruit_rfm9x
-import struct
-import busio
-import board
-import digitalio
 from digitalio import DigitalInOut
 
 
-class SafeBuffer():
+class SafeBuffer:
+    """Thread-safe buffer to store received telemetry"""
+
     def __init__(self):
+        """Initialize the buffer"""
         self.data_buffer = list()
         self.lock = Lock()
 
     def append(self, reading):
+        """Append new data"""
         with self.lock:
             self.data_buffer.append(reading)
 
     def get_range(self, start, end):
+        """Get a specific range of data from the buffer"""
         logging.debug("Sending %d to %d", start, end)
         with self.lock:
-            return self.data_buffer[start : end]
+            return self.data_buffer[start:end]
 
     def size(self):
+        """Get the buffer size"""
         with self.lock:
             return len(self.data_buffer)
 
@@ -67,6 +75,7 @@ def telemetry_reception_loop(new_data_queue):
     except Exception as ex:
         logging.error("Telemetry reading failure: %s", str(ex))
         logging.exception(ex)
+
 
 def telemetry_log_writing_loop(new_data_queue, data_buffer):
     """Loop forever clearing the data queue"""
@@ -104,7 +113,9 @@ def telemetry_streaming_server(data_buffer):
                     return
                 end_index = data_buffer.size()
                 if end_index > last_index:
-                    await websocket.send(json.dumps(data_buffer.get_range(last_index, end_index)))
+                    await websocket.send(
+                        json.dumps(data_buffer.get_range(last_index, end_index))
+                    )
                     last_index = end_index
                 await asyncio.sleep(1)
         except websockets.exceptions.ConnectionClosed:
@@ -117,7 +128,9 @@ def telemetry_streaming_server(data_buffer):
         logging.info("Starting telemetry streaming server")
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        start_server = websockets.serve(data_stream, "0.0.0.0", os.getenv("STREAMING_PORT", 5678))
+        start_server = websockets.serve(
+            data_stream, "0.0.0.0", os.getenv("STREAMING_PORT", 5678)
+        )
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
     except websockets.exceptions.ConnectionClosed:
@@ -128,9 +141,12 @@ def telemetry_streaming_server(data_buffer):
 
 
 def telemetry_dashboard_server():
+    """Serve the static parts of the dashboard visualization"""
     try:
         logging.info("Starting telemetry dashboard server")
-        httpd = HTTPServer(("0.0.0.0", os.getenv("DASHBOARD_PORT", 8000)), SimpleHTTPRequestHandler)
+        httpd = HTTPServer(
+            ("0.0.0.0", os.getenv("DASHBOARD_PORT", 8000)), SimpleHTTPRequestHandler
+        )
         httpd.serve_forever()
     except Exception as ex:
         logging.error("Telemetry dashboard server failure: %s", str(ex))
@@ -145,10 +161,19 @@ if __name__ == "__main__":
     # List to cache processed telemetry readings
     DATA_BUFFER = SafeBuffer()
 
-    WRITE_THREAD = Thread(target=telemetry_log_writing_loop, args=(NEW_DATA_QUEUE, DATA_BUFFER,), daemon=True)
+    WRITE_THREAD = Thread(
+        target=telemetry_log_writing_loop,
+        args=(
+            NEW_DATA_QUEUE,
+            DATA_BUFFER,
+        ),
+        daemon=True,
+    )
     WRITE_THREAD.start()
 
-    STREAMING_SERVER_THREAD = Thread(target=telemetry_streaming_server, args=(DATA_BUFFER,), daemon=True)
+    STREAMING_SERVER_THREAD = Thread(
+        target=telemetry_streaming_server, args=(DATA_BUFFER,), daemon=True
+    )
     STREAMING_SERVER_THREAD.start()
 
     DASHBOARD_SERVER_THREAD = Thread(target=telemetry_dashboard_server, daemon=True)

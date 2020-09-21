@@ -1,9 +1,9 @@
 import time
+
+import adafruit_rfm9x
+import board
 import busio
 from digitalio import DigitalInOut
-import board
-import adafruit_rfm9x
-
 
 spi = busio.SPI(board.SCK_1, MOSI=board.MOSI_1, MISO=board.MISO_1)
 cs = DigitalInOut(board.D24)
