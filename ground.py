@@ -64,7 +64,7 @@ def telemetry_reception_loop(new_data_queue):
             try:
                 packet = rfm9x.receive()
                 if packet:
-                    info = struct.unpack("ffffffffff", packet)
+                    info = struct.unpack("fffffffff", packet)
                     logging.debug(info)
                     new_data_queue.put((*info, rfm9x.last_rssi))
                 time.sleep(0)

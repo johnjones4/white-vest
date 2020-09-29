@@ -55,7 +55,6 @@ def init_altimeter():
     spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
     cs = digitalio.DigitalInOut(board.D5)
     bmp = adafruit_bmp3xx.BMP3XX_SPI(spi, cs)
-    bmp.sea_level_pressure = float(os.getenv("PRESSURE_AT_SEA_LEVEL", 1013.25))
     return bmp
 
 
@@ -159,7 +158,7 @@ def transmitter_thread(start_time, current_reading):
                         is_all_floats = False
                         break
                 if is_all_floats:
-                    encoded = struct.pack("ffffffffff", *info)
+                    encoded = struct.pack("fffffffff", *info)
                     logging.debug(f"Transmitting {len(encoded)} bytes")
                     rfm9x.send(encoded)
                     readings_sent += 1

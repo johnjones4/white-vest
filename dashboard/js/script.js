@@ -3,19 +3,21 @@
     TIMESTAMP:          0,
     PRESSURE:           1,
     TEMPERATURE:        2,
-    ALTITUDE:           3,
-    ACCELERATION_X:     4,
-    ACCELERATION_Y:     5,
-    ACCELERATION_Z:     6,
-    MAGNETIC_X:         7,
-    MAGNETIC_Y:         8,
-    MAGNETIC_Z:         9,
-    RSSI:               10,
+    ACCELERATION_X:     3,
+    ACCELERATION_Y:     4,
+    ACCELERATION_Z:     5,
+    MAGNETIC_X:         6,
+    MAGNETIC_Y:         7,
+    MAGNETIC_Z:         8,
+    RSSI:               9,
+    //Calculated values
+    ALTITUDE:           10,
     VELOCITY:           11,
     PITCH:              12,
     ROLL:               13,
     YAW:                14
   }
+  const SEA_LEVEL_PRESSURE = 1010.42
 
   const data = []
 
@@ -44,6 +46,7 @@
     let ws = new WebSocket(`ws://${window.location.hostname}:5678/`)
     ws.onmessage = event => {
       JSON.parse(event.data).forEach(dataPoint => {
+        dataPoint.push(44307.7 * (1 - Math.pow((dataPoint[INDEX.PRESSURE] / SEA_LEVEL_PRESSURE), 0.190284)))
         dataPoint.push(data.length > 0 ? (dataPoint[INDEX.ALTITUDE] - data[data.length - 1][INDEX.ALTITUDE]) / (dataPoint[INDEX.TIMESTAMP] - data[data.length - 1][INDEX.TIMESTAMP]) : 0)
         dataPoint.push(Math.atan2(-1.0 * dataPoint[INDEX.ACCELERATION_X], dataPoint[INDEX.ACCELERATION_Z]) * (180.0 / Math.PI))
         dataPoint.push(Math.atan2(-1.0 * dataPoint[INDEX.ACCELERATION_Y], dataPoint[INDEX.ACCELERATION_Z]) * (180.0 / Math.PI))
