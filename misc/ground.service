@@ -1,0 +1,13 @@
+[Unit]
+Description=Ground
+After=multi-user.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/model-rocket-telemetry
+ExecStart=/usr/bin/python3 ground.py > data/log.txt 2>&1
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

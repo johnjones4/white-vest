@@ -51,7 +51,7 @@ def init_receiver():
     spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
     cs = DigitalInOut(board.CE1)
     reset = DigitalInOut(board.D25)
-    rfm9x = adafruit_rfm9x.RFM9x(spi, cs, reset, 915.0, baudrate=1000000)
+    rfm9x = adafruit_rfm9x.RFM9x(spi, cs, reset, 915.0)
     return rfm9x
 
 
@@ -59,7 +59,6 @@ def telemetry_reception_loop(new_data_queue):
     """Loop forever reading telemetry and passing to the processing queue"""
     try:
         logging.info("Starting telemetry reading loop")
-        logging.info("Will use real altimeter data")
         rfm9x = init_receiver()
         while True:
             try:

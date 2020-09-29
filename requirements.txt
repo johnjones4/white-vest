@@ -1,6 +1,6 @@
 adafruit-blinka
 RPI.GPIO
-adafruit-circuitpython-bmp3xx
+git+https://github.com/johnjones4/Adafruit_CircuitPython_BMP3XX.git#egg=adafruit-circuitpython-bmp3xx
 adafruit-circuitpython-lsm303_accel
 adafruit-circuitpython-lsm303dlh_mag
 adafruit-circuitpython-rfm9x

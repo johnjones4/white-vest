@@ -44,7 +44,7 @@ def init_radio():
     spi = busio.SPI(board.SCK_1, MOSI=board.MOSI_1, MISO=board.MISO_1)
     cs = DigitalInOut(board.D24)
     reset = DigitalInOut(board.CE0)
-    rfm9x = adafruit_rfm9x.RFM9x(spi, cs, reset, 915.0, baudrate=1000000)
+    rfm9x = adafruit_rfm9x.RFM9x(spi, cs, reset, 915.0)
     rfm9x.tx_power = 23
     return rfm9x
 
@@ -75,27 +75,15 @@ def sensor_reading_loop(start_time, current_reading, data_queue):
         mag, accel = init_magnetometer_accelerometer()
         while True:
             try:
-                altitude = bmp.altitude
-                temperature = bmp.temperature
-                pressure = bmp.pressure
-                (acceleration_x, acceleration_y, acceleration_z) = accel.acceleration
-                (magnetic_x, magnetic_y, magnetic_z) = mag.magnetic
+                (pressure, temperature) = bmp._read()
                 info = (
                     time.time() - start_time,
-                    pressure,
-                    temperature,
-                    altitude,
-                    acceleration_x,
-                    acceleration_y,
-                    acceleration_z,
-                    magnetic_x,
-                    magnetic_y,
-                    magnetic_z,
+                    *bmp.read(),
+                    *accel.acceleration,
+                    *mag.magnetic,
                 )
-                logging.debug("Read (At %f) %f %f %f %f %f %f %f %f %f", *info)
                 data_queue.put(info)
                 current_reading.try_update(info)
-                time.sleep(0)
             except Exception as ex:
                 logging.error(
                     "Telemetry measurement point reading failure: %s", str(ex)
@@ -192,7 +180,7 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)
 
     # How long should logging and recording run
-    RUNTIME_LIMIT = int(os.getenv("RUNTIME_LIMIT", 600))
+    RUNTIME_LIMIT = int(os.getenv("RUNTIME_LIMIT", 1800))
 
     # Path to where to save data
     OUTPUT_DIRECTORY = os.getenv("OUTPUT_DIRECTORY", "./data")
