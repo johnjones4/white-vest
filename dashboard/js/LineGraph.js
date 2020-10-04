@@ -2,9 +2,8 @@ const graphPadding = 40
 const graphAspectRatio = 0.55
 
 class LineGraph extends Graph {
-  constructor (data, id, name, units, showRocket, defaultMin, defaultMax, dataPointIndex) {
+  constructor (data, id, name, units, defaultMin, defaultMax, dataPointIndex) {
     super(data, id, name, units, dataPointIndex)
-    this.showRocket = showRocket
     this.defaultMin = defaultMin
     this.defaultMax = defaultMax
   }
@@ -35,15 +34,6 @@ class LineGraph extends Graph {
         .x(d => xScale(d[0] - this.data[0][0]))
         .y(d => yScale(d[this.dataPointIndex]))
       )
-
-    if (this.showRocket) {
-      this.rocket = svg.append('image')
-        .attr('width', 20)
-        .attr('height', 48)
-        .attr('x', -100)
-        .attr('y', 0)
-        .attr('xlink:href', 'res/rocket.svg')
-    }
   }
 
   refresh () {
@@ -65,29 +55,6 @@ class LineGraph extends Graph {
         .x(d => xScale(d[0] - this.data[0][0]))
         .y(d => yScale(d[this.dataPointIndex]))
       )
-
-    if (this.rocket) {
-      const backIndex = Math.max(0, this.data.length - 4)
-      const slope = (
-        (
-          yScale(this.data[this.data.length - 1][1]) 
-          - yScale(this.data[backIndex][1])
-        )
-        /
-        (
-          xScale(this.data[this.data.length - 1][0]) 
-          - xScale(this.data[backIndex][0])
-        )
-      ) * -1 
-      const rad = Math.atan(slope)
-      const rotation = 90 - (rad * (180 / Math.PI))
-      const x = xScale(this.data[this.data.length - 1][0] - this.data[0][0])
-      const y = yScale(this.data[this.data.length - 1][this.dataPointIndex])
-      this.rocket
-        .attr('x', x)
-        .attr('y', y)
-        .attr('transform', `translate(-10,-24) rotate(${rotation}, ${x + 10}, ${y + 24})`)
-    }
   }
 
   generateXScale (width) {

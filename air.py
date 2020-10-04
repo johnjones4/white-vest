@@ -102,20 +102,21 @@ def sensor_log_writing_loop(start_time, runtime_limit, data_queue, output_direct
         with open(
             os.path.join(output_directory, f"sensor_log_{int(start_time)}.csv"), "w"
         ) as outfile:
-            while time.time() - start_time <= runtime_limit:
+            while True
                 try:
                     if not data_queue.empty():
                         row = data_queue.get()
-                        row_str = ",".join([str(p) for p in row])
-                        logging.debug("Writing %s", row_str)
-                        outfile.write(row_str + "\n")
-                        lines_written += 1
-                        if last_queue_check + 10.0 < time.time():
-                            last_queue_check = time.time()
-                            logging.info(
-                                f"Queue: {data_queue.qsize()} / Lines written: {lines_written} / {last_queue_check - start_time} seconds"
-                            )
-                        time.sleep(0)
+                        if time.time() - start_time <= runtime_limit:
+                            row_str = ",".join([str(p) for p in row])
+                            logging.debug("Writing %s", row_str)
+                            outfile.write(row_str + "\n")
+                            lines_written += 1
+                            if last_queue_check + 10.0 < time.time():
+                                last_queue_check = time.time()
+                                logging.info(
+                                    f"Queue: {data_queue.qsize()} / Lines written: {lines_written} / {last_queue_check - start_time} seconds"
+                                )
+                            time.sleep(0)
                     else:
                         time.sleep(1)
                 except Exception as ex:

@@ -5,7 +5,7 @@ After=multi-user.target
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/model-rocket-telemetry
+WorkingDirectory=/home/pi/white-vest
 ExecStart=/usr/bin/python3 ground.py > data/log.txt 2>&1
 Restart=on-failure
 

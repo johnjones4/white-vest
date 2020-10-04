@@ -17,7 +17,7 @@
     ROLL:               13,
     YAW:                14
   }
-  const SEA_LEVEL_PRESSURE = 1010.42
+  const SEA_LEVEL_PRESSURE = 1014.050964
 
   const data = []
 
@@ -25,14 +25,14 @@
   let receivingData = false
   let receivingDataTimeout = null
   let graphs = [
-    new LineGraph(data, 'rssi', 'Signal Strength', 'RSSI', false, -100, 0, INDEX.RSSI),
-    new LineGraph(data, 'altitude', 'Altitude', 'm', true, 0, 100, INDEX.ALTITUDE),
-    new LineGraph(data, 'velocity', 'Velocity', 'm/s', false, -10, 10, INDEX.VELOCITY),
-    new LineGraph(data, 'temperature', 'Temperature', 'C', false, 0, 50, INDEX.TEMPERATURE),
-    new LineGraph(data, 'pressure', 'Pressure', 'mbar', false, 1000, 1050, INDEX.PRESSURE),
+    new LineGraph(data, 'rssi', 'Signal Strength', 'RSSI', -100, 0, INDEX.RSSI),
+    new LineGraph(data, 'altitude', 'Altitude', 'm', 0, 100, INDEX.ALTITUDE),
+    new LineGraph(data, 'velocity', 'Velocity', 'm/s', -10, 10, INDEX.VELOCITY),
+    new LineGraph(data, 'temperature', 'Temperature', 'C', 0, 50, INDEX.TEMPERATURE),
+    new LineGraph(data, 'pressure', 'Pressure', 'mbar', 1000, 1050, INDEX.PRESSURE),
     new RocketAngleGraph(data, 'pitch', 'Pitch', '°', INDEX.PITCH, 'res/rocket.svg'),
-    new RocketAngleGraph(data, 'roll', 'Roll', '°', INDEX.ROLL, 'res/rocket.svg'),
-    new RocketAngleGraph(data, 'yaw', 'Yaw', '°', INDEX.YAW, 'res/rocket_top.svg'),
+    new RocketAngleGraph(data, 'roll', 'Yaw', '°', INDEX.ROLL, 'res/rocket.svg'),
+    new RocketAngleGraph(data, 'yaw', 'Roll', '°', INDEX.YAW, 'res/rocket_top.svg'),
   ]
 
   const setupGraphs = () => {

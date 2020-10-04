@@ -7,7 +7,7 @@ air: data
 ground: data
 	python3 ground.py
 
-install:
+install: data
 	pip3 install -r requirements.txt
 
 install-air:

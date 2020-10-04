@@ -11,13 +11,13 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from queue import Queue
 from threading import Lock, Thread
 
-import adafruit_rfm9x
-import board
-import busio
-import digitalio
+# import adafruit_rfm9x
+# import board
+# import busio
+# import digitalio
+# from digitalio import DigitalInOut
 import websockets
 import websockets.exceptions
-from digitalio import DigitalInOut
 
 
 class SafeBuffer:
@@ -74,6 +74,20 @@ def telemetry_reception_loop(new_data_queue):
     except Exception as ex:
         logging.error("Telemetry reading failure: %s", str(ex))
         logging.exception(ex)
+
+
+def replay_telemetry(new_data_queue, replay_file):
+    """Replays telemetry from a file"""
+    start_time = time.time()
+    logging.info(f"Replaying telemetry from {replay_file}")
+    with open(replay_file, "r") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            info = [float(v) for v in row]
+            while time.time() - start_time < info[0]:
+                pass
+            new_data_queue.put(info)
+            time.sleep(0)
 
 
 def telemetry_log_writing_loop(new_data_queue, data_buffer):
@@ -178,4 +192,8 @@ if __name__ == "__main__":
     DASHBOARD_SERVER_THREAD = Thread(target=telemetry_dashboard_server, daemon=True)
     DASHBOARD_SERVER_THREAD.start()
 
-    telemetry_reception_loop(NEW_DATA_QUEUE)
+    REPLAY_DATA = os.getenv("REPLAY_DATA")
+    if REPLAY_DATA:
+        replay_telemetry(NEW_DATA_QUEUE, REPLAY_DATA)
+    else:
+        telemetry_reception_loop(NEW_DATA_QUEUE)
