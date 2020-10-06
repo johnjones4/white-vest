@@ -1,11 +1,10 @@
 """Inboard data capture and transmission script"""
-import logging
 import os
 import time
 from queue import Queue
 from threading import Thread
 
-from whitevest.air_threads import (
+from whitevest.threads.air import (
     camera_thread,
     sensor_log_writing_loop,
     sensor_reading_loop,
@@ -14,8 +13,6 @@ from whitevest.air_threads import (
 from whitevest.lib.current_reading import CurrentReading
 
 if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.INFO)
-
     # How long should logging and recording run
     RUNTIME_LIMIT = int(os.getenv("RUNTIME_LIMIT", 1800))
 

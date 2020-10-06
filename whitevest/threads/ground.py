@@ -6,12 +6,15 @@ import logging
 import struct
 import time
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+import os
 
-import board
+if not os.getenv("REPLAY_DATA", False):
+    import board
 import websockets
 import websockets.exceptions
 
-from whitevest.lib.hardware import init_radio
+if not os.getenv("REPLAY_DATA", False):
+    from whitevest.lib.hardware import init_radio
 
 
 def telemetry_reception_loop(new_data_queue):

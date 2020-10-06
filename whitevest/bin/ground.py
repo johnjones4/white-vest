@@ -1,9 +1,9 @@
 """Ground based telemetry reception and saving script"""
-import logging
 from queue import Queue
 from threading import Lock, Thread
+import os
 
-from whitevest.ground_threads import (
+from whitevest.threads.ground import (
     replay_telemetry,
     telemetry_dashboard_server,
     telemetry_log_writing_loop,
@@ -13,8 +13,6 @@ from whitevest.ground_threads import (
 from whitevest.lib.safe_buffer import SafeBuffer
 
 if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.INFO)
-
     # Queue to manage data synchronization between telemetry reception and data logging
     NEW_DATA_QUEUE = Queue()
     # List to cache processed telemetry readings
