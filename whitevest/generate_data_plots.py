@@ -1,15 +1,20 @@
-import matplotlib.pyplot as plt
 import argparse
 import csv
+
+import matplotlib.pyplot as plt
 
 TIME_COL = 0
 PRESSURE_COL = 1
 
-parser = argparse.ArgumentParser(description="Plots altitude from a source telemetry file.")
+parser = argparse.ArgumentParser(
+    description="Plots altitude from a source telemetry file."
+)
 parser.add_argument("--input", type=str, required=True, help="Telemetry source file.")
 parser.add_argument("--start", type=int, required=False, help="Start index to plot.")
 parser.add_argument("--end", type=int, required=False, help="End index to plot.")
-parser.add_argument("--chute", type=float, required=False, help="Timestamp when the chute deploys.")
+parser.add_argument(
+    "--chute", type=float, required=False, help="Timestamp when the chute deploys."
+)
 parser.add_argument("--output", type=str, required=False, help="Output graph file.")
 
 args = parser.parse_args()
@@ -28,7 +33,12 @@ with open(args.input, "r") as file:
     last_seconds = None
     start_seconds = 0
     for i, row in enumerate(reader):
-        if row and len(row) > 0 and (not args.start or i >= args.start) and (not args.end or i <= args.end):
+        if (
+            row
+            and len(row) > 0
+            and (not args.start or i >= args.start)
+            and (not args.end or i <= args.end)
+        ):
             if args.start and i == args.start:
                 start_seconds = float(row[TIME_COL])
 
@@ -62,7 +72,12 @@ with open(args.input, "r") as file:
 
     color = "tab:red"
     ax1.plot(seconds_values, altitude_values, color=color)
-    ax1.annotate(f"Apogee at {round(highest_altitude, 2)}m / {round(highest_altitude_seconds, 2)}s", xy=(highest_altitude_seconds, highest_altitude), xytext=(highest_altitude_seconds + 2, highest_altitude + 10), arrowprops=dict(facecolor='black', shrink=0.05),)
+    ax1.annotate(
+        f"Apogee at {round(highest_altitude, 2)}m / {round(highest_altitude_seconds, 2)}s",
+        xy=(highest_altitude_seconds, highest_altitude),
+        xytext=(highest_altitude_seconds + 2, highest_altitude + 10),
+        arrowprops=dict(facecolor="black", shrink=0.05),
+    )
     if args.chute:
         ax1.axvline(x=args.chute)
         ax1.text(args.chute - 0.5, 0, f"Chute deploy at {args.chute}s", rotation=90)
@@ -70,18 +85,22 @@ with open(args.input, "r") as file:
     ax1.set_xlabel("Time (seconds)")
     ax1.set_ylabel("Altitude (meters)")
     ax1.tick_params(axis="y", labelcolor=color)
-    
-    ax2 = ax1.twinx() 
+
+    ax2 = ax1.twinx()
     ax2.set_ylabel("Velocity (meters/second)")
-    ax2.annotate(f"Max velocity at {round(max_v, 2)}m/s / {round(max_v_seconds, 2)}s", xy=(max_v_seconds, max_v), xytext=(max_v_seconds + 2, max_v + 10), arrowprops=dict(facecolor='black', shrink=0.05),)
+    ax2.annotate(
+        f"Max velocity at {round(max_v, 2)}m/s / {round(max_v_seconds, 2)}s",
+        xy=(max_v_seconds, max_v),
+        xytext=(max_v_seconds + 2, max_v + 10),
+        arrowprops=dict(facecolor="black", shrink=0.05),
+    )
     color = "tab:green"
     ax2.plot(seconds_values, velocity_values, color=color)
     ax2.tick_params(axis="y", labelcolor=color)
-    
+
     fig.tight_layout()
 
     if args.output:
         fig.savefig(args.output)
     else:
         plt.show()
-
