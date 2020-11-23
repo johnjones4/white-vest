@@ -1,0 +1,35 @@
+.Widget-LocationWidget {
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-row-start: 1;
+  grid-row-end: 3;
+}
+
+.LocationWidget-Base {
+  fill: var(--color-blue);
+}
+
+.LocationWidget-Rocket {
+  fill: var(--color-white);
+}
+
+.LocationWidget-Connector {
+  stroke: var(--color-white);
+  stroke-dasharray: 4;
+  stroke-width: 2;
+}
+
+.LocationWidget-North {
+  stroke: var(--color-red);
+  stroke-width: 1;
+}
+
+.LocationWidget-North-Text {
+  fill: var(--color-red);
+}
+
+.LocationWidget-Map-Line {
+  stroke: var(--color-white);
+  stroke-width: 1;
+  fill: none;
+}

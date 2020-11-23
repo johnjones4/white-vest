@@ -1,0 +1,118 @@
+.Toolbar {
+  overflow: visible;
+  margin: 10px;
+}
+
+.Toolbar-Session-Select {
+  position: relative;
+  overflow: visible;
+  float: left;
+}
+
+.Toolbar-Session-Select-Button {
+  border: none;
+  outline: none;
+  background: var(--color-blue);
+  color: var(--color-white);
+  font-size: 15px;
+  height: 30px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.Toolbar-Session-Select-Button-Live-Session {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.Toolbar-Session-Select-Dropdown {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  width: 200px;
+  border: solid 1px var(--color-dark-blue);
+  z-index: 1000;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+.Toolbar-Session-Select-Dropdown-Button {
+  border: none;
+  outline: none;
+  background: var(--color-blue);
+  color: var(--color-white);
+  font-size: 15px;
+  height: 30px;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  border-bottom: solid 1px var(--color-dark-blue);
+  background: var(--color-off-black);
+  color: var(--color-white);
+  text-align: left;
+  transition: all 0.25s;
+}
+
+.Toolbar-Start-New-Session {
+  border: none;
+  outline: none;
+  background: var(--color-green);
+  color: var(--color-white);
+  font-size: 15px;
+  height: 30px;
+  cursor: pointer;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.Toolbar-Session-Select-Dropdown-Button:hover {
+  background: var(--color-dark-blue);
+}
+
+.Toolbar-Session-Select-Button:last-child {
+  border-bottom: none;
+}
+
+.Toolbar-Stream-Status {
+  display: block;
+  float: right;
+  color: var(--color-white);
+  height: 30px;
+  font-size: 15px;
+  padding: 7.5px 0;
+  width: 200px;
+  text-align: center;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  background: var(--color-blue);
+  /* border: solid 1px var(--color-white); */
+}
+
+.Toolbar-Stream-Status-Receiving {
+  animation-name: BlinkGreen;
+}
+
+.Toolbar-Stream-Status-Not-Receiving {
+  animation-name: BlinkRed;
+}
+
+@keyframes BlinkGreen {
+  from {
+    background: var(--color-green);
+  }
+  to {
+    background: none;
+  }
+}
+
+@keyframes BlinkRed {
+  from {
+    background: var(--color-red);
+  }
+  to {
+    background: none;
+  }
+}

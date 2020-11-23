@@ -101,7 +101,7 @@ def transmitter_thread(start_time, current_reading):
         last_check = time.time()
         readings_sent = 0
         while True:
-            info = current_reading.value()
+            info = current_reading.get_value()
             if info:
                 is_all_floats = True
                 for value in info:

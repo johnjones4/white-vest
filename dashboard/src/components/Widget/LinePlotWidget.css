@@ -1,0 +1,14 @@
+.LinePlotWidget path {
+  fill: none;
+  stroke: var(--color-white);
+  stroke-width: 2px;
+}
+
+.LinePlotWidget line {
+  fill: none;
+  stroke: var(--color-white);
+}
+
+.LinePlotWidget text {
+  fill: var(--color-white);
+}

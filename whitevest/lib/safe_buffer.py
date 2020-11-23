@@ -26,3 +26,7 @@ class SafeBuffer:
         """Get the buffer size"""
         with self.lock:
             return len(self.data_buffer)
+
+    def purge(self):
+        with self.lock:
+            self.data_buffer = list()

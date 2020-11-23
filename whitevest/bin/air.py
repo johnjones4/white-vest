@@ -10,7 +10,7 @@ from whitevest.threads.air import (
     sensor_reading_loop,
     transmitter_thread,
 )
-from whitevest.lib.current_reading import CurrentReading
+from whitevest.lib.atomic_value import AtomicValue
 
 if __name__ == "__main__":
     # How long should logging and recording run
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     START_TIME = time.time()
 
     # Thread safe place to store altitude reading
-    CURRENT_READING = CurrentReading()
+    CURRENT_READING = AtomicValue()
 
     WRITE_THREAD = Thread(
         target=sensor_log_writing_loop,
