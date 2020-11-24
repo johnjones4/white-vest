@@ -6,3 +6,4 @@ adafruit-circuitpython-lsm303dlh_mag
 adafruit-circuitpython-rfm9x
 websockets
 matplotlib
+pynmea2

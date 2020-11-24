@@ -4,15 +4,31 @@ import logging
 import struct
 import time
 import os
+import pynmea2
 
 if not os.getenv("REPLAY_DATA", False):
     import board
 
 if not os.getenv("REPLAY_DATA", False):
-    from whitevest.lib.hardware import init_radio
+    from whitevest.lib.hardware import init_radio, init_gps
 
 
-def telemetry_reception_loop(new_data_queue):
+def gps_reception_loop(gps_value):
+    """Loop forever reading GPS data and passing it to an atomic value"""
+    sio = init_gps()
+    while True:
+        try:
+            line = sio.readline()
+            if line[0:6] == "$GPRMC":
+                msg = pynmea2.parse(line)
+                gps_value.update(msg)
+        except Exception as ex:
+            logging.error("Telemetry reading failure: %s", str(ex))
+            logging.exception(ex)
+        time.sleep(0)
+
+
+def telemetry_reception_loop(new_data_queue, gps_value):
     """Loop forever reading telemetry and passing to the processing queue"""
     try:
         logging.info("Starting telemetry reading loop")
@@ -23,7 +39,8 @@ def telemetry_reception_loop(new_data_queue):
                 if packet:
                     info = struct.unpack("fffffffff", packet)
                     logging.debug(info)
-                    new_data_queue.put((*info, rfm9x.last_rssi))
+                    msg = gps_value.get_value()
+                    new_data_queue.put((*info, msg.latitude, msg.longitude, rfm9x.last_rssi, msg.latitude, msg.longitude, msg.gps_qual, msg.num_sats))
                 time.sleep(0)
             except Exception as ex:
                 logging.error("Telemetry point reading failure: %s", str(ex))

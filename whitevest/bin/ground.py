@@ -8,6 +8,7 @@ from whitevest.threads.ground_data import (
     replay_telemetry,
     telemetry_log_writing_loop,
     telemetry_reception_loop,
+    gps_reception_loop,
 )
 from whitevest.threads.ground_server import (
     telemetry_dashboard_server,
@@ -21,6 +22,17 @@ if __name__ == "__main__":
     NEW_DATA_QUEUE = Queue()
     # Manages the data buffers
     BUFFER_SESSION_STORE = BufferSessionStore()
+    # Holds the most recent GPS data
+    GPS_VALUE = AtomicValue()
+
+    GPS_THREAD = Thread(
+        target=gps_reception_loop,
+        args=(
+            GPS_VALUE,
+        ),
+        daemon=True,
+    )
+    GPS_THREAD.start()
 
     WRITE_THREAD = Thread(
         target=telemetry_log_writing_loop,
@@ -50,4 +62,4 @@ if __name__ == "__main__":
     if REPLAY_DATA:
         replay_telemetry(NEW_DATA_QUEUE, REPLAY_DATA)
     else:
-        telemetry_reception_loop(NEW_DATA_QUEUE)
+        telemetry_reception_loop(NEW_DATA_QUEUE, GPS_VALUE,)
