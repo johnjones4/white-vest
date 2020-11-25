@@ -10,9 +10,11 @@ type LocationWidgetProps = {
 }
 
 type LocationWidgetState = {
-  projection: d3.GeoProjection
+  projection: d3.GeoProjection,
+  zoom: number
 }
 
+const defaultZoom = 100000000
 
 export default class LocationWidget extends Component<LocationWidgetProps, LocationWidgetState> {
   width: number
@@ -23,12 +25,13 @@ export default class LocationWidget extends Component<LocationWidgetProps, Locat
     this.width = 0
     this.height = 0
     this.state = {
-      projection: this.generateProjection()
+      projection: this.generateProjection(),
+      zoom: defaultZoom
     }
   }
 
-  componentDidUpdate (prevProps: LocationWidgetProps) {
-    if (JSON.stringify(prevProps.locality) !== JSON.stringify(this.props.locality)) {
+  componentDidUpdate (prevProps: LocationWidgetProps, prevState: LocationWidgetState) {
+    if (JSON.stringify(prevProps.locality) !== JSON.stringify(this.props.locality) || prevState.zoom !== this.state.zoom) {
       this.setState({
         projection: this.generateProjection()
       })
@@ -58,15 +61,11 @@ export default class LocationWidget extends Component<LocationWidgetProps, Locat
     if (this.props.locality === null) {
       return d3.geoMercator()
     }
-    const heightLat = Math.abs(this.props.locality.there[1] - this.props.locality.here[1]) * 2
-    const widthLon = Math.abs(this.props.locality.there[0] - this.props.locality.here[0]) * 2
-    const s = Math.min(
-      this.width / widthLon,
-      this.height / heightLat
-    ) * 40
+
+    console.log(this.state ? this.state.zoom : defaultZoom)
 
     const projection = d3.geoMercator()
-      .scale(s)
+      .scale(this.state ? this.state.zoom : defaultZoom)
       .translate([this.width / 2, this.height / 2])
       .center(this.props.locality.here)
 
@@ -138,6 +137,10 @@ export default class LocationWidget extends Component<LocationWidgetProps, Locat
           />
           
         </svg>
+        <div className='LocationWidget-Controls'>
+          <button className='LocationWidget-Zoom' onClick={() => this.setState({ zoom: this.state.zoom - (defaultZoom/10) })}>-</button>
+          <button className='LocationWidget-Zoom' onClick={() => this.setState({ zoom: this.state.zoom + (defaultZoom/10) })}>+</button>
+        </div>
       </Widget>
     )
   }

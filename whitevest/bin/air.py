@@ -10,6 +10,7 @@ from whitevest.threads.air import (
     sensor_reading_loop,
     transmitter_thread,
 )
+from whitevest.lib.hardware import gps_reception_loop
 from whitevest.lib.atomic_value import AtomicValue
 
 if __name__ == "__main__":
@@ -27,6 +28,18 @@ if __name__ == "__main__":
 
     # Thread safe place to store altitude reading
     CURRENT_READING = AtomicValue()
+
+    # Holds the most recent GPS data
+    GPS_VALUE = AtomicValue()
+
+    GPS_THREAD = Thread(
+        target=gps_reception_loop,
+        args=(
+            GPS_VALUE,
+        ),
+        daemon=True,
+    )
+    GPS_THREAD.start()
 
     WRITE_THREAD = Thread(
         target=sensor_log_writing_loop,
@@ -52,4 +65,4 @@ if __name__ == "__main__":
     )
     TRANSMITTER_THREAD.start()
 
-    sensor_reading_loop(START_TIME, CURRENT_READING, DATA_QUEUE)
+    sensor_reading_loop(START_TIME, CURRENT_READING, DATA_QUEUE, GPS_VALUE)

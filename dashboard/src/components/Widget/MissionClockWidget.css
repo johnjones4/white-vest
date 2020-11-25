@@ -1,0 +1,12 @@
+.MissionClockWidget {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.MissionClockWidget-Digits {
+  text-align: center;
+  font-size: 60px;
+  font-family: monospace;
+}

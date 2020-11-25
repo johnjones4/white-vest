@@ -8,7 +8,6 @@ from whitevest.threads.ground_data import (
     replay_telemetry,
     telemetry_log_writing_loop,
     telemetry_reception_loop,
-    gps_reception_loop,
 )
 from whitevest.threads.ground_server import (
     telemetry_dashboard_server,
@@ -16,6 +15,9 @@ from whitevest.threads.ground_server import (
 )
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
+
+if not os.getenv("REPLAY_DATA"):
+    from whitevest.lib.hardware import gps_reception_loop
 
 if __name__ == "__main__":
     # Queue to manage data synchronization between telemetry reception and data logging
@@ -34,6 +36,7 @@ if __name__ == "__main__":
             daemon=True,
         )
         GPS_THREAD.start()
+
 
     WRITE_THREAD = Thread(
         target=telemetry_log_writing_loop,

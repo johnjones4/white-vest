@@ -27,7 +27,7 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
       error: null,
       sessionsList: []
     }
-    this.sessionStore = new SessionStore(this, true)
+    this.sessionStore = new SessionStore(this, false)
   }
 
   componentDidMount () {

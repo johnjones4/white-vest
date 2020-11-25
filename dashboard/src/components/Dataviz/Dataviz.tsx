@@ -7,6 +7,8 @@ import {
 
 import './Dataviz.css'
 import Session from '../../model/Session'
+import AttitudeWidget from '../Widget/AttitudeWidget'
+import MissionClockWidget from '../Widget/MissionClockWidget'
 
 type DatavizProps = {
   session: Session
@@ -65,6 +67,16 @@ export default (props: DatavizProps) => (
       defaultMin={1000}
       defaultMax={1050}
       units='mBar'
+    />
+
+    <AttitudeWidget
+      name='Attitude'
+      data={props.session.getCurrentAttitude()}
+    />
+
+    <MissionClockWidget
+      name='Mission Clock'
+      seconds={props.session.getCurrentSeconds()}
     />
   </div>
 )

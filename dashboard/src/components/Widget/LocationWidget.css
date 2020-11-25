@@ -33,3 +33,20 @@
   stroke-width: 1;
   fill: none;
 }
+
+.LocationWidget-Controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.LocationWidget-Zoom {
+  border: none;
+  outline: none;
+  background: var(--color-white);
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+  cursor: pointer;
+}

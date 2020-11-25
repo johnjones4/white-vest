@@ -14,22 +14,7 @@ if not os.getenv("REPLAY_DATA", False):
     import board
 
 if not os.getenv("REPLAY_DATA", False):
-    from whitevest.lib.hardware import init_radio, init_gps
-
-
-def gps_reception_loop(gps_value: AtomicValue):
-    """Loop forever reading GPS data and passing it to an atomic value"""
-    sio = init_gps()
-    while True:
-        try:
-            line = sio.readline()
-            if line[0:6] == "$GPRMC":
-                msg = pynmea2.parse(line)
-                gps_value.update(msg)
-        except Exception as ex:
-            logging.error("Telemetry reading failure: %s", str(ex))
-            logging.exception(ex)
-        time.sleep(0)
+    from whitevest.lib.hardware import init_radio
 
 
 def telemetry_reception_loop(new_data_queue: Queue, gps_value: AtomicValue):
@@ -43,8 +28,8 @@ def telemetry_reception_loop(new_data_queue: Queue, gps_value: AtomicValue):
                 if packet:
                     info = struct.unpack("fffffffff", packet)
                     logging.debug(info)
-                    msg = gps_value.get_value()
-                    new_data_queue.put((*info, msg.latitude, msg.longitude, rfm9x.last_rssi, msg.latitude, msg.longitude, msg.gps_qual, msg.num_sats))
+                    (latitude, longitude, gps_qual, num_sats) = gps_value.get_value()
+                    new_data_queue.put((*info, rfm9x.last_rssi, latitude, longitude, gps_qual, num_sats))
                 time.sleep(0)
             except Exception as ex:
                 logging.error("Telemetry point reading failure: %s", str(ex))
@@ -64,8 +49,7 @@ def replay_telemetry(new_data_queue: Queue, replay_file: str):
                 reader = csv.reader(file)
                 start_stamp = None
                 for row in reader:
-                    info = (*[float(v) for v in row], 38.804836, -77.046921, 38.8040, -77.0480)
-                    # info = [float(v) for v in row]
+                    info = [float(v) for v in row]
                     if not start_stamp:
                         start_stamp = info[0]
                     while time.time() - start_time < info[0] - start_stamp:

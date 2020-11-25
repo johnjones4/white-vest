@@ -11,13 +11,14 @@ from whitevest.lib.hardware import (
     init_altimeter,
     init_magnetometer_accelerometer,
     init_radio,
+    init_gps
 )
 
 from whitevest.lib.atomic_value import AtomicValue
 from queue import Queue
 
 
-def sensor_reading_loop(start_time: float, current_reading: AtomicValue, data_queue: Queue):
+def sensor_reading_loop(start_time: float, current_reading: AtomicValue, data_queue: Queue, gps_value: AtomicValue):
     """Read from the sensors on and infinite loop and queue it for transmission and logging"""
     try:
         logging.info("Starting sensor measurement loop")
@@ -26,11 +27,16 @@ def sensor_reading_loop(start_time: float, current_reading: AtomicValue, data_qu
         while True:
             try:
                 (pressure, temperature) = bmp._read()
+                gps = gps_value.get_value()
                 info = (
                     time.time() - start_time,
                     *bmp.read(),
                     *accel.acceleration,
                     *mag.magnetic,
+                    gps.latitude if gps else 0.0,
+                    gps.longitude if gps else 0.0,
+                    gps.gps_qual if gps else 0.0,
+                    gps.num_sats if gps else 0.0
                 )
                 data_queue.put(info)
                 current_reading.try_update(info)
@@ -112,7 +118,7 @@ def transmitter_thread(start_time: float, current_reading: AtomicValue):
                         is_all_floats = False
                         break
                 if is_all_floats:
-                    encoded = struct.pack("fffffffff", *info)
+                    encoded = struct.pack("fffffffffffff", *info)
                     logging.debug(f"Transmitting {len(encoded)} bytes")
                     rfm9x.send(encoded)
                     readings_sent += 1
