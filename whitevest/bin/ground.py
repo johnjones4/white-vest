@@ -25,14 +25,15 @@ if __name__ == "__main__":
     # Holds the most recent GPS data
     GPS_VALUE = AtomicValue()
 
-    GPS_THREAD = Thread(
-        target=gps_reception_loop,
-        args=(
-            GPS_VALUE,
-        ),
-        daemon=True,
-    )
-    GPS_THREAD.start()
+    if not os.getenv("REPLAY_DATA"):
+        GPS_THREAD = Thread(
+            target=gps_reception_loop,
+            args=(
+                GPS_VALUE,
+            ),
+            daemon=True,
+        )
+        GPS_THREAD.start()
 
     WRITE_THREAD = Thread(
         target=telemetry_log_writing_loop,

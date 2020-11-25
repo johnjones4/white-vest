@@ -13,8 +13,11 @@ from whitevest.lib.hardware import (
     init_radio,
 )
 
+from whitevest.lib.atomic_value import AtomicValue
+from queue import Queue
 
-def sensor_reading_loop(start_time, current_reading, data_queue):
+
+def sensor_reading_loop(start_time: float, current_reading: AtomicValue, data_queue: Queue):
     """Read from the sensors on and infinite loop and queue it for transmission and logging"""
     try:
         logging.info("Starting sensor measurement loop")
@@ -41,7 +44,7 @@ def sensor_reading_loop(start_time, current_reading, data_queue):
         logging.exception(ex)
 
 
-def sensor_log_writing_loop(start_time, runtime_limit, data_queue, output_directory):
+def sensor_log_writing_loop(start_time: float, runtime_limit: float, data_queue: Queue, output_directory: str):
     """Loop through clearing the data queue until RUNTIME_LIMIT has passed"""
     try:
         logging.info("Starting sensor log writing loop")
@@ -76,7 +79,7 @@ def sensor_log_writing_loop(start_time, runtime_limit, data_queue, output_direct
         logging.exception(ex)
 
 
-def camera_thread(start_time, runtime_limit, output_directory):
+def camera_thread(start_time: float, runtime_limit: float, output_directory: str):
     """Start the camera and log the video"""
     try:
         logging.info("Starting video capture")
@@ -92,7 +95,7 @@ def camera_thread(start_time, runtime_limit, output_directory):
         logging.exception(ex)
 
 
-def transmitter_thread(start_time, current_reading):
+def transmitter_thread(start_time: float, current_reading: AtomicValue):
     """Transmit the latest data"""
     try:
         rfm9x = init_radio(

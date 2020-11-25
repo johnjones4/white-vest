@@ -7,8 +7,9 @@ import mimetypes
 import os.path
 import websockets
 import websockets.exceptions
+from whitevest.lib.buffer_session_store import BufferSessionStore
 
-def telemetry_streaming_server(port, buffer_session_store):
+def telemetry_streaming_server(port: int, buffer_session_store: BufferSessionStore):
     """Serve the active buffer over websocket"""
 
     async def data_stream(websocket, path):
@@ -46,7 +47,7 @@ def telemetry_streaming_server(port, buffer_session_store):
         logging.exception(ex)
 
 
-def telemetry_dashboard_server(port, buffer_session_store):
+def telemetry_dashboard_server(port: int, buffer_session_store: BufferSessionStore):
     """Serve the static parts of the dashboard visualization"""
     try:
         buffer_session_store.initialize()

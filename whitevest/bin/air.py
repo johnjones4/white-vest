@@ -14,7 +14,7 @@ from whitevest.lib.atomic_value import AtomicValue
 
 if __name__ == "__main__":
     # How long should logging and recording run
-    RUNTIME_LIMIT = int(os.getenv("RUNTIME_LIMIT", 1800))
+    RUNTIME_LIMIT = float(os.getenv("RUNTIME_LIMIT", 1800))
 
     # Path to where to save data
     OUTPUT_DIRECTORY = os.getenv("OUTPUT_DIRECTORY", "./data")

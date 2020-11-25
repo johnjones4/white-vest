@@ -5,6 +5,10 @@ import struct
 import time
 import os
 import pynmea2
+from queue import Queue
+
+from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.buffer_session_store import BufferSessionStore
 
 if not os.getenv("REPLAY_DATA", False):
     import board
@@ -13,7 +17,7 @@ if not os.getenv("REPLAY_DATA", False):
     from whitevest.lib.hardware import init_radio, init_gps
 
 
-def gps_reception_loop(gps_value):
+def gps_reception_loop(gps_value: AtomicValue):
     """Loop forever reading GPS data and passing it to an atomic value"""
     sio = init_gps()
     while True:
@@ -28,7 +32,7 @@ def gps_reception_loop(gps_value):
         time.sleep(0)
 
 
-def telemetry_reception_loop(new_data_queue, gps_value):
+def telemetry_reception_loop(new_data_queue: Queue, gps_value: AtomicValue):
     """Loop forever reading telemetry and passing to the processing queue"""
     try:
         logging.info("Starting telemetry reading loop")
@@ -50,7 +54,7 @@ def telemetry_reception_loop(new_data_queue, gps_value):
         logging.exception(ex)
 
 
-def replay_telemetry(new_data_queue, replay_file):
+def replay_telemetry(new_data_queue: Queue, replay_file: str):
     """Replays telemetry from a file"""
     try:
         while True:
@@ -73,7 +77,7 @@ def replay_telemetry(new_data_queue, replay_file):
         logging.exception(ex)
 
 
-def telemetry_log_writing_loop(new_data_queue, buffer_session_store):
+def telemetry_log_writing_loop(new_data_queue: Queue, buffer_session_store: BufferSessionStore):
     """Loop forever clearing the data queue"""
     try:
         logging.info("Starting telemetry log writing loop")
