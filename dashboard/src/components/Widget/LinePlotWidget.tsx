@@ -2,12 +2,27 @@ import React, { Component } from 'react'
 import Widget from './Widget'
 import * as d3 from 'd3'
 import './LinePlotWidget.css'
-import {Axis, axisPropsFromTickScale, LEFT, BOTTOM} from 'react-d3-axis'
 
 const padding = 40
 
-export default class LinePlotWidget extends Component {
-  constructor(props) {
+type LinePlotWidgetProps = {
+  data: Array<[number, number]>,
+  defaultMin: number,
+  defaultMax: number,
+  name: string,
+  units: string
+}
+
+type LinePlotWidgetState = {
+  xScale: d3.ScaleLinear<number, number>,
+  yScale: d3.ScaleLinear<number, number>,
+}
+
+export default class LinePlotWidget extends Component<LinePlotWidgetProps, LinePlotWidgetState> {
+  width: number
+  height: number
+
+  constructor(props: LinePlotWidgetProps) {
     super(props)
     this.width = 0
     this.height = 0
@@ -21,7 +36,7 @@ export default class LinePlotWidget extends Component {
 
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate (prevProps: LinePlotWidgetProps) {
     if (prevProps.data.length !== this.props.data.length) {
       this.setState({
         xScale: this.generateXScale(),
@@ -30,7 +45,7 @@ export default class LinePlotWidget extends Component {
     }
   }
 
-  dimensionsReady (el) {
+  dimensionsReady (el: HTMLDivElement | null) {
     if (el) {
       let update = false
       if (this.width !== el.clientWidth - (padding * 2)) {
@@ -50,7 +65,7 @@ export default class LinePlotWidget extends Component {
     }
   }
 
-  generateXScale () {
+  generateXScale () : d3.ScaleLinear<number, number> {
     const defaultLimit = 60
     if (this.props.data.length === 0) {
       return d3.scaleLinear()
@@ -64,7 +79,7 @@ export default class LinePlotWidget extends Component {
     }
   }
 
-  generateYScale () {
+  generateYScale () : d3.ScaleLinear<number, number> {
     if (this.props.data.length === 0) {
       return d3.scaleLinear()
         .domain([
@@ -75,8 +90,8 @@ export default class LinePlotWidget extends Component {
     } else {
       return d3.scaleLinear()
         .domain([
-          Math.min(this.props.defaultMin, d3.min(this.props.data, d => d[1])),
-          Math.max(this.props.defaultMax, d3.max(this.props.data, d => d[1]))
+          Math.min(this.props.defaultMin, d3.min(this.props.data, d => d[1]) as number),
+          Math.max(this.props.defaultMax, d3.max(this.props.data, d => d[1]) as number)
         ])
         .range([ this.height, 0 ])
     }
@@ -86,6 +101,7 @@ export default class LinePlotWidget extends Component {
     const lineGenerator = d3.line()
       .x(d => this.state.xScale(d[0] - this.props.data[0][0]))
       .y(d => this.state.yScale(d[1]))
+
     return (
       <Widget
         dimensionsReady={el => this.dimensionsReady(el)}
@@ -94,11 +110,9 @@ export default class LinePlotWidget extends Component {
       >
         <svg className='LinePlotWidget'>
           <g transform={`translate(${padding},${padding})`}>
-            <Axis {...axisPropsFromTickScale(this.state.yScale, 10)} style={{orient: LEFT}} />
-            <g transform={`translate(0,${this.height})`}>
-              <Axis {...axisPropsFromTickScale(this.state.xScale, 10)} style={{orient: BOTTOM}} />
-            </g>
-            <path d={lineGenerator(this.props.data)} />
+            <g ref={axis => d3.select(axis).call(d3.axisLeft(this.state.yScale) as any) } />
+            <g transform={`translate(0,${this.height})`} ref={axis => d3.select(axis).call(d3.axisBottom(this.state.xScale) as any) } />
+            <path d={lineGenerator(this.props.data) as string} />
           </g>
         </svg>
       </Widget>

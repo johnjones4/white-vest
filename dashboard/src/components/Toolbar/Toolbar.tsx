@@ -1,8 +1,20 @@
 import React, { Component } from 'react'
 import './Toolbar.css'
 
-export default class Toolbar extends Component {
-  constructor(props) {
+type ToolbarProps = {
+  setActiveSession: (session: number | null) => void,
+  sessions: number[],
+  activeSession: number | null,
+  startNewSession: () => void,
+  receivingData: boolean | null
+}
+
+type ToolbarState = {
+  sessionSelectOpen: boolean
+}
+
+export default class Toolbar extends Component<ToolbarProps, ToolbarState> {
+  constructor(props: ToolbarProps) {
     super(props)
     this.state = {
       sessionSelectOpen: false
@@ -15,7 +27,7 @@ export default class Toolbar extends Component {
     })
   }
 
-  setActiveSession(session) {
+  setActiveSession(session: number | null) {
     this.setState({
       sessionSelectOpen: false
     })

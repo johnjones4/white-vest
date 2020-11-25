@@ -1,7 +1,15 @@
 import React from 'react'
 import './Widget.css'
 
-export default ({ children, className, name, dimensionsReady, lastReading }) => (
+type WidgetProps = {
+  className?: string,
+  name: string,
+  dimensionsReady?: (el: HTMLDivElement | null) => void,
+  lastReading?: string | null,
+  children?: React.ReactNode
+}
+
+export default ({ children, className, name, dimensionsReady, lastReading }: WidgetProps) => (
   <div className={'Widget Dashboard-Panel' + (className ? ' Widget-' + className : '')}>
     <div className='Widget-Header'>
       <div className='Widget-Header-Title'>{ name }</div>

@@ -1,46 +1,41 @@
 import React, { Component } from 'react'
 import Widget from './Widget'
 import * as d3 from 'd3'
-import * as topojson from 'topojson'
 import './LocationWidget.css'
+import { Locality } from '../../model/Session'
+
+type LocationWidgetProps = {
+  locality: Locality | null,
+  name: string,
+}
+
+type LocationWidgetState = {
+  projection: d3.GeoProjection
+}
 
 
-export default class LocationWidget extends Component {
-  constructor(props) {
+export default class LocationWidget extends Component<LocationWidgetProps, LocationWidgetState> {
+  width: number
+  height: number
+
+  constructor(props: LocationWidgetProps) {
     super(props)
     this.width = 0
     this.height = 0
     this.state = {
-      projection: this.generateProjection(),
-      mapFeatures: []
+      projection: this.generateProjection()
     }
   }
 
-  componentDidUpdate (prevProps) {
-    if (prevProps.data.join(',') !== this.props.data.join(',')) {
+  componentDidUpdate (prevProps: LocationWidgetProps) {
+    if (JSON.stringify(prevProps.locality) !== JSON.stringify(this.props.locality)) {
       this.setState({
         projection: this.generateProjection()
       })
     }
   }
 
-  componentDidMount () {
-    // this.loadMapFeatures()
-  }
-
-  async loadMapFeatures() {
-    try {
-      const response = await fetch('/features.json')
-      const mapFeatures = await response.json()
-      this.setState({
-        mapFeatures: mapFeatures.features
-      })
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
-  dimensionsReady (el) {
+  dimensionsReady (el: HTMLDivElement | null) {
     if (el) {
       let update = false
       if (this.width !== el.clientWidth) {
@@ -59,17 +54,12 @@ export default class LocationWidget extends Component {
     }
   }
 
-  getBaseCoords () {
-    return [this.props.data[3], this.props.data[2]]
-  }
-
-  getRocketCoords () {
-    return [this.props.data[1], this.props.data[0]]
-  }
-
   generateProjection () {
-    const heightLat = Math.abs(this.props.data[0] - this.props.data[2]) * 2
-    const widthLon = Math.abs(this.props.data[1] - this.props.data[3]) * 2
+    if (this.props.locality === null) {
+      return d3.geoMercator()
+    }
+    const heightLat = Math.abs(this.props.locality.there[1] - this.props.locality.here[1]) * 2
+    const widthLon = Math.abs(this.props.locality.there[0] - this.props.locality.here[0]) * 2
     const s = Math.min(
       this.width / widthLon,
       this.height / heightLat
@@ -78,37 +68,29 @@ export default class LocationWidget extends Component {
     const projection = d3.geoMercator()
       .scale(s)
       .translate([this.width / 2, this.height / 2])
-      .center(this.getBaseCoords())
+      .center(this.props.locality.here)
 
     return projection
   }
 
   render () {
-    const locBase = this.state.projection(this.getBaseCoords())
-    const locRocket = this.state.projection(this.getRocketCoords())
+    if (this.props.locality === null) {
+      return 
+    }
+
+    const locBase = this.state.projection(this.props.locality.here) as [number, number]
+    const locRocket = this.state.projection(this.props.locality.there) as [number, number]
 
     const arrowUnit = (this.height / 10)
-
-    const mapPath = d3.geoPath().projection(this.state.projection)
 
     return (
       <Widget 
         name={this.props.name} 
-        dimensionsReady={el => this.dimensionsReady(el)} lastReading='' className='LocationWidget'
-        lastReading={`${this.props.data[4].toFixed(2)} m, ${this.props.data[5].toFixed(2)}°`}
+        dimensionsReady={el => this.dimensionsReady(el)} 
+        className='LocationWidget'
+        lastReading={`${this.props.locality.distance.toFixed(2)} m, ${this.props.locality.bearing.toFixed(2)}°`}
       >
         <svg className='LocationWidget'>
-
-          <g>
-            { this.state.mapFeatures.map((feature, i) => (
-              <path 
-                d={mapPath(feature)}
-                key={i}
-                className='LocationWidget-Map-Line'
-              />
-            )) }
-          </g>
-
           <line 
             x1={locBase[0]}
             y1={locBase[1]}

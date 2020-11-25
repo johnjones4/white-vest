@@ -2,23 +2,26 @@ import React from 'react'
 import LinePlotWidget from '../Widget/LinePlotWidget'
 import LocationWidget from '../Widget/LocationWidget'
 import {
-  INDEX,
-  plottableData,
-  recentData
-} from '../../dataUtil'
+  Index,
+} from '../../consts'
 
 import './Dataviz.css'
+import Session from '../../model/Session'
 
-export default ({ data }) => (
+type DatavizProps = {
+  session: Session
+}
+
+export default (props: DatavizProps) => (
   <div className='Dataviz'>
     <LocationWidget
       name='Location'
-      data={recentData(data, [INDEX.ROCKET_LAT, INDEX.ROCKET_LON, INDEX.BASE_LAT, INDEX.BASE_LON, INDEX.DISTANCE, INDEX.BEARING])}
+      locality={props.session.getCurrentLocality()}
     />
 
     <LinePlotWidget 
       name='RSSI'
-      data={plottableData(data, [INDEX.TIMESTAMP, INDEX.RSSI])}
+      data={props.session.getTimePlottable(Index.RSSI)}
       defaultMin={-100}
       defaultMax={0}
       units='rssi'
@@ -26,7 +29,7 @@ export default ({ data }) => (
 
     <LinePlotWidget 
       name='Altitude'
-      data={plottableData(data, [INDEX.TIMESTAMP, INDEX.ALTITUDE])}
+      data={props.session.getTimePlottable(Index.ALTITUDE)}
       defaultMin={0}
       defaultMax={100}
       units='m'
@@ -34,7 +37,7 @@ export default ({ data }) => (
 
     <LinePlotWidget 
       name='Velocity'
-      data={plottableData(data, [INDEX.TIMESTAMP, INDEX.VELOCITY])}
+      data={props.session.getTimePlottable(Index.VELOCITY)}
       defaultMin={-10}
       defaultMax={10}
       units='m/s'
@@ -42,7 +45,7 @@ export default ({ data }) => (
 
     <LinePlotWidget 
       name='Distance'
-      data={plottableData(data, [INDEX.TIMESTAMP, INDEX.DISTANCE])}
+      data={props.session.getTimePlottable(Index.DISTANCE)}
       defaultMin={0}
       defaultMax={100}
       units='m'
@@ -50,7 +53,7 @@ export default ({ data }) => (
 
     <LinePlotWidget 
       name='Temperature'
-      data={plottableData(data, [INDEX.TIMESTAMP, INDEX.TEMPERATURE])}
+      data={props.session.getTimePlottable(Index.TEMPERATURE)}
       defaultMin={0}
       defaultMax={50}
       units='C'
@@ -58,7 +61,7 @@ export default ({ data }) => (
 
     <LinePlotWidget 
       name='Pressure'
-      data={plottableData(data, [INDEX.TIMESTAMP, INDEX.PRESSURE])}
+      data={props.session.getTimePlottable(Index.PRESSURE)}
       defaultMin={1000}
       defaultMax={1050}
       units='mBar'
