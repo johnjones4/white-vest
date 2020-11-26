@@ -9,5 +9,5 @@ arch:
 install:
   - make install
 
-test:
-  - make tests/*
+script:
+  - make test
