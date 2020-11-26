@@ -1,9 +1,7 @@
 """Tests reading data from sensors"""
-from whitevest.lib.hardware import (
-    init_altimeter,
-    init_magnetometer_accelerometer
-)
 import logging
+
+from whitevest.lib.hardware import init_altimeter, init_magnetometer_accelerometer
 
 if __name__ == "__main__":
     bmp = init_altimeter()

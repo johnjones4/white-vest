@@ -4,14 +4,17 @@ import time
 from queue import Queue
 from threading import Thread
 
+from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.hardware import gps_reception_loop
 from whitevest.threads.air import (
     camera_thread,
     sensor_log_writing_loop,
     sensor_reading_loop,
     transmitter_thread,
 )
-from whitevest.lib.hardware import gps_reception_loop
-from whitevest.lib.atomic_value import AtomicValue
+
+from whitevest.lib.utils import gps_reception_loop
+from whitevest.lib.hardware import init_gps
 
 if __name__ == "__main__":
     # How long should logging and recording run
@@ -30,13 +33,11 @@ if __name__ == "__main__":
     CURRENT_READING = AtomicValue()
 
     # Holds the most recent GPS data
-    GPS_VALUE = AtomicValue()
+    GPS_VALUE = AtomicValue((0.0, 0.0, 0.0, 0.0))
 
     GPS_THREAD = Thread(
         target=gps_reception_loop,
-        args=(
-            GPS_VALUE,
-        ),
+        args=(init_gps(), GPS_VALUE,),
         daemon=True,
     )
     GPS_THREAD.start()

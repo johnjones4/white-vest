@@ -3,22 +3,32 @@ import logging
 import os.path
 import struct
 import time
+from queue import Queue
 
 import board
 import picamera
 
+from whitevest.lib.air import (
+    digest_next_sensor_reading,
+    transmit_latest_readings,
+    write_sensor_log,
+)
+from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.hardware import (
     init_altimeter,
+    init_gps,
     init_magnetometer_accelerometer,
     init_radio,
-    init_gps
 )
-
-from whitevest.lib.atomic_value import AtomicValue
-from queue import Queue
+from whitevest.lib.utils import handle_exception
 
 
-def sensor_reading_loop(start_time: float, current_reading: AtomicValue, data_queue: Queue, gps_value: AtomicValue):
+def sensor_reading_loop(
+    start_time: float,
+    current_reading: AtomicValue,
+    data_queue: Queue,
+    gps_value: AtomicValue,
+):
     """Read from the sensors on and infinite loop and queue it for transmission and logging"""
     try:
         logging.info("Starting sensor measurement loop")
@@ -26,63 +36,28 @@ def sensor_reading_loop(start_time: float, current_reading: AtomicValue, data_qu
         mag, accel = init_magnetometer_accelerometer()
         while True:
             try:
-                (pressure, temperature) = bmp._read()
-                gps = gps_value.get_value()
-                info = (
-                    time.time() - start_time,
-                    *bmp.read(),
-                    *accel.acceleration,
-                    *mag.magnetic,
-                    gps.latitude if gps else 0.0,
-                    gps.longitude if gps else 0.0,
-                    gps.gps_qual if gps else 0.0,
-                    gps.num_sats if gps else 0.0
+                digest_next_sensor_reading(
+                    start_time, bmp, gps_value, accel, mag, data_queue, current_reading
                 )
-                data_queue.put(info)
-                current_reading.try_update(info)
             except Exception as ex:
-                logging.error(
-                    "Telemetry measurement point reading failure: %s", str(ex)
-                )
-                logging.exception(ex)
+                handle_exception("Telemetry measurement point reading failure", ex)
     except Exception as ex:
-        logging.error("Telemetry measurement reading failure: %s", str(ex))
-        logging.exception(ex)
+        handle_exception("Telemetry measurement point reading failure", ex)
 
 
-def sensor_log_writing_loop(start_time: float, runtime_limit: float, data_queue: Queue, output_directory: str):
+def sensor_log_writing_loop(
+    start_time: float, runtime_limit: float, data_queue: Queue, output_directory: str
+):
     """Loop through clearing the data queue until RUNTIME_LIMIT has passed"""
     try:
         logging.info("Starting sensor log writing loop")
-        last_queue_check = time.time()
-        lines_written = 0
         with open(
             os.path.join(output_directory, f"sensor_log_{int(start_time)}.csv"), "w"
         ) as outfile:
-            while True:
-                try:
-                    if not data_queue.empty():
-                        row = data_queue.get()
-                        if time.time() - start_time <= runtime_limit:
-                            row_str = ",".join([str(p) for p in row])
-                            logging.debug("Writing %s", row_str)
-                            outfile.write(row_str + "\n")
-                            lines_written += 1
-                            if last_queue_check + 10.0 < time.time():
-                                last_queue_check = time.time()
-                                logging.info(
-                                    f"Queue: {data_queue.qsize()} / Lines written: {lines_written} / {last_queue_check - start_time} seconds"
-                                )
-                            time.sleep(0)
-                    else:
-                        time.sleep(1)
-                except Exception as ex:
-                    logging.error("Telemetry log line writing failure: %s", str(ex))
-                    logging.exception(ex)
+            write_sensor_log(start_time, runtime_limit, outfile, data_queue)
         logging.info("Telemetry log writing loop complete")
     except Exception as ex:
-        logging.error("Telemetry log writing failure: %s", str(ex))
-        logging.exception(ex)
+        handle_exception("Telemetry log line writing failure", ex)
 
 
 def camera_thread(start_time: float, runtime_limit: float, output_directory: str):
@@ -97,8 +72,7 @@ def camera_thread(start_time: float, runtime_limit: float, output_directory: str
         camera.stop_recording()
         logging.info("Video capture complete")
     except Exception as ex:
-        logging.error("Video capture failure: %s", str(ex))
-        logging.exception(ex)
+        handle_exception("Video capture failure", ex)
 
 
 def transmitter_thread(start_time: float, current_reading: AtomicValue):
@@ -110,26 +84,17 @@ def transmitter_thread(start_time: float, current_reading: AtomicValue):
         last_check = time.time()
         readings_sent = 0
         while True:
-            info = current_reading.get_value()
-            if info:
-                is_all_floats = True
-                for value in info:
-                    if not isinstance(value, float):
-                        is_all_floats = False
-                        break
-                if is_all_floats:
-                    encoded = struct.pack("fffffffffffff", *info)
-                    logging.debug(f"Transmitting {len(encoded)} bytes")
-                    rfm9x.send(encoded)
-                    readings_sent += 1
-                    if last_check + 10.0 < time.time():
-                        last_check = time.time()
-                        logging.info(
-                            f"Readings sent: {readings_sent} / {last_check - start_time} seconds"
-                        )
-                else:
-                    logging.error(f"Bad info! ({info})")
+            try:
+                last_check, readings_sent = transmit_latest_readings(
+                    rfm9x,
+                    last_check,
+                    readings_sent,
+                    readings_sent,
+                    start_time,
+                    current_reading,
+                )
+            except Exception as ex:
+                handle_exception("Transmitter failure", ex)
             time.sleep(0)
     except Exception as ex:
-        logging.error("Transmitter failure: %s", str(ex))
-        logging.exception(ex)
+        handle_exception("Transmitter failure", ex)

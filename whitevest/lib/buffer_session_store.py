@@ -1,32 +1,40 @@
-import sqlite3
-import os.path as path
-import os
-import time
-from whitevest.lib.safe_buffer import SafeBuffer
-from whitevest.lib.atomic_value import AtomicValue
-from threading import Lock
 import csv
+import os.path as path
+import sqlite3
+import time
+from threading import Lock
+
+from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.safe_buffer import SafeBuffer
+
 
 class BufferSessionStore:
-    def __init__(self):
+    def __init__(self, output_dir: str, sql_file: str = "sessionstore.sqlite3"):
         self.buffer = SafeBuffer()
         self.current_session = AtomicValue()
+        self.output_dir = output_dir
+        self.sql_file = sql_file
 
     def initialize(self):
-        self.connection = sqlite3.connect(path.join(os.getenv("DATA_DIRECTORY", "data"), "sessionstore.sqlite3"))
+        self.connection = sqlite3.connect(path.join(self.output_dir, self.sql_file))
         self.cursor = self.connection.cursor()
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS sessions (timestamp NUMBER UNIQUE NOT NULL)")
+        self.cursor.execute(
+            "CREATE TABLE IF NOT EXISTS sessions (timestamp NUMBER UNIQUE NOT NULL)"
+        )
         self.connection.commit()
         self.create_new_session()
 
     def get_sessions(self):
-        self.cursor.execute("SELECT timestamp FROM sessions WHERE timestamp != ? ORDER BY timestamp DESC", (self.current_session.get_value(), ))
+        self.cursor.execute(
+            "SELECT timestamp FROM sessions WHERE timestamp != ? ORDER BY timestamp DESC",
+            (self.current_session.get_value(),),
+        )
         return [row[0] for row in self.cursor.fetchall()]
 
     def create_new_session(self):
         timestamp = int(time.time())
         self.current_session.update(timestamp)
-        self.cursor.execute("INSERT INTO sessions (timestamp) VALUES (?)", (timestamp, ))
+        self.cursor.execute("INSERT INTO sessions (timestamp) VALUES (?)", (timestamp,))
         self.connection.commit()
         self.buffer.purge()
         return timestamp
@@ -36,7 +44,7 @@ class BufferSessionStore:
             reader = csv.reader(csvfile)
             return [[float(v) for v in r] for r in reader]
 
-    def data_path_for_session(self, session = None):
+    def data_path_for_session(self, session=None):
         if not session:
             session = self.current_session.get_value()
-        return path.join(os.getenv("DATA_DIRECTORY", "data"), f"telemetry_log_{session}.csv")
+        return path.join(self.output_dir, f"telemetry_log_{session}.csv")
