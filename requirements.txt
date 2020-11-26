@@ -7,3 +7,4 @@ adafruit-circuitpython-rfm9x
 websockets
 matplotlib
 pynmea2
+pytest

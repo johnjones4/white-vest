@@ -23,3 +23,6 @@ cleanup:
 	isort test/*
 	black whitevest/*
 	black test/*
+
+test:
+	pytest test/*

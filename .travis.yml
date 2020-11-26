@@ -1,0 +1,13 @@
+language: python
+
+python:
+  - "3.6"
+
+arch:
+  - arm64
+
+install:
+  - make install
+
+script:
+  - make test
