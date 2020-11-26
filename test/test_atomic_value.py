@@ -1,5 +1,7 @@
 import random
+
 from whitevest.lib.atomic_value import AtomicValue
+
 
 def test_atomic_value():
     raw_value = random.random()
@@ -7,6 +9,7 @@ def test_atomic_value():
     assert raw_value == value.get_value()
     value.update(random.random())
     assert raw_value != value.get_value()
+
 
 def test_atomic_value_try_update_succeed():
     raw_value = random.random()

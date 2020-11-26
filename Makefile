@@ -17,3 +17,9 @@ install-air:
 install-ground:
 	cp misc/ground.service /lib/systemd/system/
 	systemctl enable ground.service
+
+cleanup:
+	isort whitevest/*
+	isort test/*
+	black whitevest/*
+	black test/*

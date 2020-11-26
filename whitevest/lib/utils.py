@@ -1,10 +1,11 @@
 import logging
-from queue import Queue
 import time
+from queue import Queue
+
 import pynmea2
 
-from whitevest.lib.buffer_session_store import BufferSessionStore
 from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.buffer_session_store import BufferSessionStore
 
 
 def handle_exception(message: str, exception: Exception):

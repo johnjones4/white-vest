@@ -5,7 +5,7 @@ from threading import Lock
 class AtomicValue:
     """Thread-safe class for holding a value"""
 
-    def __init__(self, value = None):
+    def __init__(self, value=None):
         """Initialize the class"""
         self.value = value
         self.lock = Lock()

@@ -1,6 +1,6 @@
-from queue import Queue
 import logging
 import struct
+from queue import Queue
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.const import TELEMETRY_STRUCT_STRING

@@ -1,11 +1,11 @@
-import time
-import struct
 import logging
+import struct
+import time
 from queue import Queue
 
 from whitevest.lib.atomic_value import AtomicValue
-from whitevest.lib.utils import handle_exception, write_queue_log
 from whitevest.lib.const import TELEMETRY_STRUCT_STRING
+from whitevest.lib.utils import handle_exception, write_queue_log
 
 
 def digest_next_sensor_reading(
@@ -17,14 +17,14 @@ def digest_next_sensor_reading(
     data_queue: Queue,
     current_reading: AtomicValue,
 ):
-    """Grab the latest values from all sensors and put the data in the queue and atomic store""" 
+    """Grab the latest values from all sensors and put the data in the queue and atomic store"""
     now = time.time()
     info = (
         now - start_time,
         *bmp._read(),
         *accel.acceleration,
         *mag.magnetic,
-        *gps_value.get_value()
+        *gps_value.get_value(),
     )
     data_queue.put(info)
     current_reading.try_update(info)

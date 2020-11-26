@@ -1,11 +1,16 @@
-from queue import Queue
-import time
-import random
 import io
+import random
+import time
+from queue import Queue
 
+from whitevest.lib.air import (
+    digest_next_sensor_reading,
+    transmit_latest_readings,
+    write_sensor_log,
+)
 from whitevest.lib.atomic_value import AtomicValue
-from whitevest.lib.air import digest_next_sensor_reading, write_sensor_log, transmit_latest_readings
 from whitevest.lib.const import TELEMETRY_TUPLE_LENGTH
+
 
 class MockBMP:
     def __init__(self):
@@ -15,13 +20,16 @@ class MockBMP:
     def _read(self):
         return self.temperature, self.pressure
 
+
 class MockAcceleration:
     def __init__(self):
         self.acceleration = (random.random(), random.random(), random.random())
 
+
 class MockMagnetic:
     def __init__(self):
         self.magnetic = (random.random(), random.random(), random.random())
+
 
 class MockRFM9X:
     def send(self, value):
@@ -36,14 +44,16 @@ def test_digest_next_sensor_reading():
     mag = MockMagnetic()
     data_queue = Queue()
     current_reading = AtomicValue()
-    now = digest_next_sensor_reading(start_time, bmp, gps_value, accel, mag, data_queue, current_reading)
+    now = digest_next_sensor_reading(
+        start_time, bmp, gps_value, accel, mag, data_queue, current_reading
+    )
     logged = data_queue.get()
     expected_tuple = (
         now - start_time,
         *bmp._read(),
         *accel.acceleration,
         *mag.magnetic,
-        *gps_value.get_value()
+        *gps_value.get_value(),
     )
     assert logged
     assert logged == expected_tuple
@@ -70,8 +80,12 @@ def test_transmit_latest_readings():
     readings_sent = 0
     start_time = time.time()
     rfm9x = MockRFM9X()
-    current_reading = AtomicValue([random.random() for _ in range(TELEMETRY_TUPLE_LENGTH)])
-    readings_sent_1, last_check_1 = transmit_latest_readings(rfm9x, last_check, readings_sent, start_time, current_reading)
+    current_reading = AtomicValue(
+        [random.random() for _ in range(TELEMETRY_TUPLE_LENGTH)]
+    )
+    readings_sent_1, last_check_1 = transmit_latest_readings(
+        rfm9x, last_check, readings_sent, start_time, current_reading
+    )
     assert readings_sent_1 > readings_sent
     assert last_check < last_check_1
     assert last_check_1 <= time.time()

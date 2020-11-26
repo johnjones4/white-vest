@@ -1,10 +1,11 @@
-from whitevest.lib.utils import write_queue_log, take_gps_reading
-from queue import Queue
-from whitevest.lib.buffer_session_store import BufferSessionStore
-from whitevest.lib.atomic_value import AtomicValue
-
-import random
 import io
+import random
+from queue import Queue
+
+from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.buffer_session_store import BufferSessionStore
+from whitevest.lib.utils import take_gps_reading, write_queue_log
+
 
 class MockSerial:
     def __init__(self, line):

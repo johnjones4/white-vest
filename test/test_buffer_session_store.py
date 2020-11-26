@@ -1,6 +1,8 @@
-from whitevest.lib.buffer_session_store import BufferSessionStore
-import time
 import random
+import time
+
+from whitevest.lib.buffer_session_store import BufferSessionStore
+
 
 def test_buffer_session_store():
     store = BufferSessionStore("data", f"test_sessionstore_{time.time()}.sql")
@@ -17,4 +19,4 @@ def test_buffer_session_store():
     time.sleep(1)
     store.create_new_session()
     sessions = store.get_sessions()
-    assert sessions == [next_session, first_session] 
+    assert sessions == [next_session, first_session]

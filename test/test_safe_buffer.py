@@ -1,5 +1,7 @@
-from whitevest.lib.safe_buffer import SafeBuffer
 import random
+
+from whitevest.lib.safe_buffer import SafeBuffer
+
 
 def test_safe_buffer():
     buffer = SafeBuffer()
@@ -9,8 +11,7 @@ def test_safe_buffer():
         vals.append(val)
         buffer.append(val)
     assert buffer.size() == len(vals)
-    print(buffer.get_range(4,8))
-    assert buffer.get_range(4,8) == vals[4:8]
+    print(buffer.get_range(4, 8))
+    assert buffer.get_range(4, 8) == vals[4:8]
     buffer.purge()
     assert buffer.size() == 0
-

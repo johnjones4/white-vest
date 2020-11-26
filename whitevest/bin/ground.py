@@ -6,6 +6,7 @@ from threading import Lock, Thread
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
+from whitevest.lib.utils import gps_reception_loop
 from whitevest.threads.ground_data import (
     replay_telemetry,
     telemetry_log_writing_loop,
@@ -15,8 +16,6 @@ from whitevest.threads.ground_server import (
     telemetry_dashboard_server,
     telemetry_streaming_server,
 )
-
-from whitevest.lib.utils import gps_reception_loop
 
 if not os.getenv("REPLAY_DATA"):
     from whitevest.lib.hardware import init_gps
@@ -32,7 +31,10 @@ if __name__ == "__main__":
     if not os.getenv("REPLAY_DATA"):
         GPS_THREAD = Thread(
             target=gps_reception_loop,
-            args=(init_gps(), GPS_VALUE,),
+            args=(
+                init_gps(),
+                GPS_VALUE,
+            ),
             daemon=True,
         )
         GPS_THREAD.start()
