@@ -63,16 +63,16 @@ def test_digest_next_sensor_reading():
 
 def test_write_sensor_log():
     start_time = time.time()
-    runtime_limit = 1
+    runtime_limit = 5
     outfile = io.StringIO("")
     data_queue = Queue()
-    while data_queue.qsize() < 100000:
+    while data_queue.qsize() < 100:
         data_queue.put((random.random(), random.random(), random.random()))
     write_sensor_log(start_time, runtime_limit, outfile, data_queue)
     contents = outfile.getvalue()
     assert time.time() >= start_time + runtime_limit
     assert contents
-    assert len(contents.split("\n")) <= 100000
+    assert len(contents.split("\n")) > 0
 
 
 def test_transmit_latest_readings():
