@@ -25,4 +25,4 @@ cleanup:
 	black test/*
 
 test:
-	pytest test/*
+	pytest tests/*
