@@ -2,6 +2,8 @@
 
 # White Vest
 
+[![Build Status](https://travis-ci.org/johnjones4/white-vest.svg?branch=master)](https://travis-ci.org/johnjones4/white-vest)
+
 ![Telemetry](doc/telemetry.gif)
 
 White Vest is a project for collecting, logging, emitting, and visualizing telemetry from a model rocket containing an inboard Raspberry Pi Zero with another Raspberry Pi receiving telemetry. To learn more about this project, visit my [blog post](https://johnjonesfour.com/2020/10/03/model-rocket-telemetry-part-1/) documenting it. This project is named after the iconic [white vest that flight director Gene Kranz wore during Apollo 13](https://airandspace.si.edu/stories/editorial/gene-kranz%E2%80%99s-apollo-13-vest). 

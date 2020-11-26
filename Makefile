@@ -25,4 +25,4 @@ cleanup:
 	black test/*
 
 test:
-	pytest tests/*
+	pytest --cov-report=xml --cov=whitevest tests/*
