@@ -3,4 +3,4 @@ data/**
 .DS_Store
 __pycache__
 .coverage
-	coverage.xml
+coverage.xml

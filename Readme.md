@@ -23,13 +23,17 @@ The inboard system records video and measures pressure, temperature, altitude, a
 * [Adafruit BMP388 - Precision Barometric Pressure and Altimeter](https://www.adafruit.com/product/3966)
 * [Zero Spy Camera for Raspberry Pi Zero](https://www.adafruit.com/product/3508)
 * [Triple-axis Accelerometer+Magnetometer (Compass) Board - LSM303](https://www.adafruit.com/product/1120)
+* [GPS Module](https://www.amazon.com/gp/product/B084MK8BS2/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1)
 
 ### Ground
 
 * [Raspberry Pi Zero W](https://www.adafruit.com/product/3400)
 * [Adafruit RFM96W LoRa Radio Transceiver Breakout - 433 MHz - RadioFruit](https://www.adafruit.com/product/3073)
+* [GPS Module](https://www.amazon.com/gp/product/B084MK8BS2/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1)
 
 ### Wiring
+
+![Wiring Diagram](doc/wiring.png)
 
 The air hardware is wired to the following Raspberry Pi pins:
 
@@ -58,6 +62,11 @@ The air hardware is wired to the following Raspberry Pi pins:
   * SDO -> Pi SPI1 MISO
   * CS -> Pi D24
   * RST -> CE0
+* **GPS Module (Serial)**
+  * VIN -> Pi 5V
+  * GND -> Pi GND
+  * TX -> Pi RX
+  * RX -> Pi TX
 
 The ground hardware, much more simply, is wired to the following Raspberry Pi pins:
 
@@ -69,6 +78,11 @@ The ground hardware, much more simply, is wired to the following Raspberry Pi pi
   * SDO -> Pi MISO
   * CS -> Pi CE1
   * RST -> Pi D25
+* **GPS Module (Serial)**
+  * VIN -> Pi 5V
+  * GND -> Pi GND
+  * TX -> Pi RX
+  * RX -> Pi TX
 
 ## Software
 
