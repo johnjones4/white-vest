@@ -9,3 +9,4 @@ matplotlib
 pynmea2
 pytest
 pytest-cov
+pylint

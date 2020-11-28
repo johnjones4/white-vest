@@ -1,23 +1,18 @@
 """Ground based telemetry reception and saving threads"""
 import csv
 import logging
-import os
-import struct
 import time
 from queue import Queue
-
-import pynmea2
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
 from whitevest.lib.ground import digest_next_ground_reading
 from whitevest.lib.utils import handle_exception, write_queue_log
+from whitevest.lib.const import TESTING_MODE
 
-if not os.getenv("REPLAY_DATA", False):
-    import board
-
-if not os.getenv("REPLAY_DATA", False):
+if not TESTING_MODE:
     from whitevest.lib.hardware import init_radio
+    import board
 
 
 def telemetry_reception_loop(new_data_queue: Queue, gps_value: AtomicValue):
@@ -29,9 +24,9 @@ def telemetry_reception_loop(new_data_queue: Queue, gps_value: AtomicValue):
             try:
                 digest_next_ground_reading(rfm9x, new_data_queue, gps_value)
                 time.sleep(0)
-            except Exception as ex:
+            except Exception as ex: # pylint: disable=broad-except
                 handle_exception("Telemetry point reading failure", ex)
-    except Exception as ex:
+    except Exception as ex: # pylint: disable=broad-except
         handle_exception("Telemetry point reading failure", ex)
 
 
@@ -40,7 +35,7 @@ def replay_telemetry(new_data_queue: Queue, replay_file: str):
     try:
         while True:
             start_time = time.time()
-            logging.info(f"Replaying telemetry from {replay_file}")
+            logging.info("Replaying telemetry from %d", replay_file)
             with open(replay_file, "r") as file:
                 reader = csv.reader(file)
                 start_stamp = None
@@ -52,7 +47,7 @@ def replay_telemetry(new_data_queue: Queue, replay_file: str):
                         pass
                     new_data_queue.put(info)
                     time.sleep(0)
-    except Exception as ex:
+    except Exception as ex: # pylint: disable=broad-except
         handle_exception("Telemetry replay failure", ex)
 
 
@@ -76,7 +71,7 @@ def telemetry_log_writing_loop(
                             != buffer_session_store.current_session.get_value()
                         ):
                             break
-                    except Exception as ex:
+                    except Exception as ex: # pylint: disable=broad-except
                         handle_exception("Telemetry log line writing failure", ex)
-    except Exception as ex:
+    except Exception as ex: # pylint: disable=broad-except
         handle_exception("Telemetry log line writing failure", ex)

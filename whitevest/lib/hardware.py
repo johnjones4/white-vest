@@ -12,13 +12,12 @@ import digitalio
 import serial
 from digitalio import DigitalInOut
 
-
-def init_radio(sck, mosi, miso, cs, reset):
+def init_radio(sck_pin, mosi_pin, miso_pin, cs_pin, reset_pin):
     """Initialize the radio"""
     logging.info("Initializing transmitter")
-    spi = busio.SPI(sck, MOSI=mosi, MISO=miso)
-    cs = DigitalInOut(cs)
-    reset = DigitalInOut(reset)
+    spi = busio.SPI(sck_pin, MOSI=mosi_pin, MISO=miso_pin)
+    cs = DigitalInOut(cs_pin) # pylint: disable=invalid-name
+    reset = DigitalInOut(reset_pin)
     rfm9x = adafruit_rfm9x.RFM9x(spi, cs, reset, 915.0)
     rfm9x.tx_power = 23
     return rfm9x
@@ -28,7 +27,7 @@ def init_altimeter():
     """Initialize the sensor for pressure, temperature, and altitude"""
     logging.info("Initializing altimeter")
     spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
-    cs = digitalio.DigitalInOut(board.D5)
+    cs = digitalio.DigitalInOut(board.D5) # pylint: disable=invalid-name
     bmp = adafruit_bmp3xx.BMP3XX_SPI(spi, cs)
     return bmp
 

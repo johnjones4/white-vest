@@ -28,5 +28,6 @@ class SafeBuffer:
             return len(self.data_buffer)
 
     def purge(self):
+        """Empty the buffer"""
         with self.lock:
             self.data_buffer = list()

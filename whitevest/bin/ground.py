@@ -1,12 +1,12 @@
 """Ground based telemetry reception and saving script"""
 import os
-import time
 from queue import Queue
-from threading import Lock, Thread
+from threading import Thread
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
-from whitevest.lib.utils import gps_reception_loop
+from whitevest.lib.utils import create_gps_thread
+from whitevest.lib.const import TESTING_MODE
 from whitevest.threads.ground_data import (
     replay_telemetry,
     telemetry_log_writing_loop,
@@ -17,9 +17,6 @@ from whitevest.threads.ground_server import (
     telemetry_streaming_server,
 )
 
-if not os.getenv("REPLAY_DATA"):
-    from whitevest.lib.hardware import init_gps
-
 if __name__ == "__main__":
     # Queue to manage data synchronization between telemetry reception and data logging
     NEW_DATA_QUEUE = Queue()
@@ -28,15 +25,8 @@ if __name__ == "__main__":
     # Holds the most recent GPS data
     GPS_VALUE = AtomicValue((0.0, 0.0, 0.0, 0.0))
 
-    if not os.getenv("REPLAY_DATA"):
-        GPS_THREAD = Thread(
-            target=gps_reception_loop,
-            args=(
-                init_gps(),
-                GPS_VALUE,
-            ),
-            daemon=True,
-        )
+    if not TESTING_MODE:
+        GPS_THREAD = create_gps_thread(GPS_VALUE)
         GPS_THREAD.start()
 
     WRITE_THREAD = Thread(
@@ -49,7 +39,7 @@ if __name__ == "__main__":
     )
     WRITE_THREAD.start()
 
-    STREAMING_SERVER_PORT = int(os.getenv("STREAMING_PORT", 5678))
+    STREAMING_SERVER_PORT = int(os.getenv("STREAMING_PORT", "5678"))
     STREAMING_SERVER_THREAD = Thread(
         target=telemetry_streaming_server,
         args=(
@@ -60,7 +50,7 @@ if __name__ == "__main__":
     )
     STREAMING_SERVER_THREAD.start()
 
-    SERVER_PORT = int(os.getenv("DASHBOARD_PORT", 8000))
+    SERVER_PORT = int(os.getenv("DASHBOARD_PORT", "8000"))
     DASHBOARD_SERVER_THREAD = Thread(
         target=telemetry_dashboard_server,
         args=(
@@ -71,9 +61,8 @@ if __name__ == "__main__":
     )
     DASHBOARD_SERVER_THREAD.start()
 
-    REPLAY_DATA = os.getenv("REPLAY_DATA")
-    if REPLAY_DATA:
-        replay_telemetry(NEW_DATA_QUEUE, REPLAY_DATA)
+    if TESTING_MODE:
+        replay_telemetry(NEW_DATA_QUEUE, os.getenv("REPLAY_DATA"))
     else:
         telemetry_reception_loop(
             NEW_DATA_QUEUE,

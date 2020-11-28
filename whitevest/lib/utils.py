@@ -1,12 +1,16 @@
+"""Functions shared between air and ground runtimes"""
 import logging
 import time
 from queue import Queue
+from threading import Thread
 
 import pynmea2
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
-
+from whitevest.lib.const import TESTING_MODE
+if not TESTING_MODE:
+    from whitevest.lib.hardware import init_gps
 
 def handle_exception(message: str, exception: Exception):
     """Log an exception"""
@@ -30,6 +34,7 @@ def write_queue_log(
 
 
 def take_gps_reading(sio, gps_value: AtomicValue):
+    """Grab the most recent data from GPS feed"""
     line = sio.readline()
     if line[0:6] == "$GPGGA":
         gps = pynmea2.parse(line)
@@ -48,6 +53,18 @@ def gps_reception_loop(sio, gps_value: AtomicValue):
     while True:
         try:
             take_gps_reading(sio, gps_value)
-        except Exception as ex:
+        except Exception as ex: # pylint: disable=broad-except
             handle_exception("Telemetry reading failure", ex)
         time.sleep(0)
+
+
+def create_gps_thread(value: AtomicValue):
+    """Create a thread for tracking GPS"""
+    return Thread(
+        target=gps_reception_loop,
+        args=(
+            init_gps(),
+            value,
+        ),
+        daemon=True,
+    )

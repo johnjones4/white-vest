@@ -1,3 +1,4 @@
+"""Functions used by air runtime"""
 import logging
 import struct
 import time
@@ -8,6 +9,7 @@ from whitevest.lib.const import TELEMETRY_STRUCT_STRING
 from whitevest.lib.utils import handle_exception, write_queue_log
 
 
+# pylint: disable=too-many-arguments
 def digest_next_sensor_reading(
     start_time: float,
     bmp,
@@ -21,7 +23,7 @@ def digest_next_sensor_reading(
     now = time.time()
     info = (
         now - start_time,
-        *bmp._read(),
+        *bmp._read(), # pylint: disable=protected-access
         *accel.acceleration,
         *mag.magnetic,
         *gps_value.get_value(),
@@ -43,11 +45,15 @@ def write_sensor_log(
                 lines_written += 1
                 if last_queue_check + 10.0 < time.time():
                     last_queue_check = time.time()
+                    elapsed = last_queue_check - start_time
                     logging.info(
-                        f"Queue: {data_queue.qsize()} / Lines written: {lines_written} / {last_queue_check - start_time} seconds"
+                        "Queue: %d / Lines written: %d / %s seconds",
+                        data_queue.qsize(),
+                        lines_written,
+                        elapsed
                     )
             time.sleep(0)
-        except Exception as ex:
+        except Exception as ex: # pylint: disable=broad-except
             handle_exception("Telemetry log line writing failure", ex)
 
 
@@ -63,12 +69,14 @@ def transmit_latest_readings(
     if info:
         clean_info = [float(i) for i in info]
         encoded = struct.pack(TELEMETRY_STRUCT_STRING, *clean_info)
-        logging.debug(f"Transmitting {len(encoded)} bytes")
+        logging.debug("Transmitting %d bytes", len(encoded))
         rfm9x.send(encoded)
         readings_sent += 1
         if last_check + 10.0 < time.time():
             last_check = time.time()
             logging.info(
-                f"Readings sent: {readings_sent} / {last_check - start_time} seconds"
+                "Readings sent: %d / %d seconds",
+                readings_sent,
+                last_check - start_time
             )
     return readings_sent, last_check
