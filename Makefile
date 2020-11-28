@@ -27,7 +27,7 @@ cleanup:
 lint:
 	pylint whitevest/*
 
-test: lint
+test:
 	TESTING=true pytest --cov-report=xml --cov=whitevest tests/*
 
 cleancode:
