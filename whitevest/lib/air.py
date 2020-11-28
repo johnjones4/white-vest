@@ -23,7 +23,7 @@ def digest_next_sensor_reading(
     now = time.time()
     info = (
         now - start_time,
-        *bmp._read(), # pylint: disable=protected-access
+        *bmp._read(),  # pylint: disable=protected-access
         *accel.acceleration,
         *mag.magnetic,
         *gps_value.get_value(),
@@ -50,10 +50,10 @@ def write_sensor_log(
                         "Queue: %d / Lines written: %d / %s seconds",
                         data_queue.qsize(),
                         lines_written,
-                        elapsed
+                        elapsed,
                     )
             time.sleep(0)
-        except Exception as ex: # pylint: disable=broad-except
+        except Exception as ex:  # pylint: disable=broad-except
             handle_exception("Telemetry log line writing failure", ex)
 
 
@@ -75,8 +75,6 @@ def transmit_latest_readings(
         if last_check + 10.0 < time.time():
             last_check = time.time()
             logging.info(
-                "Readings sent: %d / %d seconds",
-                readings_sent,
-                last_check - start_time
+                "Readings sent: %d / %d seconds", readings_sent, last_check - start_time
             )
     return readings_sent, last_check

@@ -6,13 +6,14 @@ from queue import Queue
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
+from whitevest.lib.const import TESTING_MODE
 from whitevest.lib.ground import digest_next_ground_reading
 from whitevest.lib.utils import handle_exception, write_queue_log
-from whitevest.lib.const import TESTING_MODE
 
 if not TESTING_MODE:
-    from whitevest.lib.hardware import init_radio
     import board
+
+    from whitevest.lib.hardware import init_radio
 
 
 def telemetry_reception_loop(new_data_queue: Queue, gps_value: AtomicValue):
@@ -24,9 +25,9 @@ def telemetry_reception_loop(new_data_queue: Queue, gps_value: AtomicValue):
             try:
                 digest_next_ground_reading(rfm9x, new_data_queue, gps_value)
                 time.sleep(0)
-            except Exception as ex: # pylint: disable=broad-except
+            except Exception as ex:  # pylint: disable=broad-except
                 handle_exception("Telemetry point reading failure", ex)
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Telemetry point reading failure", ex)
 
 
@@ -47,7 +48,7 @@ def replay_telemetry(new_data_queue: Queue, replay_file: str):
                         pass
                     new_data_queue.put(info)
                     time.sleep(0)
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Telemetry replay failure", ex)
 
 
@@ -71,7 +72,7 @@ def telemetry_log_writing_loop(
                             != buffer_session_store.current_session.get_value()
                         ):
                             break
-                    except Exception as ex: # pylint: disable=broad-except
+                    except Exception as ex:  # pylint: disable=broad-except
                         handle_exception("Telemetry log line writing failure", ex)
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Telemetry log line writing failure", ex)

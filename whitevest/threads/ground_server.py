@@ -10,6 +10,7 @@ import websockets.exceptions
 from whitevest.lib.buffer_session_store import BufferSessionStore
 from whitevest.lib.ground import ground_http_class_factory
 
+
 def telemetry_streaming_server(port: int, buffer_session_store: BufferSessionStore):
     """Serve the active buffer over websocket"""
 
@@ -32,7 +33,7 @@ def telemetry_streaming_server(port: int, buffer_session_store: BufferSessionSto
                 await asyncio.sleep(1)
         except websockets.exceptions.ConnectionClosed:
             logging.info("Client disconnected from streaming server")
-        except Exception as ex: # pylint: disable=broad-except
+        except Exception as ex:  # pylint: disable=broad-except
             logging.error("Telemetry streaming server failure: %s", str(ex))
             logging.exception(ex)
 
@@ -45,7 +46,7 @@ def telemetry_streaming_server(port: int, buffer_session_store: BufferSessionSto
         asyncio.get_event_loop().run_forever()
     except websockets.exceptions.ConnectionClosed:
         logging.info("Client disconnected from streaming server")
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         logging.error("Telemetry streaming server failure: %s", str(ex))
         logging.exception(ex)
 
@@ -58,6 +59,6 @@ def telemetry_dashboard_server(port: int, buffer_session_store: BufferSessionSto
         klass = ground_http_class_factory(buffer_session_store)
         httpd = HTTPServer(("0.0.0.0", port), klass)
         httpd.serve_forever()
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         logging.error("Telemetry dashboard server failure: %s", str(ex))
         logging.exception(ex)

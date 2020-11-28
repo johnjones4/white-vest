@@ -24,6 +24,14 @@ cleanup:
 	black whitevest/*
 	black test/*
 
-test:
+lint:
 	pylint whitevest/*
+
+test: lint
 	TESTING=true pytest --cov-report=xml --cov=whitevest tests/*
+
+cleancode:
+	isort whitevest/*
+	isort tests/*
+	black whitevest/*
+	isort tests/*

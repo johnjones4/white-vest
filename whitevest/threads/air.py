@@ -5,7 +5,6 @@ import time
 from queue import Queue
 
 import board
-import picamera
 
 from whitevest.lib.air import (
     digest_next_sensor_reading,
@@ -13,12 +12,16 @@ from whitevest.lib.air import (
     write_sensor_log,
 )
 from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.const import TESTING_MODE
 from whitevest.lib.hardware import (
     init_altimeter,
     init_magnetometer_accelerometer,
     init_radio,
 )
 from whitevest.lib.utils import handle_exception
+
+if not TESTING_MODE:
+    import picamera
 
 
 def sensor_reading_loop(
@@ -37,9 +40,9 @@ def sensor_reading_loop(
                 digest_next_sensor_reading(
                     start_time, bmp, gps_value, accel, mag, data_queue, current_reading
                 )
-            except Exception as ex: # pylint: disable=broad-except
+            except Exception as ex:  # pylint: disable=broad-except
                 handle_exception("Telemetry measurement point reading failure", ex)
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Telemetry measurement point reading failure", ex)
 
 
@@ -54,7 +57,7 @@ def sensor_log_writing_loop(
         ) as outfile:
             write_sensor_log(start_time, runtime_limit, outfile, data_queue)
         logging.info("Telemetry log writing loop complete")
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Telemetry log line writing failure", ex)
 
 
@@ -69,7 +72,7 @@ def camera_thread(start_time: float, runtime_limit: float, output_directory: str
         camera.wait_recording(runtime_limit)
         camera.stop_recording()
         logging.info("Video capture complete")
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Video capture failure", ex)
 
 
@@ -90,8 +93,8 @@ def transmitter_thread(start_time: float, current_reading: AtomicValue):
                     start_time,
                     current_reading,
                 )
-            except Exception as ex: # pylint: disable=broad-except
+            except Exception as ex:  # pylint: disable=broad-except
                 handle_exception("Transmitter failure", ex)
             time.sleep(0)
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Transmitter failure", ex)

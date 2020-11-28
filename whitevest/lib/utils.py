@@ -9,8 +9,10 @@ import pynmea2
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
 from whitevest.lib.const import TESTING_MODE
+
 if not TESTING_MODE:
     from whitevest.lib.hardware import init_gps
+
 
 def handle_exception(message: str, exception: Exception):
     """Log an exception"""
@@ -53,7 +55,7 @@ def gps_reception_loop(sio, gps_value: AtomicValue):
     while True:
         try:
             take_gps_reading(sio, gps_value)
-        except Exception as ex: # pylint: disable=broad-except
+        except Exception as ex:  # pylint: disable=broad-except
             handle_exception("Telemetry reading failure", ex)
         time.sleep(0)
 

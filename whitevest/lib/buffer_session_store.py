@@ -20,7 +20,6 @@ class BufferSessionStore:
         self.connection = None
         self.cursor = None
 
-
     def initialize(self):
         """Initialize the store. (Pins the SQLite connection to the calling thread)"""
         self.connection = sqlite3.connect(path.join(self.output_dir, self.sql_file))

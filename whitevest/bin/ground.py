@@ -5,8 +5,8 @@ from threading import Thread
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
-from whitevest.lib.utils import create_gps_thread
 from whitevest.lib.const import TESTING_MODE
+from whitevest.lib.utils import create_gps_thread
 from whitevest.threads.ground_data import (
     replay_telemetry,
     telemetry_log_writing_loop,

@@ -1,19 +1,17 @@
 """Functions for the ground runtime"""
+import json
 import logging
-import struct
-import posixpath
 import mimetypes
 import os.path
-import json
+import posixpath
+import struct
 from http.server import BaseHTTPRequestHandler
-
 from queue import Queue
 
-from whitevest.lib.utils import handle_exception
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
 from whitevest.lib.const import TELEMETRY_STRUCT_STRING
-
+from whitevest.lib.utils import handle_exception
 
 if not mimetypes.inited:
     mimetypes.init()  # try to read system mime.types
@@ -48,6 +46,7 @@ def guess_type(path):
         return EXTENSIONS_MAP[ext]
     return EXTENSIONS_MAP[""]
 
+
 def ground_http_class_factory(buffer_session_store: BufferSessionStore):
     """Generate a class to handle HTTP requests"""
 
@@ -69,13 +68,13 @@ def ground_http_class_factory(buffer_session_store: BufferSessionStore):
             self.end_headers()
             self.wfile.write(json.dumps(info).encode("utf-8"))
 
-        def do_GET(self): # pylint: disable=invalid-name
+        def do_GET(self):  # pylint: disable=invalid-name
             """Handle a GET request"""
             if self.path.startswith("/api/session/"):
                 try:
                     session = int(self.path[13:])
                     self.send_json(buffer_session_store.load_session(session))
-                except Exception as ex: # pylint: disable=broad-except
+                except Exception as ex:  # pylint: disable=broad-except
                     handle_exception("Telemetry load failure", ex)
                     self.send_json({"message": "Could not load session"}, 500)
                 return
@@ -93,7 +92,7 @@ def ground_http_class_factory(buffer_session_store: BufferSessionStore):
                 else:
                     self.send_json({"message": "Static file cannot be read"}, 500)
 
-        def do_POST(self): # pylint: disable=invalid-name
+        def do_POST(self):  # pylint: disable=invalid-name
             """Handle a POST request"""
             if self.path == "/api/session":
                 buffer_session_store.create_new_session()
