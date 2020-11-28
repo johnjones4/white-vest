@@ -21,7 +21,7 @@ from whitevest.lib.hardware import (
 from whitevest.lib.utils import handle_exception
 
 if not TESTING_MODE:
-    import picamera
+    import picamera # pylint: disable=import-error
 
 
 def sensor_reading_loop(

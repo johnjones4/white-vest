@@ -13,7 +13,7 @@ from whitevest.lib.utils import handle_exception, write_queue_log
 if not TESTING_MODE:
     import board
 
-    from whitevest.lib.hardware import init_radio
+    from whitevest.lib.hardware import init_radio # pylint: disable=ungrouped-imports
 
 
 def telemetry_reception_loop(new_data_queue: Queue, gps_value: AtomicValue):

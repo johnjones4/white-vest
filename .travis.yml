@@ -10,5 +10,6 @@ install:
   - make install
 
 script:
+  - make lint
   - make test
   - bash <(curl -s https://codecov.io/bash) 
