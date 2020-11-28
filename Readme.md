@@ -95,13 +95,16 @@ The air software logs all sensor readings to a timestamped CSV file under `data`
 * Unix Timestamp
 * Barometric Pressure (Pascals)
 * Temperature (Celsius)
-* Altitude (Meters)
 * Acceleration X (M/s/s)
 * Acceleration Y (M/s/s)
 * Acceleration Z (M/s/s)
 * Magnetic Direction X (Degrees)
 * Magnetic Direction Y (Degrees)
 * Magnetic Direction Z (Degrees)
+* Latitude
+* Longitude
+* GPS Signal Quality
+* Number of GPS sats
 
 ### Ground
 
@@ -109,7 +112,7 @@ The ground software listens for transmitted data packets from air and also logs 
 
 ### Installation
 
-This software requires [I2C](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c), [SPI0](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/), and SPI1 to be enabled on a Raspberry Pi. (To enable SPI1, add `dtoverlay=spi1-3cs` to the file `/boot/config.txt`.)
+This software requires [I2C](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c), [SPI0](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/), SPI1, and [Serial](https://maker.pro/raspberry-pi/tutorial/how-to-use-a-gps-receiver-with-raspberry-pi-4) to be enabled on a Raspberry Pi. (To enable SPI1, add `dtoverlay=spi1-3cs` to the file `/boot/config.txt`.)
 
 To install this software on a Raspberry Pi, execute the following:
 
