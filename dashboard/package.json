@@ -12,14 +12,10 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "d3": "^6.2.0",
-    "load-wavefront-obj": "^0.8.0",
     "react": "^16.13.1",
-    "react-d3-axis": "^0.1.2",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.3",
-    "typescript": "^3.9.7",
-    "wavefront-obj-parser": "^2.0.1",
-    "webgl-obj-loader": "^2.0.8"
+    "typescript": "^3.9.7"
   },
   "scripts": {
     "start": "react-scripts start",
