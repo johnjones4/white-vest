@@ -32,6 +32,6 @@ test:
 
 cleancode:
 	isort whitevest/*
-	isort tests/*
+	isort tests/*.py
 	black whitevest/*
-	isort tests/*
+	black tests/*

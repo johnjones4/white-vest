@@ -36,7 +36,7 @@ def digest_next_ground_reading(rfm9x, new_data_queue: Queue, gps_value: AtomicVa
         new_data_queue.put((*info, rfm9x.last_rssi, *gps_info))
 
 
-def guess_type(path):
+def guess_type(path) -> str:
     """Guess the MIME type for a path/file"""
     _, ext = posixpath.splitext(path)
     if ext in EXTENSIONS_MAP:
@@ -47,7 +47,9 @@ def guess_type(path):
     return EXTENSIONS_MAP[""]
 
 
-def ground_http_class_factory(buffer_session_store: BufferSessionStore):
+def ground_http_class_factory(
+    buffer_session_store: BufferSessionStore,
+) -> BaseHTTPRequestHandler:
     """Generate a class to handle HTTP requests"""
 
     class TelemetryHttpRequestHandler(BaseHTTPRequestHandler):

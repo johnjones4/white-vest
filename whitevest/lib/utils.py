@@ -22,7 +22,7 @@ def handle_exception(message: str, exception: Exception):
 
 def write_queue_log(
     outfile, new_data_queue: Queue, buffer_session_store: BufferSessionStore
-):
+) -> bool:
     """If there is data in the queue, write it to the file"""
     if not new_data_queue.empty():
         info = new_data_queue.get()

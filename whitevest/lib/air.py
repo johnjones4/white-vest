@@ -3,6 +3,7 @@ import logging
 import struct
 import time
 from queue import Queue
+from typing import Tuple
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.const import TELEMETRY_STRUCT_STRING
@@ -18,7 +19,7 @@ def digest_next_sensor_reading(
     mag,
     data_queue: Queue,
     current_reading: AtomicValue,
-):
+) -> float:
     """Grab the latest values from all sensors and put the data in the queue and atomic store"""
     now = time.time()
     info = (
@@ -60,10 +61,10 @@ def write_sensor_log(
 def transmit_latest_readings(
     rfm9x,
     last_check: float,
-    readings_sent: float,
+    readings_sent: int,
     start_time: float,
     current_reading: AtomicValue,
-):
+) -> Tuple[int, float]:
     """Get the latest value from the sensor store and transmit it as a byte array"""
     info = current_reading.get_value()
     if info:

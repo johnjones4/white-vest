@@ -3,6 +3,7 @@ import csv
 import os.path as path
 import sqlite3
 import time
+from typing import List
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.safe_buffer import SafeBuffer
@@ -30,7 +31,7 @@ class BufferSessionStore:
         self.connection.commit()
         self.create_new_session()
 
-    def get_sessions(self):
+    def get_sessions(self) -> List[float]:
         """Get a list of saved sessions"""
         self.cursor.execute(
             "SELECT timestamp FROM sessions WHERE timestamp != ? ORDER BY timestamp DESC",
@@ -38,7 +39,7 @@ class BufferSessionStore:
         )
         return [row[0] for row in self.cursor.fetchall()]
 
-    def create_new_session(self):
+    def create_new_session(self) -> float:
         """Create and save a new session"""
         timestamp = int(time.time())
         self.current_session.update(timestamp)
@@ -47,13 +48,13 @@ class BufferSessionStore:
         self.buffer.purge()
         return timestamp
 
-    def load_session(self, session):
+    def load_session(self, session) -> List[List[float]]:
         """Load data from a given session"""
         with open(self.data_path_for_session(session), "r") as csvfile:
             reader = csv.reader(csvfile)
             return [[float(v) for v in r] for r in reader]
 
-    def data_path_for_session(self, session=None):
+    def data_path_for_session(self, session=None) -> str:
         """Get the path to the given session's data"""
         if not session:
             session = self.current_session.get_value()
