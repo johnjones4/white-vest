@@ -18,7 +18,9 @@ jobs:
       with:
         python-version: 3.8
     - name: Install dependencies
-      run: make install
+      run: |
+        make install
+        pip3 install pytest pytest-cov pylint
     - name: Lint
       run: make lint
     - name: Test

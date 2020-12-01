@@ -18,61 +18,64 @@ from whitevest.threads.ground_server import (
     telemetry_streaming_server,
 )
 
-if __name__ == "__main__":
+def main():
     # Load up the system configuration
-    CONFIGURATION = Configuration(
-        os.getenv("GROUND_CONFIG_FILE", "air.yml"),
+    configuration = Configuration(
+        os.getenv("GROUND_CONFIG_FILE", None),
         Configuration.default_ground_configuration,
     )
 
     # Queue to manage data synchronization between telemetry reception and data logging
-    NEW_DATA_QUEUE = Queue()
+    new_data_queue = Queue()
 
     # Manages the data buffers
-    BUFFER_SESSION_STORE = BufferSessionStore(CONFIGURATION)
+    buffer_session_store = BufferSessionStore(configuration)
 
     # Holds the most recent GPS data
-    GPS_VALUE = AtomicValue((0.0, 0.0, 0.0, 0.0))
+    gps_value = AtomicValue((0.0, 0.0, 0.0, 0.0))
 
     if not TESTING_MODE:
-        GPS_THREAD = create_gps_thread(CONFIGURATION, GPS_VALUE)
-        GPS_THREAD.start()
+        gps_thread = create_gps_thread(configuration, gps_value)
+        gps_thread.start()
 
-    WRITE_THREAD = Thread(
+    write_thread = Thread(
         target=telemetry_log_writing_loop,
         args=(
-            NEW_DATA_QUEUE,
-            BUFFER_SESSION_STORE,
+            new_data_queue,
+            buffer_session_store,
         ),
         daemon=True,
     )
-    WRITE_THREAD.start()
+    write_thread.start()
 
-    STREAMING_SERVER_THREAD = Thread(
+    streaming_server_thread = Thread(
         target=telemetry_streaming_server,
         args=(
-            CONFIGURATION,
-            BUFFER_SESSION_STORE,
+            configuration,
+            buffer_session_store,
         ),
         daemon=True,
     )
-    STREAMING_SERVER_THREAD.start()
+    streaming_server_thread.start()
 
-    DASHBOARD_SERVER_THREAD = Thread(
+    dashboard_server_thread = Thread(
         target=telemetry_dashboard_server,
         args=(
-            CONFIGURATION,
-            BUFFER_SESSION_STORE,
+            configuration,
+            buffer_session_store,
         ),
         daemon=True,
     )
-    DASHBOARD_SERVER_THREAD.start()
+    dashboard_server_thread.start()
 
     if TESTING_MODE:
-        replay_telemetry(NEW_DATA_QUEUE, os.getenv("REPLAY_DATA"))
+        replay_telemetry(new_data_queue, os.getenv("REPLAY_DATA"))
     else:
         telemetry_reception_loop(
-            CONFIGURATION,
-            NEW_DATA_QUEUE,
-            GPS_VALUE,
+            configuration,
+            new_data_queue,
+            gps_value,
         )
+
+if __name__ == "__main__":
+    main()

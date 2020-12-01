@@ -29,3 +29,13 @@ lint:
 
 test:
 	TESTING=true pytest --cov-report=xml --cov=whitevest tests/*
+
+clean:
+	\rm -rf build
+	\rm -rf dist
+	\rm -rf *.egg-info
+	\rm .coverage
+	\rm coverage.xml
+
+package:
+	python3 setup.py sdist bdist_wheel

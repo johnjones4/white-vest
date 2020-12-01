@@ -14,52 +14,55 @@ from whitevest.threads.air import (
     transmitter_thread,
 )
 
-if __name__ == "__main__":
+def main():
     # Load up the system configuration
-    CONFIGURATION = Configuration(
-        os.getenv("AIR_CONFIG_FILE", "air.yml"), Configuration.default_air_configuration
+    configuration = Configuration(
+        os.getenv("AIR_CONFIG_FILE", None), Configuration.default_air_configuration
     )
 
     # Queue to manage data synchronization between sensor reading, transmission, and data logging
-    DATA_QUEUE = Queue()
+    data_queue = Queue()
 
     # Timestamp to use for log files and log saving cutoff
-    START_TIME = time.time()
+    start_time = time.time()
 
     # Thread safe place to store altitude reading
-    CURRENT_READING = AtomicValue()
+    current_reading = AtomicValue()
 
     # Holds the most recent GPS data
-    GPS_VALUE = AtomicValue((0.0, 0.0, 0.0, 0.0))
+    gps_value = AtomicValue((0.0, 0.0, 0.0, 0.0))
 
-    GPS_THREAD = create_gps_thread(CONFIGURATION, GPS_VALUE)
-    GPS_THREAD.start()
+    gps_thread = create_gps_thread(configuration, gps_value)
+    gps_thread.start()
 
-    WRITE_THREAD = Thread(
+    write_thread = Thread(
         target=sensor_log_writing_loop,
-        args=(CONFIGURATION, START_TIME, DATA_QUEUE),
+        args=(configuration, start_time, data_queue),
         daemon=True,
     )
-    WRITE_THREAD.start()
+    write_thread.start()
 
-    CAMERA_THREAD = Thread(
+    camera_thread_handle = Thread(
         target=camera_thread,
-        args=(CONFIGURATION, START_TIME),
+        args=(configuration, start_time),
         daemon=True,
     )
-    CAMERA_THREAD.start()
+    camera_thread_handle.start()
 
-    TRANSMITTER_THREAD = Thread(
+    transmitter_thread_handle = Thread(
         target=transmitter_thread,
         args=(
-            CONFIGURATION,
-            START_TIME,
-            CURRENT_READING,
+            configuration,
+            start_time,
+            current_reading,
         ),
         daemon=True,
     )
-    TRANSMITTER_THREAD.start()
+    transmitter_thread_handle.start()
 
     sensor_reading_loop(
-        CONFIGURATION, START_TIME, CURRENT_READING, DATA_QUEUE, GPS_VALUE
+        configuration, start_time, current_reading, data_queue, gps_value
     )
+
+if __name__ == "__main__":
+    main()
