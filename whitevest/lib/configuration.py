@@ -10,7 +10,7 @@ if not TESTING_MODE:
     from adafruit_blinka.microcontroller.bcm283x.pin import Pin
 else:
 
-    class Pin: # pylint: disable=too-few-public-methods
+    class Pin:  # pylint: disable=too-few-public-methods
         """Dummy class for when GPIO modules are not available"""
 
 
@@ -23,7 +23,7 @@ class Configuration:
             try:
                 with open(config_file, "r") as config_file_handle:
                     self.config = yaml.full_load(config_file_handle)
-            except: # pylint: disable=bare-except
+            except:  # pylint: disable=bare-except
                 pass
             return
         self.config = default_configuration

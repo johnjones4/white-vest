@@ -4,8 +4,8 @@ from queue import Queue
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
-from whitevest.lib.utils import take_gps_reading, write_queue_log
 from whitevest.lib.configuration import Configuration
+from whitevest.lib.utils import take_gps_reading, write_queue_log
 
 
 class MockSerial:
@@ -19,9 +19,7 @@ class MockSerial:
 def test_write_queue_log():
     outfile = io.StringIO("")
     data_queue = Queue()
-    configuration = Configuration(None, dict(
-        output_directory="./data"
-    ))
+    configuration = Configuration(None, dict(output_directory="./data"))
     buffer_store = BufferSessionStore(configuration)
     while data_queue.qsize() < 10:
         data_queue.put((random.random(), random.random(), random.random()))

@@ -6,9 +6,7 @@ from whitevest.lib.configuration import Configuration
 
 
 def test_buffer_session_store():
-    configuration = Configuration(None, dict(
-        output_directory="./data"
-    ))
+    configuration = Configuration(None, dict(output_directory="./data"))
     store = BufferSessionStore(configuration, f"test_sessionstore_{time.time()}.sql")
     store.initialize()
     first_session = store.current_session.get_value()

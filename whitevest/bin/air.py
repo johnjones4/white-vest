@@ -14,6 +14,7 @@ from whitevest.threads.air import (
     transmitter_thread,
 )
 
+
 def main():
     """Inboard data capture and transmission script"""
 
@@ -65,6 +66,7 @@ def main():
     sensor_reading_loop(
         configuration, start_time, current_reading, data_queue, gps_value
     )
+
 
 if __name__ == "__main__":
     main()

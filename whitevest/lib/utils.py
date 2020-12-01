@@ -36,7 +36,7 @@ def write_queue_log(
     return False
 
 
-def take_gps_reading(sio, gps_value: AtomicValue):
+def take_gps_reading(sio, gps_value: AtomicValue) -> bool:
     """Grab the most recent data from GPS feed"""
     line = sio.readline()
     if line[0:6] == "$GPGGA":
@@ -49,6 +49,8 @@ def take_gps_reading(sio, gps_value: AtomicValue):
                 float(gps.num_sats) if gps else 0.0,
             )
         )
+        return True
+    return False
 
 
 def gps_reception_loop(sio, gps_value: AtomicValue):

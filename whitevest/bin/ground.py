@@ -18,6 +18,7 @@ from whitevest.threads.ground_server import (
     telemetry_streaming_server,
 )
 
+
 def main():
     """Ground based telemetry reception and saving script"""
 
@@ -78,6 +79,7 @@ def main():
             new_data_queue,
             gps_value,
         )
+
 
 if __name__ == "__main__":
     main()
