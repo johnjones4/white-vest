@@ -19,11 +19,14 @@ class Configuration:
 
     def __init__(self, config_file: str, default_configuration):
         """Create a new configuration based on the supplied yml file path or a default config"""
-        try:
-            with open(config_file, "r") as config_file_handle:
-                self.config = yaml.full_load(config_file_handle)
-        except: # pylint: disable=bare-except
-            self.config = default_configuration
+        if config_file:
+            try:
+                with open(config_file, "r") as config_file_handle:
+                    self.config = yaml.full_load(config_file_handle)
+            except: # pylint: disable=bare-except
+                pass
+            return
+        self.config = default_configuration
 
     def get(self, key: str, default=None):
         """Get a configuration value"""

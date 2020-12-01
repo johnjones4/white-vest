@@ -2,10 +2,14 @@ import random
 import time
 
 from whitevest.lib.buffer_session_store import BufferSessionStore
+from whitevest.lib.configuration import Configuration
 
 
 def test_buffer_session_store():
-    store = BufferSessionStore("data", f"test_sessionstore_{time.time()}.sql")
+    configuration = Configuration(None, dict(
+        output_directory="./data"
+    ))
+    store = BufferSessionStore(configuration, f"test_sessionstore_{time.time()}.sql")
     store.initialize()
     first_session = store.current_session.get_value()
     assert first_session >= int(time.time())
