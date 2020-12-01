@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         make install
-        pip3 install pytest pytest-cov pylint
+        pip3 install pytest pytest-cov pylint setuptools wheel
     - name: Lint
       run: make lint
     - name: Test
