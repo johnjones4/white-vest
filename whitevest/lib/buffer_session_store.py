@@ -6,17 +6,20 @@ import time
 from typing import List
 
 from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.configuration import Configuration
 from whitevest.lib.safe_buffer import SafeBuffer
 
 
 class BufferSessionStore:
     """Data capture session storage engine"""
 
-    def __init__(self, output_dir: str, sql_file: str = "sessionstore.sqlite3"):
+    def __init__(
+        self, configuration: Configuration, sql_file: str = "sessionstore.sqlite3"
+    ):
         """Create a new session store"""
         self.buffer = SafeBuffer()
         self.current_session = AtomicValue()
-        self.output_dir = output_dir
+        self.output_dir = configuration.get("output_directory")
         self.sql_file = sql_file
         self.connection = None
         self.cursor = None

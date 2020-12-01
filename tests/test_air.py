@@ -3,8 +3,11 @@ import random
 import time
 from queue import Queue
 
-from whitevest.lib.air import (digest_next_sensor_reading,
-                               transmit_latest_readings, write_sensor_log)
+from whitevest.lib.air import (
+    digest_next_sensor_reading,
+    transmit_latest_readings,
+    write_sensor_log,
+)
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.const import TELEMETRY_TUPLE_LENGTH
 

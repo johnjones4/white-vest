@@ -20,18 +20,12 @@ install-ground:
 
 cleanup:
 	isort whitevest/*
-	isort test/*
+	isort tests/*
 	black whitevest/*
-	black test/*
+	black tests/*
 
 lint:
 	pylint whitevest/*
 
 test:
 	TESTING=true pytest --cov-report=xml --cov=whitevest tests/*
-
-cleancode:
-	isort whitevest/*
-	isort tests/*.py
-	black whitevest/*
-	black tests/*

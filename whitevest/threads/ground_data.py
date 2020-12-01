@@ -6,21 +6,24 @@ from queue import Queue
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
+from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TESTING_MODE
 from whitevest.lib.ground import digest_next_ground_reading
 from whitevest.lib.utils import handle_exception, write_queue_log
 
 if not TESTING_MODE:
-    import board
-
-    from whitevest.lib.hardware import init_radio  # pylint: disable=ungrouped-imports
+    from whitevest.lib.hardware import init_radio
 
 
-def telemetry_reception_loop(new_data_queue: Queue, gps_value: AtomicValue):
+def telemetry_reception_loop(
+    configuration: Configuration, new_data_queue: Queue, gps_value: AtomicValue
+):
     """Loop forever reading telemetry and passing to the processing queue"""
     try:
         logging.info("Starting telemetry reading loop")
-        rfm9x = init_radio(board.SCK, board.MOSI, board.MISO, board.CE1, board.D25)
+        rfm9x = init_radio(configuration)
+        if not rfm9x:
+            return
         while True:
             try:
                 digest_next_ground_reading(rfm9x, new_data_queue, gps_value)

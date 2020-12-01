@@ -5,6 +5,7 @@ from threading import Thread
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
+from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TESTING_MODE
 from whitevest.lib.utils import create_gps_thread
 from whitevest.threads.ground_data import (
@@ -18,15 +19,23 @@ from whitevest.threads.ground_server import (
 )
 
 if __name__ == "__main__":
+    # Load up the system configuration
+    CONFIGURATION = Configuration(
+        os.getenv("GROUND_CONFIG_FILE", "air.yml"),
+        Configuration.default_ground_configuration,
+    )
+
     # Queue to manage data synchronization between telemetry reception and data logging
     NEW_DATA_QUEUE = Queue()
+
     # Manages the data buffers
-    BUFFER_SESSION_STORE = BufferSessionStore(os.getenv("OUTPUT_DIRECTORY", "./data"))
+    BUFFER_SESSION_STORE = BufferSessionStore(CONFIGURATION)
+
     # Holds the most recent GPS data
     GPS_VALUE = AtomicValue((0.0, 0.0, 0.0, 0.0))
 
     if not TESTING_MODE:
-        GPS_THREAD = create_gps_thread(GPS_VALUE)
+        GPS_THREAD = create_gps_thread(CONFIGURATION, GPS_VALUE)
         GPS_THREAD.start()
 
     WRITE_THREAD = Thread(
@@ -39,22 +48,20 @@ if __name__ == "__main__":
     )
     WRITE_THREAD.start()
 
-    STREAMING_SERVER_PORT = int(os.getenv("STREAMING_PORT", "5678"))
     STREAMING_SERVER_THREAD = Thread(
         target=telemetry_streaming_server,
         args=(
-            STREAMING_SERVER_PORT,
+            CONFIGURATION,
             BUFFER_SESSION_STORE,
         ),
         daemon=True,
     )
     STREAMING_SERVER_THREAD.start()
 
-    SERVER_PORT = int(os.getenv("DASHBOARD_PORT", "8000"))
     DASHBOARD_SERVER_THREAD = Thread(
         target=telemetry_dashboard_server,
         args=(
-            SERVER_PORT,
+            CONFIGURATION,
             BUFFER_SESSION_STORE,
         ),
         daemon=True,
@@ -65,6 +72,7 @@ if __name__ == "__main__":
         replay_telemetry(NEW_DATA_QUEUE, os.getenv("REPLAY_DATA"))
     else:
         telemetry_reception_loop(
+            CONFIGURATION,
             NEW_DATA_QUEUE,
             GPS_VALUE,
         )

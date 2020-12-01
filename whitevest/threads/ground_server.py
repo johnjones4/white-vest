@@ -8,10 +8,13 @@ import websockets
 import websockets.exceptions
 
 from whitevest.lib.buffer_session_store import BufferSessionStore
+from whitevest.lib.configuration import Configuration
 from whitevest.lib.ground import ground_http_class_factory
 
 
-def telemetry_streaming_server(port: int, buffer_session_store: BufferSessionStore):
+def telemetry_streaming_server(
+    configuration: Configuration, buffer_session_store: BufferSessionStore
+):
     """Serve the active buffer over websocket"""
 
     async def data_stream(websocket, _):
@@ -41,7 +44,9 @@ def telemetry_streaming_server(port: int, buffer_session_store: BufferSessionSto
         logging.info("Starting telemetry streaming server")
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        start_server = websockets.serve(data_stream, "0.0.0.0", port)
+        start_server = websockets.serve(
+            data_stream, "0.0.0.0", configuration.get("streaming_server_port")
+        )
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
     except websockets.exceptions.ConnectionClosed:
@@ -51,13 +56,15 @@ def telemetry_streaming_server(port: int, buffer_session_store: BufferSessionSto
         logging.exception(ex)
 
 
-def telemetry_dashboard_server(port: int, buffer_session_store: BufferSessionStore):
+def telemetry_dashboard_server(
+    configuration: Configuration, buffer_session_store: BufferSessionStore
+):
     """Serve the static parts of the dashboard visualization"""
     try:
         logging.info("Starting telemetry dashboard server")
         buffer_session_store.initialize()
         klass = ground_http_class_factory(buffer_session_store)
-        httpd = HTTPServer(("0.0.0.0", port), klass)
+        httpd = HTTPServer(("0.0.0.0", configuration.get("http_server_port")), klass)
         httpd.serve_forever()
     except Exception as ex:  # pylint: disable=broad-except
         logging.error("Telemetry dashboard server failure: %s", str(ex))

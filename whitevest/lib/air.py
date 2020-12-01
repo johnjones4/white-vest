@@ -22,11 +22,14 @@ def digest_next_sensor_reading(
 ) -> float:
     """Grab the latest values from all sensors and put the data in the queue and atomic store"""
     now = time.time()
+    bmp_reading = bmp._read() if bmp else (0.0, 0.0)  # pylint: disable=protected-access
+    acceleration = accel.acceleration if accel else (0.0, 0.0, 0.0)
+    magnetic = mag.magnetic if mag else (0.0, 0.0, 0.0)
     info = (
         now - start_time,
-        *bmp._read(),  # pylint: disable=protected-access
-        *accel.acceleration,
-        *mag.magnetic,
+        *bmp_reading,
+        *acceleration,
+        *magnetic,
         *gps_value.get_value(),
     )
     data_queue.put(info)

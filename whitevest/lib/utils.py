@@ -8,6 +8,7 @@ import pynmea2
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.buffer_session_store import BufferSessionStore
+from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TESTING_MODE
 
 if not TESTING_MODE:
@@ -52,6 +53,8 @@ def take_gps_reading(sio, gps_value: AtomicValue):
 
 def gps_reception_loop(sio, gps_value: AtomicValue):
     """Loop forever reading GPS data and passing it to an atomic value"""
+    if not sio:
+        return
     while True:
         try:
             take_gps_reading(sio, gps_value)
@@ -60,12 +63,12 @@ def gps_reception_loop(sio, gps_value: AtomicValue):
         time.sleep(0)
 
 
-def create_gps_thread(value: AtomicValue):
+def create_gps_thread(configuration: Configuration, value: AtomicValue):
     """Create a thread for tracking GPS"""
     return Thread(
         target=gps_reception_loop,
         args=(
-            init_gps(),
+            init_gps(configuration),
             value,
         ),
         daemon=True,
