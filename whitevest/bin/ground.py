@@ -19,6 +19,8 @@ from whitevest.threads.ground_server import (
 )
 
 def main():
+    """Ground based telemetry reception and saving script"""
+
     # Load up the system configuration
     configuration = Configuration(
         os.getenv("GROUND_CONFIG_FILE", None),

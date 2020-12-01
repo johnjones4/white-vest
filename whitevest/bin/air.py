@@ -15,6 +15,8 @@ from whitevest.threads.air import (
 )
 
 def main():
+    """Inboard data capture and transmission script"""
+
     # Load up the system configuration
     configuration = Configuration(
         os.getenv("AIR_CONFIG_FILE", None), Configuration.default_air_configuration
