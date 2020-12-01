@@ -1,8 +1,17 @@
 import setuptools
-from glob import glob
+import os
 
 with open("Readme.md", "r") as fh:
     long_description = fh.read()
+
+def package_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join("..", path, filename))
+    return paths
+
+extra_files = package_files("dashboard/build")
 
 setuptools.setup(
     name="whitevest-johnjones4",
@@ -19,9 +28,7 @@ setuptools.setup(
         "whitevest.lib",
         "whitevest.threads"
     ],
-    data_files=[
-        ("dashboard", glob("dashboard/build/*/**"))
-    ],
+    package_data={'': extra_files},
     classifiers=[],
     python_requires='>=3.6',
     entry_points={

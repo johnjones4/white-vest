@@ -31,3 +31,8 @@ jobs:
         node-version: 14.x
     - run: cd dashboard && npm install
     - run: cd dashboard && npm run build
+    - run: make package
+    - uses: actions/upload-artifact@v2
+      with:
+        name: whitevest
+        path: dist/whitevest-johnjones4-*.tar.gz
