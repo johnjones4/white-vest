@@ -13,23 +13,18 @@ from whitevest.lib.utils import handle_exception, write_queue_log
 # pylint: disable=too-many-arguments
 def digest_next_sensor_reading(
     start_time: float,
-    bmp,
-    gps_value: AtomicValue,
-    accel,
-    mag,
     data_queue: Queue,
     current_reading: AtomicValue,
+    gps_value: AtomicValue,
+    altimeter_value: AtomicValue,
+    magnetometer_accelerometer_value: AtomicValue,
 ) -> float:
     """Grab the latest values from all sensors and put the data in the queue and atomic store"""
     now = time.time()
-    bmp_reading = bmp._read() if bmp else (0.0, 0.0)  # pylint: disable=protected-access
-    acceleration = accel.acceleration if accel else (0.0, 0.0, 0.0)
-    magnetic = mag.magnetic if mag else (0.0, 0.0, 0.0)
     info = (
         now - start_time,
-        *bmp_reading,
-        *acceleration,
-        *magnetic,
+        *altimeter_value.get_value(),
+        *magnetometer_accelerometer_value.get_value(),
         *gps_value.get_value(),
     )
     data_queue.put(info)

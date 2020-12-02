@@ -6,10 +6,10 @@ import adafruit_bmp3xx
 import adafruit_lsm303_accel
 import adafruit_lsm303dlh_mag
 import adafruit_rfm9x
+import board
 import busio
 import digitalio
 import serial
-import board
 from digitalio import DigitalInOut
 
 from whitevest.lib.configuration import Configuration

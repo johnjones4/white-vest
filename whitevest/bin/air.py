@@ -8,7 +8,9 @@ from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.utils import create_gps_thread
 from whitevest.threads.air import (
+    altimeter_reading_loop,
     camera_thread,
+    magnetometer_accelerometer_reading_loop,
     sensor_log_writing_loop,
     sensor_reading_loop,
     transmitter_thread,
@@ -34,6 +36,12 @@ def main():
 
     # Holds the most recent GPS data
     gps_value = AtomicValue((0.0, 0.0, 0.0, 0.0))
+
+    altimeter_value = AtomicValue()
+    altimeter_value.update((0.0, 0.0))
+
+    magnetometer_accelerometer_value = AtomicValue()
+    magnetometer_accelerometer_value.update((0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
 
     gps_thread = create_gps_thread(configuration, gps_value)
     gps_thread.start()
@@ -63,8 +71,25 @@ def main():
     )
     transmitter_thread_handle.start()
 
+    altimeter_thread = Thread(
+        target=altimeter_reading_loop, args=(configuration, altimeter_value)
+    )
+    altimeter_thread.start()
+
+    magnetometer_accelerometer_thread = Thread(
+        target=magnetometer_accelerometer_reading_loop,
+        args=(configuration, magnetometer_accelerometer_value),
+    )
+    magnetometer_accelerometer_thread.start()
+
     sensor_reading_loop(
-        configuration, start_time, current_reading, data_queue, gps_value
+        configuration,
+        start_time,
+        data_queue,
+        current_reading,
+        gps_value,
+        altimeter_value,
+        magnetometer_accelerometer_value,
     )
 
 

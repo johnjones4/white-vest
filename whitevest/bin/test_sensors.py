@@ -28,7 +28,7 @@ def main():
     test_rfm9x(configuration)
     test_bmp3xx(configuration)
     test_lsm303dlh(configuration)
-    # test_gps(configuration)
+    test_gps(configuration)
 
 
 def test_rfm9x(configuration: Configuration):

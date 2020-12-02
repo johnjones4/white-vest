@@ -12,25 +12,6 @@ from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.const import TELEMETRY_TUPLE_LENGTH
 
 
-class MockBMP:
-    def __init__(self):
-        self.temperature = random.random()
-        self.pressure = random.random()
-
-    def _read(self):
-        return self.temperature, self.pressure
-
-
-class MockAcceleration:
-    def __init__(self):
-        self.acceleration = (random.random(), random.random(), random.random())
-
-
-class MockMagnetic:
-    def __init__(self):
-        self.magnetic = (random.random(), random.random(), random.random())
-
-
 class MockRFM9X:
     def send(self, value):
         self.sent = value
@@ -38,21 +19,19 @@ class MockRFM9X:
 
 def test_digest_next_sensor_reading():
     start_time = time.time()
-    bmp = MockBMP()
+    altimeter_value = AtomicValue([random.random() for _ in range(2)])
     gps_value = AtomicValue([random.random() for _ in range(4)])
-    accel = MockAcceleration()
-    mag = MockMagnetic()
+    magnetometer_accelerometer_value = AtomicValue([random.random() for _ in range(6)])
     data_queue = Queue()
     current_reading = AtomicValue()
     now = digest_next_sensor_reading(
-        start_time, bmp, gps_value, accel, mag, data_queue, current_reading
+        start_time, data_queue, current_reading, gps_value, altimeter_value, magnetometer_accelerometer_value
     )
     logged = data_queue.get()
     expected_tuple = (
         now - start_time,
-        *bmp._read(),
-        *accel.acceleration,
-        *mag.magnetic,
+        *altimeter_value.get_value(),
+        *magnetometer_accelerometer_value.get_value(),
         *gps_value.get_value(),
     )
     assert logged
@@ -76,7 +55,7 @@ def test_write_sensor_log():
 
 
 def test_transmit_latest_readings():
-    last_check = 0
+    last_check = 1
     readings_sent = 0
     start_time = time.time()
     rfm9x = MockRFM9X()

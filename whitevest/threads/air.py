@@ -23,23 +23,57 @@ if not TESTING_MODE:
     import picamera  # pylint: disable=import-error
 
 
+def altimeter_reading_loop(configuration: Configuration, altimeter_value: AtomicValue):
+    try:
+        bmp = init_altimeter(configuration)
+        while bmp:
+            try:
+                altimeter_value.update(bmp._read())
+            except Exception as ex:  # pylint: disable=broad-except
+                handle_exception("Altimeter reading failure", ex)
+    except Exception as ex:  # pylint: disable=broad-except
+        handle_exception("Altimeter setup failure", ex)
+
+
+def magnetometer_accelerometer_reading_loop(
+    configuration: Configuration, magnetometer_accelerometer_value: AtomicValue
+):
+    try:
+        mag, accel = init_magnetometer_accelerometer(configuration)
+        while mag and accel:
+            try:
+                magnetometer_accelerometer_value.update(
+                    (*accel.acceleration, *mag.magnetic)
+                )
+            except Exception as ex:  # pylint: disable=broad-except
+                handle_exception("Magnetometer/Accelerometer reading failure", ex)
+    except Exception as ex:  # pylint: disable=broad-except
+        handle_exception("Magnetometer/Accelerometer setup failure", ex)
+
+
 def sensor_reading_loop(
     configuration: Configuration,
     start_time: float,
-    current_reading: AtomicValue,
     data_queue: Queue,
+    current_reading: AtomicValue,
     gps_value: AtomicValue,
+    altimeter_value: AtomicValue,
+    magnetometer_accelerometer_value: AtomicValue,
 ):
     """Read from the sensors on and infinite loop and queue it for transmission and logging"""
     try:
         logging.info("Starting sensor measurement loop")
-        bmp = init_altimeter(configuration)
-        mag, accel = init_magnetometer_accelerometer(configuration)
         while True:
             try:
                 digest_next_sensor_reading(
-                    start_time, bmp, gps_value, accel, mag, data_queue, current_reading
+                    start_time,
+                    data_queue,
+                    current_reading,
+                    gps_value,
+                    altimeter_value,
+                    magnetometer_accelerometer_value,
                 )
+                time.sleep(0.03)
             except Exception as ex:  # pylint: disable=broad-except
                 handle_exception("Telemetry measurement point reading failure", ex)
     except Exception as ex:  # pylint: disable=broad-except
@@ -92,7 +126,7 @@ def transmitter_thread(
         readings_sent = 0
         while True:
             try:
-                last_check, readings_sent = transmit_latest_readings(
+                readings_sent, last_check = transmit_latest_readings(
                     rfm9x,
                     last_check,
                     readings_sent,
