@@ -25,7 +25,12 @@ def test_digest_next_sensor_reading():
     data_queue = Queue()
     current_reading = AtomicValue()
     now = digest_next_sensor_reading(
-        start_time, data_queue, current_reading, gps_value, altimeter_value, magnetometer_accelerometer_value
+        start_time,
+        data_queue,
+        current_reading,
+        gps_value,
+        altimeter_value,
+        magnetometer_accelerometer_value,
     )
     logged = data_queue.get()
     expected_tuple = (

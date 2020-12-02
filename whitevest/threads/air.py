@@ -24,11 +24,12 @@ if not TESTING_MODE:
 
 
 def altimeter_reading_loop(configuration: Configuration, altimeter_value: AtomicValue):
+    """Continually read the altimeter and set it to the atomic var"""
     try:
         bmp = init_altimeter(configuration)
         while bmp:
             try:
-                altimeter_value.update(bmp._read())
+                altimeter_value.update(bmp._read())  # pylint: disable=protected-access
             except Exception as ex:  # pylint: disable=broad-except
                 handle_exception("Altimeter reading failure", ex)
     except Exception as ex:  # pylint: disable=broad-except
@@ -38,6 +39,7 @@ def altimeter_reading_loop(configuration: Configuration, altimeter_value: Atomic
 def magnetometer_accelerometer_reading_loop(
     configuration: Configuration, magnetometer_accelerometer_value: AtomicValue
 ):
+    """Continually read the accelerometer/magnetometer and set it to the atomic var"""
     try:
         mag, accel = init_magnetometer_accelerometer(configuration)
         while mag and accel:
@@ -51,28 +53,14 @@ def magnetometer_accelerometer_reading_loop(
         handle_exception("Magnetometer/Accelerometer setup failure", ex)
 
 
-def sensor_reading_loop(
-    configuration: Configuration,
-    start_time: float,
-    data_queue: Queue,
-    current_reading: AtomicValue,
-    gps_value: AtomicValue,
-    altimeter_value: AtomicValue,
-    magnetometer_accelerometer_value: AtomicValue,
-):
+# pylint: disable=too-many-arguments
+def sensor_reading_loop(*args):
     """Read from the sensors on and infinite loop and queue it for transmission and logging"""
     try:
         logging.info("Starting sensor measurement loop")
         while True:
             try:
-                digest_next_sensor_reading(
-                    start_time,
-                    data_queue,
-                    current_reading,
-                    gps_value,
-                    altimeter_value,
-                    magnetometer_accelerometer_value,
-                )
+                digest_next_sensor_reading(*args)
                 time.sleep(0.03)
             except Exception as ex:  # pylint: disable=broad-except
                 handle_exception("Telemetry measurement point reading failure", ex)

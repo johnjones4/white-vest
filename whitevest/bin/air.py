@@ -83,7 +83,6 @@ def main():
     magnetometer_accelerometer_thread.start()
 
     sensor_reading_loop(
-        configuration,
         start_time,
         data_queue,
         current_reading,

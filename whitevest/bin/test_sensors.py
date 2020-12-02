@@ -101,7 +101,7 @@ def test_lsm303dlh(configuration: Configuration):
                 readings += 1
             total_time = time.time() - start_time
             logging.info(
-                "Last lsm303dlh acceleration and magnetic reading: %f %f %f %f %f %f out of %d readings at an average rate of %f/sec",
+                "Last lsm303dlh acceleration and magnetic reading: %f %f %f %f %f %f out of %d readings at an average rate of %f/sec",  # pylint: disable= line-too-long
                 *acceleration,
                 *magnetic,
                 readings,
