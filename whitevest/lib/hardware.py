@@ -9,6 +9,7 @@ import adafruit_rfm9x
 import busio
 import digitalio
 import serial
+import board
 from digitalio import DigitalInOut
 
 from whitevest.lib.configuration import Configuration
@@ -51,7 +52,7 @@ def init_magnetometer_accelerometer(configuration: Configuration):
     assignments = configuration.get_pin_assignments("lsm303")
     if not assignments:
         return None, None
-    i2c = busio.I2C(configuration.get("scl"), configuration.get("sda"))
+    i2c = busio.I2C(assignments.get("scl"), assignments.get("sda"))
     mag = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
     accel = adafruit_lsm303_accel.LSM303_Accel(i2c)
     return mag, accel

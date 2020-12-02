@@ -15,6 +15,8 @@ from whitevest.lib.hardware import (
 )
 from whitevest.lib.utils import handle_exception, take_gps_reading
 
+TEST_TIME_LENGTH = 5
+
 
 def main():
     """Take a reading from each sensor to test its functionality"""
@@ -26,7 +28,7 @@ def main():
     test_rfm9x(configuration)
     test_bmp3xx(configuration)
     test_lsm303dlh(configuration)
-    test_gps(configuration)
+    # test_gps(configuration)
 
 
 def test_rfm9x(configuration: Configuration):
@@ -37,9 +39,15 @@ def test_rfm9x(configuration: Configuration):
         if rfm9x:
             current_reading = AtomicValue([0.0 for _ in range(TELEMETRY_TUPLE_LENGTH)])
             start_time = time.time()
-            transmit_latest_readings(rfm9x, 0, 0, 0, current_reading)
+            transmissions = 0
+            while time.time() - start_time < TEST_TIME_LENGTH:
+                transmit_latest_readings(rfm9x, 0, 0, 0, current_reading)
+                transmissions += 1
+            total_time = time.time() - start_time
             logging.info(
-                "Transmission complete in %f seconds", time.time() - start_time
+                "Transmitted %d messages at an average rate of %f/sec",
+                transmissions,
+                float(transmissions) / total_time,
             )
         else:
             logging.info("No rfm9x hardware configured")
@@ -54,12 +62,22 @@ def test_bmp3xx(configuration: Configuration):
         bmp = init_altimeter(configuration)
         if bmp:
             start_time = time.time()
-            (pressure, temperature) = bmp._read()  # pylint: disable=protected-access
+            pressure = 0.0
+            temperature = 0.0
+            readings = 0
+            while time.time() - start_time < TEST_TIME_LENGTH:
+                (
+                    pressure,
+                    temperature,
+                ) = bmp._read()  # pylint: disable=protected-access
+                readings += 1
+            total_time = time.time() - start_time
             logging.info(
-                "bmp3xx reading: %f %f in %f seconds",
+                "Last bmp3xx reading: %f %f out of %d readings at an average rate of %f/sec",
                 pressure,
                 temperature,
-                time.time() - start_time,
+                readings,
+                float(readings) / total_time,
             )
         else:
             logging.info("No bmp3xx hardware configured")
@@ -74,11 +92,21 @@ def test_lsm303dlh(configuration: Configuration):
         (mag, accel) = init_magnetometer_accelerometer(configuration)
         if mag and accel:
             start_time = time.time()
+            acceleration = (0.0, 0.0, 0.0)
+            magnetic = (0.0, 0.0, 0.0)
+            readings = 0
+            while time.time() - start_time < TEST_TIME_LENGTH:
+                acceleration = accel.acceleration
+                magnetic = mag.magnetic
+                readings += 1
+            total_time = time.time() - start_time
             logging.info(
-                "lsm303dlh acceleration reading: %f %f %f", *accel.acceleration
+                "Last lsm303dlh acceleration and magnetic reading: %f %f %f %f %f %f out of %d readings at an average rate of %f/sec",
+                *acceleration,
+                *magnetic,
+                readings,
+                float(readings) / total_time,
             )
-            logging.info("lsm303dlh magnetic reading: %f %f %f", *mag.magnetic)
-            logging.info("Reading complete in %f seconds", time.time() - start_time)
         else:
             logging.info("No lsm303dlh hardware configured")
     except Exception as ex:  # pylint: disable=broad-except
@@ -93,13 +121,17 @@ def test_gps(configuration: Configuration):
         if gps:
             gps_value = AtomicValue()
             start_time = time.time()
-            i = 0
-            while not take_gps_reading(gps, gps_value) and i < 1000:
-                i += 1
+            readings = 0
+            while time.time() - start_time < TEST_TIME_LENGTH:
+                if take_gps_reading(gps, gps_value):
+                    readings += 1
+            total_time = time.time() - start_time
             logging.info(
-                "GPS reading: %f, %f, %f, %f complete in %f seconds",
+                "Last GPS reading: %f, %f, %f, %f out of %d readings at an average rate of %f/sec",
                 *gps_value.get_value(),
-                time.time() - start_time
+                time.time() - start_time,
+                readings,
+                float(readings) / total_time,
             )
         else:
             logging.info("No GPS hardware configured")

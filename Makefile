@@ -2,10 +2,13 @@ data:
 	mkdir data
 
 air: data
-	python3 air.py
+	python3 -m whitevest.bin.air
 
 ground: data
-	python3 ground.py
+	python3 -m whitevest.bin.ground
+
+sensor-test:
+	python3 -m whitevest.bin.test_sensors
 
 install: data
 	pip3 install -r requirements.txt

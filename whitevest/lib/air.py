@@ -76,7 +76,7 @@ def transmit_latest_readings(
         logging.debug("Transmitting %d bytes", len(encoded))
         rfm9x.send(encoded)
         readings_sent += 1
-        if last_check + 10.0 < time.time():
+        if last_check > 0 and last_check + 10.0 < time.time():
             last_check = time.time()
             logging.info(
                 "Readings sent: %d / %d seconds", readings_sent, last_check - start_time
