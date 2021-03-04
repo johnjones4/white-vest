@@ -8,13 +8,16 @@
     "@testing-library/user-event": "^7.2.1",
     "@types/d3": "^6.2.0",
     "@types/jest": "^26.0.15",
+    "@types/leaflet": "^1.5.23",
     "@types/node": "^14.14.9",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "d3": "^6.2.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.3",
+    "leaflet": "^1.7.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-leaflet": "^3.1.0",
+    "react-scripts": "^4.0.3",
     "typescript": "^3.9.7"
   },
   "scripts": {
@@ -35,5 +38,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ],
+    "rules": {
+      "react/jsx-uses-react": "off",
+      "react/react-in-jsx-scope": "off"
+    }
   }
 }

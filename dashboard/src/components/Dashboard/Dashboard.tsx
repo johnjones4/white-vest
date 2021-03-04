@@ -10,9 +10,9 @@ type DashboardProps = {
 }
 
 type DashboardState = {
-  activeSession: Session | null,
+  liveSession: Session | null,
   receivingData: boolean,
-  error: Error | null
+  error: Error | null,
   sessionsList: number[]
 }
 
@@ -22,12 +22,12 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
   constructor(props: DashboardProps) {
     super(props)
     this.state = {
-      activeSession: null,
+      liveSession: null,
       receivingData: false,
       error: null,
       sessionsList: []
     }
-    this.sessionStore = new SessionStore(this, false)
+    this.sessionStore = new SessionStore(this, true)
   }
 
   componentDidMount () {
@@ -35,11 +35,9 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
   }
 
   onNewLiveData () {
-    if (this.state.activeSession === null || this.state.activeSession.timestamp === null) {
-      this.setState({
-        activeSession: this.sessionStore.liveData
-      })
-    }
+    this.setState({
+      liveSession: this.sessionStore.liveData
+    })
   }
   
   onReceivingDataChange ()  {
@@ -60,19 +58,20 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
     })
   }
 
-  async setActiveSession (session: number | null) {
-    if (session !== null) {
-      const activeSession = await this.sessionStore.getSession(session)
-      if (activeSession) {
-        this.setState({
-          activeSession
-        })
-      }
-    } else {
-      this.setState({
-        activeSession: this.sessionStore.liveData
-      })
+  async downloadSession (session: number | null) {
+    const sessionObj = session == null ? this.state.liveSession : await this.sessionStore.getSession(session as number)
+
+    if (!sessionObj) {
+      return
     }
+    
+    const a = document.createElement("a")
+    document.body.appendChild(a)
+    a.style.display = 'none'
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURI(sessionObj.getCSV())
+    a.download = `${sessionObj.timestamp || 'live'}.csv`
+    a.click()
+    document.body.removeChild(a)
   }
 
   render () {
@@ -80,12 +79,10 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
       <div className='Dashboard'>
         <Toolbar 
           sessions={this.state.sessionsList}
-          activeSession={this.state.activeSession ? this.state.activeSession.timestamp : null}
-          setActiveSession={session => this.setActiveSession(session)}
-          startNewSession={() => this.sessionStore.startNewSession()}
-          receivingData={this.state.activeSession && this.state.activeSession.timestamp !== null ? null : this.state.receivingData}
+          receivingData={this.state.receivingData}
+          downloadSession={session => this.downloadSession(session)}
         />
-        { this.state.activeSession && (<Dataviz session={this.state.activeSession} />)}
+        { this.state.liveSession && (<Dataviz session={this.state.liveSession} />)}
         <Banner error={this.state.error} />
       </div>
     )

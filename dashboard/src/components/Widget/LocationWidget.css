@@ -5,48 +5,15 @@
   grid-row-end: 3;
 }
 
-.LocationWidget-Base {
-  fill: var(--color-blue);
+.Widget-LocationWidget .Widget-Inside {
+  position: relative;
+  
 }
 
-.LocationWidget-Rocket {
-  fill: var(--color-white);
-}
-
-.LocationWidget-Connector {
-  stroke: var(--color-white);
-  stroke-dasharray: 4;
-  stroke-width: 2;
-}
-
-.LocationWidget-North {
-  stroke: var(--color-red);
-  stroke-width: 1;
-}
-
-.LocationWidget-North-Text {
-  fill: var(--color-red);
-}
-
-.LocationWidget-Map-Line {
-  stroke: var(--color-white);
-  stroke-width: 1;
-  fill: none;
-}
-
-.LocationWidget-Controls {
+.Widget-LocationWidget .Widget-Inside .leaflet-container {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
-  z-index: 10;
-}
-
-.LocationWidget-Zoom {
-  border: none;
-  outline: none;
-  background: var(--color-white);
-  width: 20px;
-  height: 20px;
-  margin-right: 4px;
-  cursor: pointer;
+  right: 0;
+  bottom: 0;
 }

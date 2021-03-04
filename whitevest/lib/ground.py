@@ -94,10 +94,4 @@ def ground_http_class_factory(
                 else:
                     self.send_json({"message": "Static file cannot be read"}, 500)
 
-        def do_POST(self):  # pylint: disable=invalid-name
-            """Handle a POST request"""
-            if self.path == "/api/session":
-                buffer_session_store.create_new_session()
-                self.send_json({"message": "ok"})
-
     return TelemetryHttpRequestHandler

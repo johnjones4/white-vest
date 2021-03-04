@@ -6,7 +6,7 @@
 .Toolbar-Session-Select {
   position: relative;
   overflow: visible;
-  float: left;
+  float: right;
 }
 
 .Toolbar-Session-Select-Button {
@@ -55,18 +55,6 @@
   transition: all 0.25s;
 }
 
-.Toolbar-Start-New-Session {
-  border: none;
-  outline: none;
-  background: var(--color-green);
-  color: var(--color-white);
-  font-size: 15px;
-  height: 30px;
-  cursor: pointer;
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
-}
-
 .Toolbar-Session-Select-Dropdown-Button:hover {
   background: var(--color-dark-blue);
 }
@@ -77,7 +65,7 @@
 
 .Toolbar-Stream-Status {
   display: block;
-  float: right;
+  float: left;
   color: var(--color-white);
   height: 30px;
   font-size: 15px;

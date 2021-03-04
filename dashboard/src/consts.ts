@@ -28,3 +28,31 @@ export enum Index {
 }
 
 export const SEA_LEVEL_PRESSURE = 1014.050964
+
+export const CSV_HEADERS: string[] = [
+  'Timestamp',
+  'Pressure',
+  'Temperature',
+  'Acceleration X',
+  'Acceleration Y',
+  'Acceleration Z',
+  'Magnetic X',
+  'Magnetic Y',
+  'Magnetic Z',
+  'Rocket Latitude',
+  'Rocket Longitude',
+  'Rocket GPS Quality',
+  'Rocket GPS Num Sats',
+  'RSSI',
+  'Base Latitude',
+  'Base Longitude',
+  'Base GPS Quality',
+  'Base GPS Num Sats',
+  'Altitude',
+  'Velocity',
+  'Pitch',
+  'Roll',
+  'Yaw',
+  'Distance',
+  'Bearing'
+]

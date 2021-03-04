@@ -3,7 +3,7 @@ import Widget from './Widget'
 import * as d3 from 'd3'
 import './LinePlotWidget.css'
 
-const padding = 40
+const padding = 20
 
 type LinePlotWidgetProps = {
   data: Array<[number, number]>,

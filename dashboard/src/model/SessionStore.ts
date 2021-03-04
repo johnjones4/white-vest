@@ -2,9 +2,9 @@ import { transformTelemetryArray } from '../derivedData'
 import Session from './Session'
 
 export interface SessionStoreDelegate {
-  onNewLiveData: () => void
-  onReceivingDataChange: () => void
-  onError: (error: Error) => void
+  onNewLiveData: () => void,
+  onReceivingDataChange: () => void,
+  onError: (error: Error) => void,
   onSessionsListAvailable: () => void
 }
 

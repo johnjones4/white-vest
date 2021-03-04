@@ -2,11 +2,9 @@ import React, { Component } from 'react'
 import './Toolbar.css'
 
 type ToolbarProps = {
-  setActiveSession: (session: number | null) => void,
   sessions: number[],
-  activeSession: number | null,
-  startNewSession: () => void,
-  receivingData: boolean | null
+  receivingData: boolean | null,
+  downloadSession: (session : number | null) => void
 }
 
 type ToolbarState = {
@@ -27,30 +25,29 @@ export default class Toolbar extends Component<ToolbarProps, ToolbarState> {
     })
   }
 
-  setActiveSession(session: number | null) {
-    this.setState({
-      sessionSelectOpen: false
-    })
-    this.props.setActiveSession(session)
+  downloadSession(session: number | null) {
+    this.toggleSessionSelectOpen()
+    this.props.downloadSession(session)
   }
 
   render () {
-    const { sessions, activeSession, startNewSession, receivingData } = this.props
+    const { sessions, receivingData } = this.props
     return (
       <div className='Toolbar'>
-        <div className='Toolbar-Session-Select'>
-          <button className={'Toolbar-Session-Select-Button ' + (activeSession === null ? 'Toolbar-Session-Select-Button-Live-Session' : '')} onClick={() => this.toggleSessionSelectOpen()}>Session: {activeSession === null ? 'Live' : new Date(activeSession * 1000).toLocaleString()}</button>
-          { this.state.sessionSelectOpen && (<div className='Toolbar-Session-Select-Dropdown'>
-            <button className='Toolbar-Session-Select-Dropdown-Button' onClick={() => this.setActiveSession(null)}>
-              Live
-            </button>
-            { sessions.map(session => (<button className='Toolbar-Session-Select-Dropdown-Button' key={session} onClick={() => this.setActiveSession(session)}>{new Date(session * 1000).toLocaleString()}</button>)) }
-          </div>)}
-        </div>
-        { activeSession === null && (<button className='Toolbar-Start-New-Session' onClick={() => startNewSession()}>Save and Start New Session</button>) }
         <div className={['Toolbar-Stream-Status', receivingData !== null ? (receivingData ? 'Toolbar-Stream-Status-Receiving' : 'Toolbar-Stream-Status-Not-Receiving') : ''].join(' ')}>
           { receivingData !== null ? (receivingData ? 'Receiving Data' : 'Not Receiving Data') : 'Data Not Live' }
         </div>
+
+        <div className='Toolbar-Session-Select'>
+          <button className='Toolbar-Session-Select-Button' onClick={() => this.toggleSessionSelectOpen()}>Download A Session</button>
+          { this.state.sessionSelectOpen && (<div className='Toolbar-Session-Select-Dropdown'>
+            <button className='Toolbar-Session-Select-Dropdown-Button' onClick={() => this.downloadSession(null)}>
+              Live
+            </button>
+            { sessions.map(session => (<button className='Toolbar-Session-Select-Dropdown-Button' key={session} onClick={() => this.downloadSession(session)}>{new Date(session * 1000).toLocaleString()}</button>)) }
+          </div>)}
+        </div>
+        
       </div>
     )
   }
