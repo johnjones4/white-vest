@@ -28,7 +28,7 @@ The inboard system records video and measures pressure, temperature, altitude, a
 ### Ground
 
 * [Raspberry Pi Zero W](https://www.adafruit.com/product/3400)
-* [Adafruit RFM96W LoRa Radio Transceiver Breakout - 433 MHz - RadioFruit](https://www.adafruit.com/product/3073)
+* [Adafruit RFM95W LoRa Radio Transceiver Breakout - 868 or 915 MHz - RadioFruit](https://www.adafruit.com/product/3072)
 * [GPS Module](https://www.amazon.com/gp/product/B084MK8BS2/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1)
 
 ### Wiring
