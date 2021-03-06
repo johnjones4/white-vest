@@ -2,21 +2,20 @@
 import csv
 import logging
 import time
-from queue import Queue
 
 from whitevest.lib.atomic_value import AtomicValue
-from whitevest.lib.buffer_session_store import BufferSessionStore
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TESTING_MODE
 from whitevest.lib.ground import digest_next_ground_reading
-from whitevest.lib.utils import handle_exception, write_queue_log
+from whitevest.lib.safe_buffer import SafeBuffer
+from whitevest.lib.utils import handle_exception
 
 if not TESTING_MODE:
     from whitevest.lib.hardware import init_radio
 
 
 def telemetry_reception_loop(
-    configuration: Configuration, new_data_queue: Queue, gps_value: AtomicValue
+    configuration: Configuration, buffer: SafeBuffer, gps_value: AtomicValue
 ):
     """Loop forever reading telemetry and passing to the processing queue"""
     try:
@@ -26,15 +25,17 @@ def telemetry_reception_loop(
             return
         while True:
             try:
-                digest_next_ground_reading(rfm9x, new_data_queue, gps_value)
-                time.sleep(0)
+                if digest_next_ground_reading(rfm9x, buffer, gps_value):
+                    time.sleep(0)
+                else:
+                    time.sleep(1)
             except Exception as ex:  # pylint: disable=broad-except
                 handle_exception("Telemetry point reading failure", ex)
     except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Telemetry point reading failure", ex)
 
 
-def replay_telemetry(new_data_queue: Queue, replay_file: str):
+def replay_telemetry(buffer: SafeBuffer, replay_file: str):
     """Replays telemetry from a file"""
     try:
         while True:
@@ -49,33 +50,7 @@ def replay_telemetry(new_data_queue: Queue, replay_file: str):
                         start_stamp = info[0]
                     while time.time() - start_time < info[0] - start_stamp:
                         pass
-                    new_data_queue.put(info)
+                    buffer.append(info)
                     time.sleep(0)
     except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Telemetry replay failure", ex)
-
-
-def telemetry_log_writing_loop(
-    new_data_queue: Queue, buffer_session_store: BufferSessionStore
-):
-    """Loop forever clearing the data queue"""
-    try:
-        logging.info("Starting telemetry log writing loop")
-        while not buffer_session_store.current_session.get_value():
-            time.sleep(1)
-        while True:
-            start_time = buffer_session_store.current_session.get_value()
-            with open(buffer_session_store.data_path_for_session(), "w") as outfile:
-                while True:
-                    try:
-                        write_queue_log(outfile, new_data_queue, buffer_session_store)
-                        time.sleep(0)
-                        if (
-                            start_time
-                            != buffer_session_store.current_session.get_value()
-                        ):
-                            break
-                    except Exception as ex:  # pylint: disable=broad-except
-                        handle_exception("Telemetry log line writing failure", ex)
-    except Exception as ex:  # pylint: disable=broad-except
-        handle_exception("Telemetry log line writing failure", ex)

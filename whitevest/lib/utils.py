@@ -7,9 +7,9 @@ from threading import Thread
 import pynmea2
 
 from whitevest.lib.atomic_value import AtomicValue
-from whitevest.lib.buffer_session_store import BufferSessionStore
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TESTING_MODE
+from whitevest.lib.safe_buffer import SafeBuffer
 
 if not TESTING_MODE:
     from whitevest.lib.hardware import init_gps
@@ -21,17 +21,14 @@ def handle_exception(message: str, exception: Exception):
     logging.exception(exception)
 
 
-def write_queue_log(
-    outfile, new_data_queue: Queue, buffer_session_store: BufferSessionStore
-) -> bool:
+def write_queue_log(outfile, new_data_queue: Queue, buffer: SafeBuffer) -> bool:
     """If there is data in the queue, write it to the file"""
     if not new_data_queue.empty():
         info = new_data_queue.get()
         row_str = ",".join([str(v) for v in info])
         logging.debug(row_str)
         outfile.write(row_str + "\n")
-        if buffer_session_store:
-            buffer_session_store.buffer.append(info)
+        buffer.append(info)
         return True
     return False
 

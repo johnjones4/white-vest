@@ -2,19 +2,15 @@
 import asyncio
 import json
 import logging
-from http.server import HTTPServer
 
 import websockets
 import websockets.exceptions
 
-from whitevest.lib.buffer_session_store import BufferSessionStore
 from whitevest.lib.configuration import Configuration
-from whitevest.lib.ground import ground_http_class_factory
+from whitevest.lib.safe_buffer import SafeBuffer
 
 
-def telemetry_streaming_server(
-    configuration: Configuration, buffer_session_store: BufferSessionStore
-):
+def telemetry_streaming_server(configuration: Configuration, buffer: SafeBuffer):
     """Serve the active buffer over websocket"""
 
     async def data_stream(websocket, _):
@@ -25,12 +21,10 @@ def telemetry_streaming_server(
             while True:
                 if websocket.closed:
                     return
-                end_index = buffer_session_store.buffer.size()
+                end_index = buffer.size()
                 if end_index > last_index:
                     await websocket.send(
-                        json.dumps(
-                            buffer_session_store.buffer.get_range(last_index, end_index)
-                        )
+                        json.dumps(buffer.get_range(last_index, end_index))
                     )
                     last_index = end_index
                 await asyncio.sleep(1)
@@ -53,19 +47,4 @@ def telemetry_streaming_server(
         logging.info("Client disconnected from streaming server")
     except Exception as ex:  # pylint: disable=broad-except
         logging.error("Telemetry streaming server failure: %s", str(ex))
-        logging.exception(ex)
-
-
-def telemetry_dashboard_server(
-    configuration: Configuration, buffer_session_store: BufferSessionStore
-):
-    """Serve the static parts of the dashboard visualization"""
-    try:
-        logging.info("Starting telemetry dashboard server")
-        buffer_session_store.initialize()
-        klass = ground_http_class_factory(buffer_session_store)
-        httpd = HTTPServer(("0.0.0.0", configuration.get("http_server_port")), klass)
-        httpd.serve_forever()
-    except Exception as ex:  # pylint: disable=broad-except
-        logging.error("Telemetry dashboard server failure: %s", str(ex))
         logging.exception(ex)

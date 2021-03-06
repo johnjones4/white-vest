@@ -69,7 +69,7 @@ class Configuration:
                 scl="SCL",
                 sda="SDA",
             ),
-            gps=dict(serial_device=None),  # "/dev/ttyS0",
+            gps=dict(serial_device="/dev/ttyS0"),
         ),
     )
 
@@ -84,6 +84,7 @@ class Configuration:
                 miso="MISO",
                 cs="CE1",
                 reset="D25",
-            )
+            ),
+            gps=dict(serial_device="/dev/ttyS0"),
         ),
     )

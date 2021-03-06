@@ -21,13 +21,16 @@ TEST_TIME_LENGTH = 5
 def main():
     """Take a reading from each sensor to test its functionality"""
     # Load up the system configuration
+    # configuration = Configuration(
+    #     os.getenv("AIR_CONFIG_FILE", None), Configuration.default_air_configuration
+    # )
     configuration = Configuration(
-        os.getenv("AIR_CONFIG_FILE", None), Configuration.default_air_configuration
+        os.getenv("GROUND_CONFIG_FILE", None), Configuration.default_ground_configuration
     )
 
     test_rfm9x(configuration)
-    test_bmp3xx(configuration)
-    test_lsm303dlh(configuration)
+    # test_bmp3xx(configuration)
+    # test_lsm303dlh(configuration)
     test_gps(configuration)
 
 
