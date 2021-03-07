@@ -15,7 +15,7 @@ extra_files = package_files("dashboard/build")
 
 setuptools.setup(
     name="whitevest-johnjones4",
-    version="0.0.3",
+    version="0.0.4",
     author="John Jones",
     author_email="john@johnjones.family",
     description="White Vest is a project for collecting, logging, emitting, and visualizing telemetry from a model rocket containing an inboard Raspberry Pi Zero with another Raspberry Pi receiving telemetry.",

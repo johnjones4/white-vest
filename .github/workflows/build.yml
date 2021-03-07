@@ -28,9 +28,9 @@ jobs:
     - run: cd dashboard && npm install
     - run: cd dashboard && npm run build
     - run: make package
-      if: github.event_name == 'tag'
+      if: startsWith(github.ref, 'refs/tags/')
     - uses: actions/create-release@v1
-      if: github.event_name == 'tag'
+      if: startsWith(github.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -39,7 +39,7 @@ jobs:
         draft: false
         prerelease: false
     - uses: actions/upload-release-asset@v1
-      if: github.event_name == 'tag'
+      if: startsWith(github.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -48,7 +48,7 @@ jobs:
         asset_name: whitevest.zip
         asset_content_type: application/zip
     - uses: actions/upload-release-asset@v1
-      if: github.event_name == 'tag'
+      if: startsWith(github.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
