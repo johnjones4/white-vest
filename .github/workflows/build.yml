@@ -1,12 +1,9 @@
 name: White Vest Build
 on:
   push:
-    branches: [ master ]
+    branches: ["*"]
+    tags: ["*"]
   pull_request:
-    branches: [ master ]
-  release:
-    types:
-      - created
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,14 +28,31 @@ jobs:
     - run: cd dashboard && npm install
     - run: cd dashboard && npm run build
     - run: make package
-      if: github.event_name == 'release' && github.event.action == 'created'
-    - uses: actions/upload-artifact@v2
-      if: github.event_name == 'release' && github.event.action == 'created'
+      if: github.event_name == 'tag'
+    - uses: actions/create-release@v1
+      if: github.event_name == 'tag'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: whitevest
-        path: dist/whitevest-johnjones4-*.tar.gz
-    - uses: actions/upload-artifact@v2
-      if: github.event_name == 'release' && github.event.action == 'created'
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - uses: actions/upload-release-asset@v1
+      if: github.event_name == 'tag'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: dashboard.dmg
-        path: dashboard/dist/dashboard_*_amd64.snap
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/whitevest-johnjones4-*.tar.gz
+        asset_name: whitevest.zip
+        asset_content_type: application/zip
+    - uses: actions/upload-release-asset@v1
+      if: github.event_name == 'tag'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dashboard/dist/dashboard_*_amd64.snap
+        asset_name: dashboard.snap
+        asset_content_type: application/snap
