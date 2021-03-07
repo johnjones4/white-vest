@@ -27,7 +27,7 @@ def test_digest_next_ground_reading_1():
     assert digest_next_ground_reading(rfm9x, buffer, gps_value)
     assert buffer.size() == 1
     expected = (*values, rfm9x.last_rssi, *gps_value.get_value())
-    assert buffer.get_range(0,1)[0] == expected
+    assert buffer.get_range(0, 1)[0] == expected
 
 
 def test_digest_next_ground_reading_2():
@@ -38,4 +38,4 @@ def test_digest_next_ground_reading_2():
     assert buffer.size() == 1
     values = [None] * TELEMETRY_TUPLE_LENGTH
     expected = (*values, None, *gps_value.get_value())
-    assert buffer.get_range(0,1)[0] == expected
+    assert buffer.get_range(0, 1)[0] == expected
