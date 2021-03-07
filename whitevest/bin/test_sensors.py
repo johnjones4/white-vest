@@ -21,16 +21,16 @@ TEST_TIME_LENGTH = 5
 def main():
     """Take a reading from each sensor to test its functionality"""
     # Load up the system configuration
-    # configuration = Configuration(
-    #     os.getenv("AIR_CONFIG_FILE", None), Configuration.default_air_configuration
-    # )
     configuration = Configuration(
-        os.getenv("GROUND_CONFIG_FILE", None), Configuration.default_ground_configuration
+        os.getenv("AIR_CONFIG_FILE", None), Configuration.default_air_configuration
     )
+    # configuration = Configuration(
+    #     os.getenv("GROUND_CONFIG_FILE", None), Configuration.default_ground_configuration
+    # )
 
     test_rfm9x(configuration)
-    # test_bmp3xx(configuration)
-    # test_lsm303dlh(configuration)
+    test_bmp3xx(configuration)
+    test_lsm303dlh(configuration)
     test_gps(configuration)
 
 
@@ -125,14 +125,16 @@ def test_gps(configuration: Configuration):
             gps_value = AtomicValue()
             start_time = time.time()
             readings = 0
-            while time.time() - start_time < TEST_TIME_LENGTH:
-                if take_gps_reading(gps, gps_value):
-                    readings += 1
+            while readings == 0 or time.time() - start_time < TEST_TIME_LENGTH:
+                try:
+                    if take_gps_reading(gps, gps_value):
+                        readings += 1
+                except Exception as ex:  # pylint: disable=broad-except:
+                    handle_exception("Reading failure", ex)
             total_time = time.time() - start_time
             logging.info(
                 "Last GPS reading: %f, %f, %f, %f out of %d readings at an average rate of %f/sec",
                 *gps_value.get_value(),
-                time.time() - start_time,
                 readings,
                 float(readings) / total_time,
             )

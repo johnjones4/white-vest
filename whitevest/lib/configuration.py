@@ -57,7 +57,7 @@ class Configuration:
                 mosi="MOSI_1",
                 miso="MISO_1",
                 cs="D24",
-                reset="CE0",
+                reset="CE1",
             ),
             bmp3xx=dict(
                 sck="SCK",
@@ -69,14 +69,12 @@ class Configuration:
                 scl="SCL",
                 sda="SDA",
             ),
-            gps=dict(serial_device="/dev/ttyS0"),
+            gps=dict(serial_device="/dev/ttyAMA0"),
         ),
     )
 
     default_ground_configuration = dict(
-        output_directory="./data",
         streaming_server_port=5678,
-        http_server_port=8000,
         devices=dict(
             rfm9x=dict(
                 sck="SCK",

@@ -3,11 +3,14 @@ import Widget from './Widget'
 import './MissionClockWidget.css'
 
 type MissionClockWidgetProps = {
-  seconds: number,
+  seconds: number | null,
   name: string
 }
 
-export default (props: MissionClockWidgetProps) => {
+const MissionClockWidget = (props: MissionClockWidgetProps) => {
+  if (!props.seconds) {
+    return null
+  }
   const minutes = Math.floor(props.seconds / 60)
   const seconds = (props.seconds - minutes * 60)
   let secondsStr = `${seconds.toFixed(1)}`
@@ -24,3 +27,5 @@ export default (props: MissionClockWidgetProps) => {
     </Widget>
   )
 }
+
+export default MissionClockWidget

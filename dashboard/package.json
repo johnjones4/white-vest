@@ -12,19 +12,27 @@
     "@types/node": "^14.14.9",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "cross-env": "^7.0.3",
     "d3": "^6.2.0",
+    "electron-is-dev": "^2.0.0",
     "leaflet": "^1.7.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-leaflet": "^3.1.0",
     "react-scripts": "^4.0.3",
+    "tone": "^14.7.77",
     "typescript": "^3.9.7"
   },
+  "main": "public/electron.js",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "react-start": "react-scripts start",
+    "react-build": "react-scripts build",
+    "react-test": "react-scripts test",
+    "react-eject": "react-scripts eject",
+    "electron-build": "electron-builder",
+    "release": "npm run react-build && electron-builder --publish=always",
+    "build": "npm run react-build && npm run electron-build",
+    "start": "concurrently \"cross-env BROWSER=none npm run react-start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "proxy": "http://localhost:8000",
   "browserslist": {
@@ -48,5 +56,11 @@
       "react/jsx-uses-react": "off",
       "react/react-in-jsx-scope": "off"
     }
+  },
+  "devDependencies": {
+    "concurrently": "^6.0.0",
+    "electron": "^12.0.0",
+    "electron-builder": "^22.10.5",
+    "wait-on": "^5.2.1"
   }
 }

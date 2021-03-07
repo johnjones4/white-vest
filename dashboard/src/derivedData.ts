@@ -1,13 +1,13 @@
 import {Index, SEA_LEVEL_PRESSURE} from './consts'
 
-export const transformTelemetryArray = (data: Array<Array<number>>) => {
+export const transformTelemetryArray = (data: Array<Array<number | null>>): Array<Array<number | null>> => {
   const data1 = data
     .map(dataPoint => dataPoint.concat([
-      44307.7 * (1 - Math.pow((dataPoint[Index.PRESSURE] / SEA_LEVEL_PRESSURE), 0.190284)),
+      dataPoint[Index.PRESSURE] === null ? null : 44307.7 * (1 - Math.pow((dataPoint[Index.PRESSURE] as number / 100) / SEA_LEVEL_PRESSURE, 0.190284)),
       0,
-      Math.atan2(-1.0 * dataPoint[Index.ACCELERATION_X], dataPoint[Index.ACCELERATION_Z]) * (180.0 / Math.PI),
-      Math.atan2(-1.0 * dataPoint[Index.ACCELERATION_Y], dataPoint[Index.ACCELERATION_Z]) * (180.0 / Math.PI),
-      (Math.atan2(dataPoint[Index.MAGNETIC_Y], dataPoint[Index.MAGNETIC_X]) * 180.0) / Math.PI,
+      dataPoint[Index.ACCELERATION_X] === null || dataPoint[Index.ACCELERATION_Z] === null ? null : Math.atan2(-1.0 * (dataPoint[Index.ACCELERATION_X] as number), dataPoint[Index.ACCELERATION_Z] as number) * (180.0 / Math.PI),
+      dataPoint[Index.ACCELERATION_Y] === null || dataPoint[Index.ACCELERATION_Z] === null ? null : Math.atan2(-1.0 * (dataPoint[Index.ACCELERATION_Y] as number), dataPoint[Index.ACCELERATION_Z] as number) * (180.0 / Math.PI),
+      dataPoint[Index.MAGNETIC_Y] === null || dataPoint[Index.MAGNETIC_X] === null ? null : (Math.atan2(dataPoint[Index.MAGNETIC_Y] as number, dataPoint[Index.MAGNETIC_X] as number) * 180.0) / Math.PI,
       calculateDistance(
         dataPoint[Index.ROCKET_LAT],
         dataPoint[Index.ROCKET_LON],
@@ -22,12 +22,21 @@ export const transformTelemetryArray = (data: Array<Array<number>>) => {
       )
     ]))
   return data1.map(dataPoint => {
-    dataPoint[Index.VELOCITY] = data1.length > 0 ? (dataPoint[Index.ALTITUDE] - data1[data1.length - 1][Index.ALTITUDE]) / (dataPoint[Index.TIMESTAMP] - data1[data1.length - 1][Index.TIMESTAMP]) : 0
+    dataPoint[Index.VELOCITY] = dataPoint[Index.ALTITUDE] !== null 
+      && data1[data1.length - 1][Index.ALTITUDE] !== null 
+      && dataPoint[Index.TIMESTAMP] !== null
+      && data1[data1.length - 1][Index.TIMESTAMP] !== null
+      && data1.length > 0 ? 
+        (dataPoint[Index.ALTITUDE] as number - (data1[data1.length - 1][Index.ALTITUDE] as number)) / (dataPoint[Index.TIMESTAMP] as number - (data1[data1.length - 1][Index.TIMESTAMP] as number)) 
+        : 0
     return dataPoint
   })
 }
 
-export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) : number => {
+export const calculateDistance = (lat1: number | null, lon1: number | null, lat2: number | null, lon2: number | null) : number | null => {
+  if (lat1 === null || lon1 === null || lat2 === null || lon2 === null) {
+    return null
+  }
   const R = 6371e3; // metres
   const φ1 = lat1 * Math.PI/180; // φ, λ in radians
   const φ2 = lat2 * Math.PI/180;
@@ -52,7 +61,10 @@ function toDegrees(radians: number) : number {
 }
 
 
-function bearing(startLat: number, startLng: number, destLat: number, destLng: number) : number {
+function bearing(startLat: number | null, startLng: number | null, destLat: number | null, destLng: number | null) : number | null {
+  if (startLat === null || startLng === null || destLat === null || destLng === null) {
+    return null
+  }
   startLat = toRadians(startLat);
   startLng = toRadians(startLng);
   destLat = toRadians(destLat);

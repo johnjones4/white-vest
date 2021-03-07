@@ -4,12 +4,12 @@ import './Widget.css'
 type WidgetProps = {
   className?: string,
   name: string,
-  dimensionsReady?: (el: HTMLDivElement | null) => void,
+  dimensionsReady?: null | ((el: HTMLDivElement | null) => void),
   lastReading?: string | null,
   children?: React.ReactNode
 }
 
-export default ({ children, className, name, dimensionsReady, lastReading }: WidgetProps) => (
+const Widget = ({ children, className, name, dimensionsReady, lastReading }: WidgetProps) => (
   <div className={'Widget Dashboard-Panel' + (className ? ' Widget-' + className : '')}>
     <div className='Widget-Header'>
       <div className='Widget-Header-Title'>{ name }</div>
@@ -20,3 +20,5 @@ export default ({ children, className, name, dimensionsReady, lastReading }: Wid
     </div>
   </div>
 )
+
+export default Widget

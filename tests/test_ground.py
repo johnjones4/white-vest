@@ -31,7 +31,7 @@ def test_digest_next_ground_reading_1():
 
 
 def test_digest_next_ground_reading_2():
-    rfm9x = MockRFM9x(None)
+    rfm9x = MockRFM9x()
     buffer = SafeBuffer()
     gps_value = AtomicValue([random.random() for _ in range(4)])
     assert not digest_next_ground_reading(rfm9x, buffer, gps_value)

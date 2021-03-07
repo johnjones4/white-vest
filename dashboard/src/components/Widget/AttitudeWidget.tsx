@@ -13,7 +13,7 @@ export default class AttitudeWidget extends Component<AttitudeWidgetProps> {
 
   render () {
     if (this.props.data === null) {
-      return
+      return null
     }
     const rotation = {
       transform: [
@@ -27,13 +27,13 @@ export default class AttitudeWidget extends Component<AttitudeWidgetProps> {
         <div className='AttitudeWidget'>
           <div className='AttitudeWidget-Readings'>
             <p>
-              <strong>Roll:</strong> {this.props.data.roll.toFixed(1)}&deg;
+              <strong>Roll:</strong> {this.props.data.roll && this.props.data.roll.toFixed(1)}&deg;
             </p>
             <p>
-              <strong>Pitch:</strong> {this.props.data.pitch.toFixed(1)}&deg;
+              <strong>Pitch:</strong> {this.props.data.pitch && this.props.data.pitch.toFixed(1)}&deg;
             </p>
             <p>
-              <strong>Yaw:</strong> {this.props.data.yaw.toFixed(1)}&deg;
+              <strong>Yaw:</strong> {this.props.data.yaw && this.props.data.yaw.toFixed(1)}&deg;
             </p>
           </div>
           <div className='AttitudeWidget-Scene' style={rotation}>

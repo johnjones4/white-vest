@@ -4,7 +4,7 @@ data:
 air: data
 	python3 -m whitevest.bin.air
 
-ground: data
+ground:
 	python3 -m whitevest.bin.ground
 
 sensor-test:
@@ -18,7 +18,8 @@ install-air:
 	systemctl enable air.service
 
 install-ground:
-	cp misc/ground.service /lib/systemd/system/
+	ln -s /home/pi/whitevest/misc/ground.service /etc/systemd/system/ground.service
+	systemctl daemon-reload
 	systemctl enable ground.service
 
 cleanup:

@@ -1,48 +1,99 @@
 import React, { Component } from 'react'
-import Dataviz from '../Dataviz/Dataviz'
+import AttitudeWidget from '../Widget/AttitudeWidget'
+import MissionClockWidget from '../Widget/MissionClockWidget'
+import LinePlotWidget from '../Widget/LinePlotWidget'
+import LocationWidget from '../Widget/LocationWidget'
 import Toolbar from '../Toolbar/Toolbar'
 import Banner from '../Banner/Banner'
 import './Dashboard.css'
-import SessionStore, { SessionStoreDelegate } from '../../model/SessionStore'
-import Session from '../../model/Session'
+import Session, { SessionDelegate, Locality, Attitude, TimePlottable, ReceivingState } from '../../model/Session'
+import {Index} from '../../consts'
+import * as Tone from 'tone'
 
 type DashboardProps = {
 }
 
 type DashboardState = {
-  liveSession: Session | null,
-  receivingData: boolean,
+  receivingState: ReceivingState,
   error: Error | null,
-  sessionsList: number[]
+  locality: Locality | null,
+  attitude: Attitude | null,
+  rssi: TimePlottable | null,
+  altitude: TimePlottable | null,
+  velocity: TimePlottable | null,
+  distance: TimePlottable | null,
+  temperature: TimePlottable | null,
+  pressure: TimePlottable | null,
+  seconds: number | null,
+  wsAddress: string
 }
 
-export default class Dashboard extends Component<DashboardProps, DashboardState> implements SessionStoreDelegate {
-  sessionStore: SessionStore
+export default class Dashboard extends Component<DashboardProps, DashboardState> implements SessionDelegate {
+  session: Session
+  synth: Tone.Synth
 
   constructor(props: DashboardProps) {
     super(props)
+    this.synth = new Tone.Synth().toDestination()
     this.state = {
-      liveSession: null,
-      receivingData: false,
+      receivingState: ReceivingState.NotReceiving,
       error: null,
-      sessionsList: []
+      locality: null,
+      attitude: null,
+      rssi: null,
+      altitude: null,
+      velocity: null,
+      distance: null,
+      temperature: null,
+      pressure: null,
+      seconds: null,
+      wsAddress: 'ground.local:5678'
     }
-    this.sessionStore = new SessionStore(this, true)
+    this.session = new Session(this)
   }
 
   componentDidMount () {
-    this.sessionStore.start()
+    this.session.start(this.state.wsAddress)
+  }
+
+  componentDidUpdate (prevProps: DashboardProps, prevState: DashboardState) {
+    if (this.state.wsAddress !== prevState.wsAddress) {
+      this.session.start(this.state.wsAddress)
+    }
   }
 
   onNewLiveData () {
     this.setState({
-      liveSession: this.sessionStore.liveData
+      locality: this.session.getCurrentLocality(),
+      attitude: this.session.getCurrentAttitude(),
+      rssi: this.session.getTimePlottable(Index.RSSI),
+      altitude: this.session.getTimePlottable(Index.ALTITUDE),
+      velocity: this.session.getTimePlottable(Index.VELOCITY),
+      distance: this.session.getTimePlottable(Index.DISTANCE),
+      temperature: this.session.getTimePlottable(Index.TEMPERATURE),
+      pressure: this.session.getTimePlottable(Index.PRESSURE),
+      seconds: this.session.getCurrentSeconds()
     })
   }
   
   onReceivingDataChange ()  {
+    let note : String | null = null
+    switch (this.session.receivingState) {
+      case ReceivingState.NotReceiving:
+        note = 'C2'
+        break
+      case ReceivingState.NoSignal:
+        note = 'C4'
+        break
+      case ReceivingState.Receiving:
+        note = 'C6'
+        break
+    }
+    if (note) {
+      this.synth.triggerAttackRelease(note as string, '8n')
+    }
     this.setState({
-      receivingData: this.sessionStore.receivingData
+      receivingState: this.session.receivingState
     })
   }
 
@@ -52,37 +103,78 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
     })
   }
 
-  onSessionsListAvailable ()  {
-    this.setState({
-      sessionsList: this.sessionStore.sessionsList
-    })
-  }
-
-  async downloadSession (session: number | null) {
-    const sessionObj = session == null ? this.state.liveSession : await this.sessionStore.getSession(session as number)
-
-    if (!sessionObj) {
-      return
-    }
-    
-    const a = document.createElement("a")
-    document.body.appendChild(a)
-    a.style.display = 'none'
-    a.href = 'data:text/csv;charset=utf-8,' + encodeURI(sessionObj.getCSV())
-    a.download = `${sessionObj.timestamp || 'live'}.csv`
-    a.click()
-    document.body.removeChild(a)
-  }
-
   render () {
     return (
       <div className='Dashboard'>
         <Toolbar 
-          sessions={this.state.sessionsList}
-          receivingData={this.state.receivingData}
-          downloadSession={session => this.downloadSession(session)}
+          receivingState={this.state.receivingState}
+          wsAddress={this.state.wsAddress}
+          wsAddressUpdated={(wsAddress: string) => this.setState({wsAddress: wsAddress})}
         />
-        { this.state.liveSession && (<Dataviz session={this.state.liveSession} />)}
+        <div className='Dataviz'>
+          <LocationWidget
+            name='Location'
+            locality={this.state.locality}
+          />
+
+          <LinePlotWidget 
+            name='RSSI'
+            data={this.state.rssi}
+            defaultMin={-100}
+            defaultMax={0}
+            units='rssi'
+          />
+
+          <LinePlotWidget 
+            name='Altitude'
+            data={this.state.altitude}
+            defaultMin={0}
+            defaultMax={100}
+            units='m'
+          />
+
+          <LinePlotWidget 
+            name='Velocity'
+            data={this.state.velocity}
+            defaultMin={-10}
+            defaultMax={10}
+            units='m/s'
+          />
+
+          <LinePlotWidget 
+            name='Distance'
+            data={this.state.distance}
+            defaultMin={0}
+            defaultMax={100}
+            units='m'
+          />
+
+          <LinePlotWidget 
+            name='Temperature'
+            data={this.state.temperature}
+            defaultMin={0}
+            defaultMax={50}
+            units='C'
+          />
+
+          <LinePlotWidget 
+            name='Pressure'
+            data={this.state.pressure}
+            defaultMin={1000}
+            defaultMax={1050}
+            units='mBar'
+          />
+
+          <AttitudeWidget
+            name='Attitude'
+            data={this.state.attitude}
+          />
+
+          <MissionClockWidget
+            name='Mission Clock'
+            seconds={this.state.seconds}
+          />
+        </div>
         <Banner error={this.state.error} />
       </div>
     )

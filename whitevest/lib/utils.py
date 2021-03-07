@@ -28,7 +28,8 @@ def write_queue_log(outfile, new_data_queue: Queue, buffer: SafeBuffer) -> bool:
         row_str = ",".join([str(v) for v in info])
         logging.debug(row_str)
         outfile.write(row_str + "\n")
-        buffer.append(info)
+        if buffer:
+            buffer.append(info)
         return True
     return False
 
@@ -42,7 +43,7 @@ def take_gps_reading(sio, gps_value: AtomicValue) -> bool:
             (
                 gps.latitude if gps else 0.0,
                 gps.longitude if gps else 0.0,
-                gps.gps_qual if gps else 0.0,
+                float(gps.gps_qual) if gps else 0.0,
                 float(gps.num_sats) if gps else 0.0,
             )
         )

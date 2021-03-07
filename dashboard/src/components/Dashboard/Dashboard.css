@@ -9,12 +9,19 @@
   flex-direction: column;
   color: var(--color-white);
   font-family: var(--font-face);
-  padding: 10px;
+  padding: 5px;
 }
 
 .Dashboard .Dashboard-Panel {
   border: solid 1px var(--color-dark-blue);
   background: var(--color-off-black);
-  margin: 10px;
-  padding: 10px;
+  margin: 5px;
+  padding: 5px;
+}
+
+.Dashboard .Dataviz {
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 5px;
 }
