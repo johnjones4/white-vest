@@ -1,8 +1,4 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
-name: Python application
-
+name: White Vest Build
 on:
   push:
     branches: [ master ]
@@ -45,4 +41,4 @@ jobs:
       if: github.event_name == 'release' && github.event.action == 'created'
       with:
         name: dashboard.dmg
-        path: dashboard/dist/*.zip
+        path: dashboard/dist/dashboard_*_amd64.snap
