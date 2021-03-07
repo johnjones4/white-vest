@@ -45,7 +45,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/whitevest-johnjones4-${{ github.ref }}.tar.gz
+        asset_path: ./dist/whitevest-johnjones4-${GITHUB_REF##*/}.tar.gz
         asset_name: whitevest.tar.gz
         asset_content_type: application/zip
     - uses: actions/upload-release-asset@v1
@@ -54,6 +54,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dashboard/dist/dashboard_${{ github.ref }}_amd64.snap
+        asset_path: ./dashboard/dist/dashboard_${GITHUB_REF##*/}_amd64.snap
         asset_name: dashboard.snap
         asset_content_type: application/snap
