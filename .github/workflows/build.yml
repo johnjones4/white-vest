@@ -29,31 +29,33 @@ jobs:
     - run: cd dashboard && npm run build
     - run: make package
       if: startsWith(github.ref, 'refs/tags/')
-    - uses: actions/create-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      id: create_release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-    - uses: actions/upload-release-asset@v1
+    - uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/whitevest-johnjones4-${GITHUB_REF##*/}.tar.gz
-        asset_name: whitevest.tar.gz
-        asset_content_type: application/zip
-    - uses: actions/upload-release-asset@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dashboard/dist/dashboard_${GITHUB_REF##*/}_amd64.snap
-        asset_name: dashboard.snap
-        asset_content_type: application/snap
+        files: |
+          ./dist/*
+          ./dashboard/dist/*
+    #     tag_name: ${{ github.ref }}
+    #     release_name: Release ${{ github.ref }}
+    #     draft: false
+    #     prerelease: false
+    # - uses: actions/upload-release-asset@v1
+    #   if: startsWith(github.ref, 'refs/tags/')
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_path: ./dist/whitevest-johnjones4-${GITHUB_REF##*/}.tar.gz
+    #     asset_name: whitevest.tar.gz
+    #     asset_content_type: application/zip
+    # - uses: actions/upload-release-asset@v1
+    #   if: startsWith(github.ref, 'refs/tags/')
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_path: ./dashboard/dist/dashboard_${GITHUB_REF##*/}_amd64.snap
+    #     asset_name: dashboard.snap
+    #     asset_content_type: application/snap
