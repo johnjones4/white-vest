@@ -16,7 +16,7 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadURL(isDev? "http://localhost:3000": `file://${path.join(__dirname, "../index.html")}`);
+  mainWindow.loadURL(isDev? "http://localhost:3000": `file://${path.join(__dirname, "index.html")}`);
   mainWindow.on("closed", () => (mainWindow = null));
 }
 

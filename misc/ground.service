@@ -6,7 +6,7 @@ After=multi-user.target
 Type=simple
 User=pi
 WorkingDirectory=/home/pi/whitevest
-ExecStart=/usr/bin/python3 ground.py
+ExecStart=/usr/bin/python3 -m whitevest.bin.ground
 Restart=on-failure
 
 [Install]

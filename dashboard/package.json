@@ -1,7 +1,6 @@
 {
-  "name": "dashboard",
-  "version": "0.0.8",
-  "private": true,
+  "name": "white-vest",
+  "version": "0.0.9",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
@@ -23,18 +22,15 @@
     "tone": "^14.7.77",
     "typescript": "^3.9.7"
   },
-  "main": "public/electron.js",
   "scripts": {
     "react-start": "react-scripts start",
     "react-build": "react-scripts build",
     "react-test": "react-scripts test",
     "react-eject": "react-scripts eject",
     "electron-build": "electron-builder",
-    "release": "npm run react-build && electron-builder --publish=always",
     "build": "npm run react-build && npm run electron-build",
     "start": "concurrently \"cross-env BROWSER=none npm run react-start\" \"wait-on http://localhost:3000 && electron .\""
   },
-  "proxy": "http://localhost:8000",
   "browserslist": {
     "production": [
       ">0.2%",
@@ -62,5 +58,11 @@
     "electron": "^12.0.0",
     "electron-builder": "^22.10.5",
     "wait-on": "^5.2.1"
+  },
+  "main": "public/electron.js",
+  "homepage": "./",
+  "build": {
+    "appId": "com.johnjonesfour.whitevest",
+    "productName": "White Vest"
   }
 }
