@@ -2,7 +2,7 @@
 
 # White Vest
 
-[![Build Status](https://travis-ci.org/johnjones4/white-vest.svg?branch=master)](https://travis-ci.org/johnjones4/white-vest)
+[![White Vest Build](https://github.com/johnjones4/white-vest/actions/workflows/build.yml/badge.svg)](https://github.com/johnjones4/white-vest/actions/workflows/build.yml)
 
 ![Telemetry](doc/telemetry.gif)
 
