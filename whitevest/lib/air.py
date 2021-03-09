@@ -57,6 +57,7 @@ def write_sensor_log(
 
 
 def transmit_latest_readings(
+    camera_is_running: AtomicValue,
     rfm9x,
     last_check: float,
     readings_sent: int,
@@ -67,7 +68,7 @@ def transmit_latest_readings(
     info = current_reading.get_value()
     if info:
         clean_info = [float(i) for i in info]
-        encoded = struct.pack(TELEMETRY_STRUCT_STRING, *clean_info)
+        encoded = struct.pack(TELEMETRY_STRUCT_STRING, *(camera_is_running.get_value(), *clean_info))
         logging.debug("Transmitting %d bytes", len(encoded))
         rfm9x.send(encoded)
         readings_sent += 1

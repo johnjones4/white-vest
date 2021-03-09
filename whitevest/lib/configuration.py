@@ -49,7 +49,7 @@ class Configuration:
         return None
 
     default_air_configuration = dict(
-        runtime_limit=6000,
+        runtime_limit=600,
         output_directory="./data",
         devices=dict(
             rfm9x=dict(

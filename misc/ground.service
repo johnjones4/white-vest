@@ -5,9 +5,9 @@ After=multi-user.target
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/whitevest
+WorkingDirectory=/home/pi/white-vest
 ExecStart=/usr/bin/python3 -m whitevest.bin.ground
-Restart=on-failure
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

@@ -6,8 +6,8 @@ After=multi-user.target
 Type=simple
 User=pi
 WorkingDirectory=/home/pi/white-vest
-ExecStart=/usr/bin/python3 air.py > data/log.txt 2>&1
-Restart=on-failure
+ExecStart=/usr/bin/python3 -m whitevest.bin.air
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

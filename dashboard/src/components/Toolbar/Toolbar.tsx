@@ -9,14 +9,14 @@ type ToolbarProps = {
 }
 
 type ToolbarState = {
-  wsAddress: string
+  wsAddress: string,
 }
 
 export default class Toolbar extends Component<ToolbarProps, ToolbarState> {
   constructor(props: ToolbarProps) {
     super(props)
     this.state = {
-      wsAddress: props.wsAddress
+      wsAddress: props.wsAddress,
     }
   }
 
@@ -37,7 +37,7 @@ export default class Toolbar extends Component<ToolbarProps, ToolbarState> {
           { receivingState }
         </div>
         <div className='Toolbar-Address'>
-          <input type='text' value={this.state.wsAddress} onChange={event => this.setState({wsAddress: event.target.value})} className='Toolbar-Address-Input' />
+          <input type='text' placeholder='Ground Device Address' value={this.state.wsAddress} onChange={event => this.setState({wsAddress: event.target.value})} className='Toolbar-Address-Input' />
           <button className='Toolbar-Address-Button' onClick={() => this.props.wsAddressUpdated(this.state.wsAddress)}>Set</button>
         </div>
       </div>

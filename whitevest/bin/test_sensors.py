@@ -40,11 +40,12 @@ def test_rfm9x(configuration: Configuration):
         logging.info("Testing rfm9x ...")
         rfm9x = init_radio(configuration)
         if rfm9x:
+            camera_is_running = AtomicValue(0.0)
             current_reading = AtomicValue([0.0 for _ in range(TELEMETRY_TUPLE_LENGTH)])
             start_time = time.time()
             transmissions = 0
             while time.time() - start_time < TEST_TIME_LENGTH:
-                transmit_latest_readings(rfm9x, 0, 0, 0, current_reading)
+                transmit_latest_readings(camera_is_running, rfm9x, 0, 0, 0, current_reading)
                 transmissions += 1
             total_time = time.time() - start_time
             logging.info(

@@ -85,13 +85,14 @@ def sensor_log_writing_loop(
         handle_exception("Telemetry log line writing failure", ex)
 
 
-def camera_thread(configuration: Configuration, start_time: float):
+def camera_thread(configuration: Configuration, start_time: float, camera_is_running: AtomicValue):
     """Start the camera and log the video"""
     try:
         logging.info("Starting video capture")
         runtime_limit = configuration.get("runtime_limit")
         output_directory = configuration.get("output_directory")
         camera = picamera.PiCamera(framerate=90)
+        camera_is_running.update(1.0)
         camera.start_recording(
             os.path.join(output_directory, f"video_{int(start_time)}.h264")
         )
@@ -100,10 +101,11 @@ def camera_thread(configuration: Configuration, start_time: float):
         logging.info("Video capture complete")
     except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Video capture failure", ex)
+    camera_is_running.update(0.0)
 
 
 def transmitter_thread(
-    configuration: Configuration, start_time: float, current_reading: AtomicValue
+    configuration: Configuration, start_time: float, current_reading: AtomicValue, camera_is_running: AtomicValue
 ):
     """Transmit the latest data"""
     try:
@@ -115,6 +117,7 @@ def transmitter_thread(
         while True:
             try:
                 readings_sent, last_check = transmit_latest_readings(
+                    camera_is_running,
                     rfm9x,
                     last_check,
                     readings_sent,

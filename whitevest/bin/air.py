@@ -37,6 +37,9 @@ def main():
     # Holds the most recent GPS data
     gps_value = AtomicValue((0.0, 0.0, 0.0, 0.0))
 
+    # Flag that the camera is running 
+    camera_is_running = AtomicValue(0.0)
+
     altimeter_value = AtomicValue()
     altimeter_value.update((0.0, 0.0))
 
@@ -55,7 +58,7 @@ def main():
 
     camera_thread_handle = Thread(
         target=camera_thread,
-        args=(configuration, start_time),
+        args=(configuration, start_time, camera_is_running),
         daemon=True,
     )
     camera_thread_handle.start()
@@ -66,6 +69,7 @@ def main():
             configuration,
             start_time,
             current_reading,
+            camera_is_running
         ),
         daemon=True,
     )

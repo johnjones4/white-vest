@@ -14,11 +14,12 @@ install: data
 	pip3 install -r requirements.txt
 
 install-air:
-	cp misc/air.service /lib/systemd/system/
+	ln -s /home/pi/white-vest/misc/air.service /etc/systemd/system/air.service
+	systemctl daemon-reload
 	systemctl enable air.service
 
 install-ground:
-	ln -s /home/pi/whitevest/misc/ground.service /etc/systemd/system/ground.service
+	ln -s /home/pi/white-vest/misc/ground.service /etc/systemd/system/ground.service
 	systemctl daemon-reload
 	systemctl enable ground.service
 

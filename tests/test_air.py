@@ -64,11 +64,12 @@ def test_transmit_latest_readings():
     readings_sent = 0
     start_time = time.time()
     rfm9x = MockRFM9X()
+    camera_is_running = AtomicValue(0.0)
     current_reading = AtomicValue(
-        [random.random() for _ in range(TELEMETRY_TUPLE_LENGTH)]
+        [random.random() for _ in range(TELEMETRY_TUPLE_LENGTH - 1)]
     )
     readings_sent_1, last_check_1 = transmit_latest_readings(
-        rfm9x, last_check, readings_sent, start_time, current_reading
+        camera_is_running, rfm9x, last_check, readings_sent, start_time, current_reading
     )
     assert readings_sent_1 > readings_sent
     assert last_check < last_check_1

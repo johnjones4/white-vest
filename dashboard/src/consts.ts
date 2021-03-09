@@ -1,4 +1,5 @@
 export enum Index {
+  CAMERA_IS_RUNNING,
   TIMESTAMP,
   PRESSURE,
   TEMPERATURE,
@@ -27,4 +28,4 @@ export enum Index {
   BEARING,
 }
 
-export const SEA_LEVEL_PRESSURE = 1013.25
+export const SEA_LEVEL_PRESSURE = 1030.3385 

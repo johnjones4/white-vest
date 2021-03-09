@@ -26,6 +26,7 @@ type DashboardState = {
   pressure: TimePlottable | null,
   seconds: number | null,
   wsAddress: string
+  cameraIsRunning: boolean
 }
 
 export default class Dashboard extends Component<DashboardProps, DashboardState> implements SessionDelegate {
@@ -47,7 +48,8 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
       temperature: null,
       pressure: null,
       seconds: null,
-      wsAddress: 'ground.local:5678'
+      wsAddress: 'ground.local:5678',
+      cameraIsRunning: false
     }
     this.session = new Session(this)
   }
@@ -72,7 +74,8 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
       distance: this.session.getTimePlottable(Index.DISTANCE),
       temperature: this.session.getTimePlottable(Index.TEMPERATURE),
       pressure: this.session.getTimePlottable(Index.PRESSURE),
-      seconds: this.session.getCurrentSeconds()
+      seconds: this.session.getCurrentSeconds(),
+      cameraIsRunning: this.session.isCameraRecording()
     })
   }
   
@@ -172,6 +175,7 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
 
           <MissionClockWidget
             name='Mission Clock'
+            cameraIsRunning={this.state.cameraIsRunning}
             seconds={this.state.seconds}
           />
         </div>

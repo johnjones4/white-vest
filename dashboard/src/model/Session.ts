@@ -130,4 +130,8 @@ export default class Session {
   getCurrentSeconds () : number | null {
     return this.data[this.data.length - 1][Index.TIMESTAMP] === null ? null : this.data[this.data.length - 1][Index.TIMESTAMP] as number
   }
+
+  isCameraRecording () : boolean {
+    return this.data.length > 0 && this.data[this.data.length - 1][Index.CAMERA_IS_RUNNING] === 1.0
+  }
 }

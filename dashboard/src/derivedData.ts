@@ -22,6 +22,9 @@ export const transformTelemetryArray = (data: Array<Array<number | null>>): Arra
       )
     ]))
   return data1.map(dataPoint => {
+    if (dataPoint[Index.PRESSURE] !== null) {
+      dataPoint[Index.PRESSURE] = dataPoint[Index.PRESSURE] as number / 100
+    }
     dataPoint[Index.VELOCITY] = dataPoint[Index.ALTITUDE] !== null 
       && data1[data1.length - 1][Index.ALTITUDE] !== null 
       && dataPoint[Index.TIMESTAMP] !== null
