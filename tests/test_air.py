@@ -42,7 +42,7 @@ def test_digest_next_sensor_reading():
     assert logged
     assert logged == expected_tuple
     assert current_reading.get_value() == expected_tuple
-    assert len(logged) == TELEMETRY_TUPLE_LENGTH
+    assert len(logged) == TELEMETRY_TUPLE_LENGTH - 1
 
 
 def test_write_sensor_log():
