@@ -9,5 +9,4 @@ ReactDOM.render(
     <Dashboard />
   </React.StrictMode>,
   document.getElementById('root')
-);
-
+)
