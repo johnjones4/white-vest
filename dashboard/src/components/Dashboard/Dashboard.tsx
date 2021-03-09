@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, ReactNode } from 'react'
 import AttitudeWidget from '../Widget/AttitudeWidget'
 import MissionClockWidget from '../Widget/MissionClockWidget'
 import LinePlotWidget from '../Widget/LinePlotWidget'
@@ -7,33 +7,29 @@ import Toolbar from '../Toolbar/Toolbar'
 import Banner from '../Banner/Banner'
 import './Dashboard.css'
 import Session, { SessionDelegate, Locality, Attitude, TimePlottable, ReceivingState } from '../../model/Session'
-import {Index} from '../../consts'
+import { Index } from '../../consts'
 import * as Tone from 'tone'
-
-type DashboardProps = {
-}
-
-type DashboardState = {
-  receivingState: ReceivingState,
-  error: Error | null,
-  locality: Locality | null,
-  attitude: Attitude | null,
-  rssi: TimePlottable | null,
-  altitude: TimePlottable | null,
-  velocity: TimePlottable | null,
-  distance: TimePlottable | null,
-  temperature: TimePlottable | null,
-  pressure: TimePlottable | null,
-  seconds: number | null,
+interface DashboardState {
+  receivingState: ReceivingState
+  error: Error | null
+  locality: Locality | null
+  attitude: Attitude | null
+  rssi: TimePlottable | null
+  altitude: TimePlottable | null
+  velocity: TimePlottable | null
+  distance: TimePlottable | null
+  temperature: TimePlottable | null
+  pressure: TimePlottable | null
+  seconds: number | null
   wsAddress: string
   cameraIsRunning: boolean
 }
 
-export default class Dashboard extends Component<DashboardProps, DashboardState> implements SessionDelegate {
+export default class Dashboard extends Component<{}, DashboardState> implements SessionDelegate {
   session: Session
   synth: Tone.Synth
 
-  constructor(props: DashboardProps) {
+  constructor (props: {}) {
     super(props)
     this.synth = new Tone.Synth().toDestination()
     this.state = {
@@ -54,17 +50,17 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
     this.session = new Session(this)
   }
 
-  componentDidMount () {
+  componentDidMount (): void {
     this.session.start(this.state.wsAddress)
   }
 
-  componentDidUpdate (prevProps: DashboardProps, prevState: DashboardState) {
+  componentDidUpdate (prevProps: {}, prevState: DashboardState): void {
     if (this.state.wsAddress !== prevState.wsAddress) {
       this.session.start(this.state.wsAddress)
     }
   }
 
-  onNewLiveData () {
+  onNewLiveData (): void {
     this.setState({
       locality: this.session.getCurrentLocality(),
       attitude: this.session.getCurrentAttitude(),
@@ -78,9 +74,9 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
       cameraIsRunning: this.session.isCameraRecording()
     })
   }
-  
-  onReceivingDataChange ()  {
-    let note : String | null = null
+
+  onReceivingDataChange (): void {
+    let note: String | null = null
     switch (this.session.receivingState) {
       case ReceivingState.NotReceiving:
         note = 'C2'
@@ -92,7 +88,7 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
         note = 'C6'
         break
     }
-    if (note) {
+    if (note !== null) {
       this.synth.triggerAttackRelease(note as string, '8n')
     }
     this.setState({
@@ -100,19 +96,19 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
     })
   }
 
-  onError (error: Error)  {
+  onError (error: Error): void {
     this.setState({
       error
     })
   }
 
-  render () {
+  render (): ReactNode {
     return (
       <div className='Dashboard'>
-        <Toolbar 
+        <Toolbar
           receivingState={this.state.receivingState}
           wsAddress={this.state.wsAddress}
-          wsAddressUpdated={(wsAddress: string) => this.setState({wsAddress: wsAddress})}
+          wsAddressUpdated={(wsAddress: string) => this.setState({ wsAddress: wsAddress })}
         />
         <div className='Dataviz'>
           <LocationWidget
@@ -120,7 +116,7 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
             locality={this.state.locality}
           />
 
-          <LinePlotWidget 
+          <LinePlotWidget
             name='RSSI'
             data={this.state.rssi}
             defaultMin={-100}
@@ -128,7 +124,7 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
             units='rssi'
           />
 
-          <LinePlotWidget 
+          <LinePlotWidget
             name='Altitude'
             data={this.state.altitude}
             defaultMin={0}
@@ -136,7 +132,7 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
             units='m'
           />
 
-          <LinePlotWidget 
+          <LinePlotWidget
             name='Velocity'
             data={this.state.velocity}
             defaultMin={-10}
@@ -144,7 +140,7 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
             units='m/s'
           />
 
-          <LinePlotWidget 
+          <LinePlotWidget
             name='Distance'
             data={this.state.distance}
             defaultMin={0}
@@ -152,7 +148,7 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
             units='m'
           />
 
-          <LinePlotWidget 
+          <LinePlotWidget
             name='Temperature'
             data={this.state.temperature}
             defaultMin={0}
@@ -160,7 +156,7 @@ export default class Dashboard extends Component<DashboardProps, DashboardState>
             units='C'
           />
 
-          <LinePlotWidget 
+          <LinePlotWidget
             name='Pressure'
             data={this.state.pressure}
             defaultMin={1000}

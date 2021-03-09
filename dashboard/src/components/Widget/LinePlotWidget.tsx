@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, ReactNode } from 'react'
 import Widget from './Widget'
 import * as d3 from 'd3'
 import './LinePlotWidget.css'
@@ -6,24 +6,24 @@ import './LinePlotWidget.css'
 const hPadding = 35
 const vPadding = 20
 
-type LinePlotWidgetProps = {
-  data: Array<[number, number]> | null,
-  defaultMin: number,
-  defaultMax: number,
-  name: string,
+interface LinePlotWidgetProps {
+  data: Array<[number, number]> | null
+  defaultMin: number
+  defaultMax: number
+  name: string
   units: string
 }
 
-type LinePlotWidgetState = {
-  xScale: d3.ScaleLinear<number, number>,
-  yScale: d3.ScaleLinear<number, number>,
+interface LinePlotWidgetState {
+  xScale: d3.ScaleLinear<number, number>
+  yScale: d3.ScaleLinear<number, number>
 }
 
 export default class LinePlotWidget extends Component<LinePlotWidgetProps, LinePlotWidgetState> {
   width: number
   height: number
 
-  constructor(props: LinePlotWidgetProps) {
+  constructor (props: LinePlotWidgetProps) {
     super(props)
     this.width = 0
     this.height = 0
@@ -33,12 +33,9 @@ export default class LinePlotWidget extends Component<LinePlotWidgetProps, LineP
     }
   }
 
-  componentDidMount () {
-
-  }
-
-  componentDidUpdate (prevProps: LinePlotWidgetProps) {
-    if (this.props.data && (!prevProps.data || prevProps.data.length !== this.props.data.length)) {
+  componentDidUpdate (prevProps: LinePlotWidgetProps): void {
+    if (this.props.data !== null && (prevProps.data === null || prevProps.data.length !== this.props.data.length)) {
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({
         xScale: this.generateXScale(),
         yScale: this.generateYScale()
@@ -46,8 +43,8 @@ export default class LinePlotWidget extends Component<LinePlotWidgetProps, LineP
     }
   }
 
-  dimensionsReady (el: HTMLDivElement | null) {
-    if (el) {
+  dimensionsReady (el: HTMLDivElement | null): void {
+    if (el !== null) {
       let update = false
       if (this.width !== el.clientWidth - (hPadding * 2)) {
         this.width = el.clientWidth - (hPadding * 2)
@@ -66,8 +63,8 @@ export default class LinePlotWidget extends Component<LinePlotWidgetProps, LineP
     }
   }
 
-  generateXScale () : d3.ScaleLinear<number, number> {
-    if (!this.props.data) {
+  generateXScale (): d3.ScaleLinear<number, number> {
+    if (this.props.data == null) {
       return d3.scaleLinear()
     }
     const defaultLimit = 60
@@ -83,8 +80,8 @@ export default class LinePlotWidget extends Component<LinePlotWidgetProps, LineP
     }
   }
 
-  generateYScale () : d3.ScaleLinear<number, number> {
-    if (!this.props.data) {
+  generateYScale (): d3.ScaleLinear<number, number> {
+    if (this.props.data == null) {
       return d3.scaleLinear()
     }
     if (this.props.data.length === 0) {
@@ -93,19 +90,19 @@ export default class LinePlotWidget extends Component<LinePlotWidgetProps, LineP
           this.props.defaultMin,
           this.props.defaultMax
         ])
-        .range([ this.height, 0 ])
+        .range([this.height, 0])
     } else {
       return d3.scaleLinear()
         .domain([
           Math.min(this.props.defaultMin, d3.min(this.props.data, d => d[1]) as number),
           Math.max(this.props.defaultMax, d3.max(this.props.data, d => d[1]) as number)
         ])
-        .range([ this.height, 0 ])
+        .range([this.height, 0])
     }
   }
 
-  render () {
-    if (!this.props.data) {
+  render (): ReactNode {
+    if (this.props.data == null) {
       return null
     }
 
@@ -121,8 +118,8 @@ export default class LinePlotWidget extends Component<LinePlotWidgetProps, LineP
       >
         <svg className='LinePlotWidget'>
           <g transform={`translate(${hPadding},${vPadding})`}>
-            <g ref={axis => d3.select(axis).call(d3.axisLeft(this.state.yScale) as any) } />
-            <g transform={`translate(0,${this.height})`} ref={axis => d3.select(axis).call(d3.axisBottom(this.state.xScale) as any) } />
+            <g ref={axis => d3.select(axis).call(d3.axisLeft(this.state.yScale) as any)} />
+            <g transform={`translate(0,${this.height})`} ref={axis => d3.select(axis).call(d3.axisBottom(this.state.xScale) as any)} />
             <path d={lineGenerator(this.props.data) as string} />
           </g>
         </svg>

@@ -1,26 +1,26 @@
-import React, { Component } from 'react'
+import React, { Component, ReactNode } from 'react'
 import { ReceivingState } from '../../model/Session'
 import './Toolbar.css'
 
-type ToolbarProps = {
-  receivingState: ReceivingState,
+interface ToolbarProps {
+  receivingState: ReceivingState
   wsAddress: string
   wsAddressUpdated: (wsAddress: string) => void
 }
 
-type ToolbarState = {
-  wsAddress: string,
+interface ToolbarState {
+  wsAddress: string
 }
 
 export default class Toolbar extends Component<ToolbarProps, ToolbarState> {
-  constructor(props: ToolbarProps) {
+  constructor (props: ToolbarProps) {
     super(props)
     this.state = {
-      wsAddress: props.wsAddress,
+      wsAddress: props.wsAddress
     }
   }
 
-  cssForReceivingState() : string {
+  cssForReceivingState (): string {
     switch (this.props.receivingState) {
       case ReceivingState.Receiving:
         return 'Toolbar-Stream-Status-Receiving'
@@ -29,15 +29,15 @@ export default class Toolbar extends Component<ToolbarProps, ToolbarState> {
     }
   }
 
-  render () {
+  render (): ReactNode {
     const { receivingState } = this.props
     return (
       <div className='Toolbar'>
         <div className={['Toolbar-Stream-Status', this.cssForReceivingState()].join(' ')}>
-          { receivingState }
+          {receivingState}
         </div>
         <div className='Toolbar-Address'>
-          <input type='text' placeholder='Ground Device Address' value={this.state.wsAddress} onChange={event => this.setState({wsAddress: event.target.value})} className='Toolbar-Address-Input' />
+          <input type='text' placeholder='Ground Device Address' value={this.state.wsAddress} onChange={event => this.setState({ wsAddress: event.target.value })} className='Toolbar-Address-Input' />
           <button className='Toolbar-Address-Button' onClick={() => this.props.wsAddressUpdated(this.state.wsAddress)}>Set</button>
         </div>
       </div>

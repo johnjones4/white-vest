@@ -1,15 +1,15 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import Widget from './Widget'
 import './MissionClockWidget.css'
 
-type MissionClockWidgetProps = {
-  seconds: number | null,
-  cameraIsRunning: boolean,
+interface MissionClockWidgetProps {
+  seconds: number | null
+  cameraIsRunning: boolean
   name: string
 }
 
-const MissionClockWidget = (props: MissionClockWidgetProps) => {
-  if (!props.seconds) {
+const MissionClockWidget = (props: MissionClockWidgetProps): ReactNode => {
+  if (props.seconds === null) {
     return null
   }
   const minutes = Math.floor(props.seconds / 60)
