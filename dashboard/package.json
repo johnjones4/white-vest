@@ -29,7 +29,8 @@
     "react-eject": "react-scripts eject",
     "electron-build": "electron-builder",
     "build": "npm run react-build && npm run electron-build",
-    "start": "concurrently \"cross-env BROWSER=none npm run react-start\" \"wait-on http://localhost:3000 && electron .\""
+    "start": "concurrently \"cross-env BROWSER=none npm run react-start\" \"wait-on http://localhost:3000 && electron .\"",
+    "lint": "eslint --ext .js,.ts src/"
   },
   "browserslist": {
     "production": [
@@ -43,20 +44,20 @@
       "last 1 safari version"
     ]
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
-    "rules": {
-      "react/jsx-uses-react": "off",
-      "react/react-in-jsx-scope": "off"
-    }
-  },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.16.1",
+    "babel-eslint": "^10.1.0",
     "concurrently": "^6.0.0",
     "electron": "^12.0.0",
     "electron-builder": "^22.10.5",
+    "eslint": "^7.21.0",
+    "eslint-config-standard-jsx": "^10.0.0",
+    "eslint-config-standard-react": "^11.0.1",
+    "eslint-config-standard-with-typescript": "^20.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-react": "^7.22.0",
     "wait-on": "^5.2.1"
   },
   "main": "public/electron.js",

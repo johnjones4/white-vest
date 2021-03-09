@@ -1,4 +1,4 @@
-import {Index, SEA_LEVEL_PRESSURE} from './consts'
+import { Index, SEA_LEVEL_PRESSURE } from './consts'
 
 export const transformTelemetryArray = (data: Array<Array<number | null>>): Array<Array<number | null>> => {
   const data1 = data
@@ -25,58 +25,56 @@ export const transformTelemetryArray = (data: Array<Array<number | null>>): Arra
     if (dataPoint[Index.PRESSURE] !== null) {
       dataPoint[Index.PRESSURE] = dataPoint[Index.PRESSURE] as number / 100
     }
-    dataPoint[Index.VELOCITY] = dataPoint[Index.ALTITUDE] !== null 
-      && data1[data1.length - 1][Index.ALTITUDE] !== null 
-      && dataPoint[Index.TIMESTAMP] !== null
-      && data1[data1.length - 1][Index.TIMESTAMP] !== null
-      && data1.length > 0 ? 
-        (dataPoint[Index.ALTITUDE] as number - (data1[data1.length - 1][Index.ALTITUDE] as number)) / (dataPoint[Index.TIMESTAMP] as number - (data1[data1.length - 1][Index.TIMESTAMP] as number)) 
-        : 0
+    dataPoint[Index.VELOCITY] = dataPoint[Index.ALTITUDE] !== null &&
+      data1[data1.length - 1][Index.ALTITUDE] !== null &&
+      dataPoint[Index.TIMESTAMP] !== null &&
+      data1[data1.length - 1][Index.TIMESTAMP] !== null &&
+      data1.length > 0
+      ? (dataPoint[Index.ALTITUDE] as number - (data1[data1.length - 1][Index.ALTITUDE] as number)) / (dataPoint[Index.TIMESTAMP] as number - (data1[data1.length - 1][Index.TIMESTAMP] as number))
+      : 0
     return dataPoint
   })
 }
 
-export const calculateDistance = (lat1: number | null, lon1: number | null, lat2: number | null, lon2: number | null) : number | null => {
+export const calculateDistance = (lat1: number | null, lon1: number | null, lat2: number | null, lon2: number | null): number | null => {
   if (lat1 === null || lon1 === null || lat2 === null || lon2 === null) {
     return null
   }
-  const R = 6371e3; // metres
-  const φ1 = lat1 * Math.PI/180; // φ, λ in radians
-  const φ2 = lat2 * Math.PI/180;
-  const Δφ = (lat2-lat1) * Math.PI/180;
-  const Δλ = (lon2-lon1) * Math.PI/180;
+  const R = 6371e3
+  const φ1 = lat1 * Math.PI / 180
+  const φ2 = lat2 * Math.PI / 180
+  const Δφ = (lat2 - lat1) * Math.PI / 180
+  const Δλ = (lon2 - lon1) * Math.PI / 180
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
             Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ/2) * Math.sin(Δλ/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
-  return R * c; // in metres
+  return R * c
 }
 
-function toRadians(degrees: number) : number {
-  return degrees * Math.PI / 180;
-};
- 
-// Converts from radians to degrees.
-function toDegrees(radians: number) : number {
-  return radians * 180 / Math.PI;
+function toRadians (degrees: number): number {
+  return degrees * Math.PI / 180
 }
 
+function toDegrees (radians: number): number {
+  return radians * 180 / Math.PI
+}
 
-function bearing(startLat: number | null, startLng: number | null, destLat: number | null, destLng: number | null) : number | null {
+function bearing (startLat: number | null, startLng: number | null, destLat: number | null, destLng: number | null): number | null {
   if (startLat === null || startLng === null || destLat === null || destLng === null) {
     return null
   }
-  startLat = toRadians(startLat);
-  startLng = toRadians(startLng);
-  destLat = toRadians(destLat);
-  destLng = toRadians(destLng);
+  startLat = toRadians(startLat)
+  startLng = toRadians(startLng)
+  destLat = toRadians(destLat)
+  destLng = toRadians(destLng)
 
-  const y = Math.sin(destLng - startLng) * Math.cos(destLat);
+  const y = Math.sin(destLng - startLng) * Math.cos(destLat)
   const x = Math.cos(startLat) * Math.sin(destLat) -
-        Math.sin(startLat) * Math.cos(destLat) * Math.cos(destLng - startLng);
-  let brng = Math.atan2(y, x);
-  brng = toDegrees(brng);
-  return (brng + 360) % 360;
+        Math.sin(startLat) * Math.cos(destLat) * Math.cos(destLng - startLng)
+  let brng = Math.atan2(y, x)
+  brng = toDegrees(brng)
+  return (brng + 360) % 360
 }

@@ -13,23 +13,29 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
-    - name: Install dependencies
+    - name: Install Python Dependencies
       run: |
         make install
         pip3 install pytest pytest-cov pylint setuptools wheel
-    - name: Lint
+    - name: Lint Python
       run: make lint
-    - name: Test
+    - name: Test Python
       run: make test
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: 14.x
-    - run: cd dashboard && npm install
-    - run: cd dashboard && npm run build
-    - run: make package
+    - name: Install JS Dependencies
+      run: cd dashboard && npm install
+    - name: Lint JS
+      run: cd dashboard && npm run lint
+    - name: Build JS
+      run: cd dashboard && npm run build
+    - name: Package Dashboard
+      run: make package
       if: startsWith(github.ref, 'refs/tags/')
-    - uses: softprops/action-gh-release@v1
+    - name: Publish Dependencies
+      uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

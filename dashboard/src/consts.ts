@@ -18,7 +18,7 @@ export enum Index {
   BASE_LON,
   BASE_GPS_QUALITY,
   BASE_GPS_NUM_SATS,
-  //Calculated values
+  // Calculated values
   ALTITUDE,
   VELOCITY,
   YAW,
@@ -28,4 +28,4 @@ export enum Index {
   BEARING,
 }
 
-export const SEA_LEVEL_PRESSURE = 1030.3385 
+export const SEA_LEVEL_PRESSURE = 1030.3385
