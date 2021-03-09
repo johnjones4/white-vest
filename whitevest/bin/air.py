@@ -37,7 +37,7 @@ def main():
     # Holds the most recent GPS data
     gps_value = AtomicValue((0.0, 0.0, 0.0, 0.0))
 
-    # Flag that the camera is running 
+    # Flag that the camera is running
     camera_is_running = AtomicValue(0.0)
 
     altimeter_value = AtomicValue()
@@ -65,12 +65,7 @@ def main():
 
     transmitter_thread_handle = Thread(
         target=transmitter_thread,
-        args=(
-            configuration,
-            start_time,
-            current_reading,
-            camera_is_running
-        ),
+        args=(configuration, start_time, current_reading, camera_is_running),
         daemon=True,
     )
     transmitter_thread_handle.start()

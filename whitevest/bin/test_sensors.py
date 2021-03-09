@@ -45,7 +45,9 @@ def test_rfm9x(configuration: Configuration):
             start_time = time.time()
             transmissions = 0
             while time.time() - start_time < TEST_TIME_LENGTH:
-                transmit_latest_readings(camera_is_running, rfm9x, 0, 0, 0, current_reading)
+                transmit_latest_readings(
+                    camera_is_running, rfm9x, 0, 0, 0, current_reading
+                )
                 transmissions += 1
             total_time = time.time() - start_time
             logging.info(

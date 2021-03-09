@@ -85,7 +85,9 @@ def sensor_log_writing_loop(
         handle_exception("Telemetry log line writing failure", ex)
 
 
-def camera_thread(configuration: Configuration, start_time: float, camera_is_running: AtomicValue):
+def camera_thread(
+    configuration: Configuration, start_time: float, camera_is_running: AtomicValue
+):
     """Start the camera and log the video"""
     try:
         logging.info("Starting video capture")
@@ -105,7 +107,10 @@ def camera_thread(configuration: Configuration, start_time: float, camera_is_run
 
 
 def transmitter_thread(
-    configuration: Configuration, start_time: float, current_reading: AtomicValue, camera_is_running: AtomicValue
+    configuration: Configuration,
+    start_time: float,
+    current_reading: AtomicValue,
+    camera_is_running: AtomicValue,
 ):
     """Transmit the latest data"""
     try:
