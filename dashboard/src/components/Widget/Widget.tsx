@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactElement } from 'react'
 import './Widget.css'
 
 interface WidgetProps {
@@ -9,7 +9,7 @@ interface WidgetProps {
   children?: React.ReactNode
 }
 
-const Widget = ({ children, className, name, dimensionsReady, lastReading }: WidgetProps): ReactNode => (
+const Widget = ({ children, className, name, dimensionsReady, lastReading }: WidgetProps): ReactElement | null => (
   <div className={'Widget Dashboard-Panel' + (className !== undefined ? ' Widget-' + className : '')}>
     <div className='Widget-Header'>
       <div className='Widget-Header-Title'>{name}</div>

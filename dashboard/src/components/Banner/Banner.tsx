@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react'
+import React, { Component, ReactElement } from 'react'
 import './Banner.css'
 
 interface BannerProps {
@@ -24,7 +24,7 @@ export default class Banner extends Component<BannerProps, BannerState> {
     }
   }
 
-  render (): ReactNode {
+  render (): ReactElement | null {
     return this.props.error !== null && this.state.visible
       ? (
         <div className='Banner'>

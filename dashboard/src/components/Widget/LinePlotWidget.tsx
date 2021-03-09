@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react'
+import React, { Component, ReactElement } from 'react'
 import Widget from './Widget'
 import * as d3 from 'd3'
 import './LinePlotWidget.css'
@@ -101,7 +101,7 @@ export default class LinePlotWidget extends Component<LinePlotWidgetProps, LineP
     }
   }
 
-  render (): ReactNode {
+  render (): ReactElement | null {
     if (this.props.data == null) {
       return null
     }

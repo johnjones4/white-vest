@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react'
+import React, { Component, ReactElement } from 'react'
 import Widget from './Widget'
 import './AttitudeWidget.css'
 import { Attitude } from '../../model/Session'
@@ -9,7 +9,7 @@ interface AttitudeWidgetProps {
 }
 
 export default class AttitudeWidget extends Component<AttitudeWidgetProps> {
-  render (): ReactNode {
+  render (): ReactElement | null {
     if (this.props.data === null) {
       return null
     }

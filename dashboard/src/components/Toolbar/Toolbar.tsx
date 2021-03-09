@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react'
+import React, { Component, ReactElement } from 'react'
 import { ReceivingState } from '../../model/Session'
 import './Toolbar.css'
 
@@ -29,7 +29,7 @@ export default class Toolbar extends Component<ToolbarProps, ToolbarState> {
     }
   }
 
-  render (): ReactNode {
+  render (): ReactElement | null {
     const { receivingState } = this.props
     return (
       <div className='Toolbar'>

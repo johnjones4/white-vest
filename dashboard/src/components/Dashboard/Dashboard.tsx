@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react'
+import React, { Component, ReactElement } from 'react'
 import AttitudeWidget from '../Widget/AttitudeWidget'
 import MissionClockWidget from '../Widget/MissionClockWidget'
 import LinePlotWidget from '../Widget/LinePlotWidget'
@@ -102,7 +102,7 @@ export default class Dashboard extends Component<{}, DashboardState> implements 
     })
   }
 
-  render (): ReactNode {
+  render (): ReactElement | null {
     return (
       <div className='Dashboard'>
         <Toolbar

@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactElement } from 'react'
 import Widget from './Widget'
 import './MissionClockWidget.css'
 
@@ -8,7 +8,7 @@ interface MissionClockWidgetProps {
   name: string
 }
 
-const MissionClockWidget = (props: MissionClockWidgetProps): ReactNode => {
+const MissionClockWidget = (props: MissionClockWidgetProps): ReactElement | null => {
   if (props.seconds === null) {
     return null
   }

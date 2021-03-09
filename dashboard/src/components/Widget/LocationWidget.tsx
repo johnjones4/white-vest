@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react'
+import React, { Component, ReactElement } from 'react'
 import Widget from './Widget'
 import './LocationWidget.css'
 import { Locality, Coordinate } from '../../model/Session'
@@ -39,7 +39,7 @@ export default class LocationWidget extends Component<LocationWidgetProps, Locat
     this.map = map
   }
 
-  render (): ReactNode {
+  render (): ReactElement | null {
     if (this.props.locality === null) {
       return null
     }
