@@ -8,7 +8,10 @@ from whitevest.lib.const import TESTING_MODE
 from whitevest.lib.safe_buffer import SafeBuffer
 from whitevest.lib.utils import create_gps_thread
 from whitevest.threads.ground_data import replay_telemetry, telemetry_reception_loop
-from whitevest.threads.ground_server import telemetry_streaming_server, telemetry_rest_server
+from whitevest.threads.ground_server import (
+    telemetry_rest_server,
+    telemetry_streaming_server,
+)
 
 
 def main():

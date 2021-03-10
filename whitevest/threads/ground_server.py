@@ -1,8 +1,8 @@
 """Ground based telemetry serverer threads"""
 import asyncio
-from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import logging
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import websockets
 import websockets.exceptions
@@ -57,21 +57,28 @@ def telemetry_streaming_server(configuration: Configuration, buffer: SafeBuffer)
 def telemetry_rest_server(configuration: Configuration, buffer: SafeBuffer):
     """Start a basic REST server for control"""
     try:
+
         class TelemetryHttpRequestHandler(BaseHTTPRequestHandler):
+            """HTTP class for REST control"""
             def send_json(self, info, status=200):
+                """Send a JSON response"""
                 self.send_response(status)
                 self.send_header("Content-type", "application/json")
                 self.end_headers()
                 self.wfile.write(json.dumps(info).encode("utf-8"))
 
-            def do_OPTIONS(self):
+            def do_OPTIONS(self): # pylint: disable=invalid-name
+                """Get CORS headers"""
                 self.send_response(200, "ok")
-                self.send_header('Access-Control-Allow-Credentials', 'true')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-                self.send_header("Access-Control-Allow-Headers", "X-Requested-With, Content-type")
+                self.send_header("Access-Control-Allow-Credentials", "true")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+                self.send_header(
+                    "Access-Control-Allow-Headers", "X-Requested-With, Content-type"
+                )
 
-            def do_POST(self):
+            def do_POST(self): # pylint: disable=invalid-name
+                """Main entrypoint for control functions"""
                 if self.path == "/reset":
                     buffer.purge()
                     self.send_json({"message": "ok"})
@@ -79,7 +86,10 @@ def telemetry_rest_server(configuration: Configuration, buffer: SafeBuffer):
                 self.send_json({"message": "no-op"})
 
         logging.info("Starting telemetry dashboard server")
-        httpd = HTTPServer(("0.0.0.0", configuration.get("http_server_port")), TelemetryHttpRequestHandler)
+        httpd = HTTPServer(
+            ("0.0.0.0", configuration.get("http_server_port")),
+            TelemetryHttpRequestHandler,
+        )
         httpd.serve_forever()
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Telemetry dashboard server failure", ex)
