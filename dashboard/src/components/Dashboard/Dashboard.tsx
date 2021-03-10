@@ -7,7 +7,7 @@ import Toolbar from '../Toolbar/Toolbar'
 import Banner from '../Banner/Banner'
 import './Dashboard.css'
 import Session, { SessionDelegate, Locality, Attitude, TimePlottable, ReceivingState } from '../../model/Session'
-import { Index } from '../../consts'
+import { Command, Index } from '../../consts'
 import * as Tone from 'tone'
 interface DashboardState {
   receivingState: ReceivingState
@@ -44,7 +44,7 @@ export default class Dashboard extends Component<{}, DashboardState> implements 
       temperature: null,
       pressure: null,
       seconds: null,
-      wsAddress: 'ground.local:5678',
+      wsAddress: 'ground.local',
       cameraIsRunning: false
     }
     this.session = new Session(this)
@@ -102,6 +102,13 @@ export default class Dashboard extends Component<{}, DashboardState> implements 
     })
   }
 
+  async resetSession (): Promise<any> {
+    this.session.stop()
+    await this.session.sendCommand(Command.Reset)
+    this.session = new Session(this)
+    this.session.start(this.state.wsAddress)
+  }
+
   render (): ReactElement | null {
     return (
       <div className='Dashboard'>
@@ -109,6 +116,7 @@ export default class Dashboard extends Component<{}, DashboardState> implements 
           receivingState={this.state.receivingState}
           wsAddress={this.state.wsAddress}
           wsAddressUpdated={(wsAddress: string) => this.setState({ wsAddress: wsAddress })}
+          onReset={async () => await this.resetSession()}
         />
         <div className='Dataviz'>
           <LocationWidget

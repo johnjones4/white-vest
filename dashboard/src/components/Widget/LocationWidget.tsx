@@ -3,9 +3,17 @@ import Widget from './Widget'
 import './LocationWidget.css'
 import { Locality, Coordinate } from '../../model/Session'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
-import { Map } from 'leaflet'
+import L, { Map } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import icon from 'leaflet/dist/images/marker-icon.png'
+import iconShadow from 'leaflet/dist/images/marker-shadow.png'
 
+const DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow
+})
+
+L.Marker.prototype.options.icon = DefaultIcon
 interface LocationWidgetProps {
   locality: Locality | null
   name: string

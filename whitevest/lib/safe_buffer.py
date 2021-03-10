@@ -20,7 +20,9 @@ class SafeBuffer:
         """Get a specific range of data from the buffer"""
         logging.debug("Sending %d to %d", start, end)
         with self.lock:
-            return self.data_buffer[start:end]
+            if start >= 0 and start <= len(self.data_buffer) and end >= 0 and end <= len(self.data_buffer):
+                return self.data_buffer[start:end]
+        return []
 
     def size(self):
         """Get the buffer size"""

@@ -75,6 +75,7 @@ class Configuration:
 
     default_ground_configuration = dict(
         streaming_server_port=5678,
+        http_server_port=8080,
         devices=dict(
             rfm9x=dict(
                 sck="SCK",

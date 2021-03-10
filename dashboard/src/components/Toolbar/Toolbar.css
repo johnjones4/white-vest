@@ -63,3 +63,12 @@
   height: 25px;
   margin: 0;
 }
+
+.Toolbar-Reset-Button {
+  outline: none;
+  border: none;
+  height: 25px;
+  margin: 0;
+  background-color: var(--color-red);
+  color: var(--color-white);
+}

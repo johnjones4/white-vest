@@ -8,7 +8,7 @@ from whitevest.lib.const import TESTING_MODE
 from whitevest.lib.safe_buffer import SafeBuffer
 from whitevest.lib.utils import create_gps_thread
 from whitevest.threads.ground_data import replay_telemetry, telemetry_reception_loop
-from whitevest.threads.ground_server import telemetry_streaming_server
+from whitevest.threads.ground_server import telemetry_streaming_server, telemetry_rest_server
 
 
 def main():
@@ -39,6 +39,16 @@ def main():
         daemon=True,
     )
     streaming_server_thread.start()
+
+    rest_server_thread = Thread(
+        target=telemetry_rest_server,
+        args=(
+            configuration,
+            buffer,
+        ),
+        daemon=True,
+    )
+    rest_server_thread.start()
 
     if TESTING_MODE:
         replay_telemetry(buffer, os.getenv("REPLAY_DATA"))

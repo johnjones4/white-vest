@@ -6,6 +6,7 @@ interface ToolbarProps {
   receivingState: ReceivingState
   wsAddress: string
   wsAddressUpdated: (wsAddress: string) => void
+  onReset: () => void
 }
 
 interface ToolbarState {
@@ -40,6 +41,7 @@ export default class Toolbar extends Component<ToolbarProps, ToolbarState> {
           <input type='text' placeholder='Ground Device Address' value={this.state.wsAddress} onChange={event => this.setState({ wsAddress: event.target.value })} className='Toolbar-Address-Input' />
           <button className='Toolbar-Address-Button' onClick={() => this.props.wsAddressUpdated(this.state.wsAddress)}>Set</button>
         </div>
+        <button className='Toolbar-Reset-Button' onClick={() => this.props.onReset()}>Reset Stream</button>
       </div>
     )
   }

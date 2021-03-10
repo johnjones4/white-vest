@@ -28,4 +28,8 @@ export enum Index {
   BEARING,
 }
 
-export const SEA_LEVEL_PRESSURE = 1030.3385
+export enum Command {
+  Reset = 'reset'
+}
+
+export const SEA_LEVEL_PRESSURE = 1013.25

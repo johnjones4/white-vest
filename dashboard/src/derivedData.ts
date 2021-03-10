@@ -1,9 +1,9 @@
-import { Index, SEA_LEVEL_PRESSURE } from './consts'
+import { Index } from './consts'
 
-export const transformTelemetryArray = (data: Array<Array<number | null>>): Array<Array<number | null>> => {
+export const transformTelemetryArray = (data: Array<Array<number | null>>, basePressure: number): Array<Array<number | null>> => {
   const data1 = data
     .map(dataPoint => dataPoint.concat([
-      dataPoint[Index.PRESSURE] === null ? null : 44307.7 * (1 - Math.pow((dataPoint[Index.PRESSURE] as number / 100) / SEA_LEVEL_PRESSURE, 0.190284)),
+      dataPoint[Index.PRESSURE] === null ? null : 44307.7 * (1 - Math.pow((dataPoint[Index.PRESSURE] as number / 100) / basePressure, 0.190284)),
       0,
       dataPoint[Index.ACCELERATION_X] === null || dataPoint[Index.ACCELERATION_Z] === null ? null : Math.atan2(-1.0 * (dataPoint[Index.ACCELERATION_X] as number), dataPoint[Index.ACCELERATION_Z] as number) * (180.0 / Math.PI),
       dataPoint[Index.ACCELERATION_Y] === null || dataPoint[Index.ACCELERATION_Z] === null ? null : Math.atan2(-1.0 * (dataPoint[Index.ACCELERATION_Y] as number), dataPoint[Index.ACCELERATION_Z] as number) * (180.0 / Math.PI),
@@ -29,8 +29,8 @@ export const transformTelemetryArray = (data: Array<Array<number | null>>): Arra
       data1[data1.length - 1][Index.ALTITUDE] !== null &&
       dataPoint[Index.TIMESTAMP] !== null &&
       data1[data1.length - 1][Index.TIMESTAMP] !== null &&
-      data1.length > 0
-      ? (dataPoint[Index.ALTITUDE] as number - (data1[data1.length - 1][Index.ALTITUDE] as number)) / (dataPoint[Index.TIMESTAMP] as number - (data1[data1.length - 1][Index.TIMESTAMP] as number))
+      data1.length > 1
+      ? (dataPoint[Index.ALTITUDE] as number - (data1[data1.length - 2][Index.ALTITUDE] as number)) / (dataPoint[Index.TIMESTAMP] as number - (data1[data1.length - 2][Index.TIMESTAMP] as number))
       : 0
     return dataPoint
   })
