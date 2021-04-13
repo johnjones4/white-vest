@@ -1,5 +1,8 @@
 .PHONY: generate_test_data run
 
+OS=$(shell uname)
+ARCH=$(shell arch)
+
 install:
 	GOPATH=$(shell pwd) go get github.com/johnjones4/termui
 	GOPATH=$(shell pwd) go get github.com/johnjones4/termui/widgets
@@ -13,7 +16,7 @@ generate_test_data:
 	GOPATH=$(shell pwd) go run generate_test_data/generate_test_data.go $(file) > data/data.txt
 
 build:
-	GOPATH=$(shell pwd) go build -o build/dashboard-$(suffix) .
+	GOPATH=$(shell pwd) go build -o build/dashboard-$(OS)-$(ARCH) .
 
 test:
 	GOPATH=$(shell pwd) go test .
