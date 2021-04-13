@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func basePressure(stream FlightData) float64 {
+func DetermineBasePressure(stream FlightData) float64 {
 	pressures := make([]float64, 0)
 	for _, segment := range stream.AllSegments() {
 		if segment.Computed.NormalizedPressure > 0 {
@@ -21,19 +21,19 @@ func basePressure(stream FlightData) float64 {
 	return 0
 }
 
-func altitude(bp float64, raw RawDataSegment) float64 {
+func DetermineAltitude(bp float64, raw RawDataSegment) float64 {
 	if bp == 0 {
 		return 0
 	}
 	return 44307.7 * (1 - math.Pow((raw.Pressure/100)/bp, 0.190284))
 }
 
-func normalizedPressure(raw RawDataSegment) float64 {
+func NormalizedPressure(raw RawDataSegment) float64 {
 	return raw.Pressure / 100.0
 }
 
 func velocity(stream FlightData, bp float64, raw RawDataSegment) float64 {
-	altitude := altitude(bp, raw)
+	altitude := DetermineAltitude(bp, raw)
 	segments := stream.AllSegments()
 	for i := len(segments) - 1; i >= 0; i -= 1 {
 		if segments[i].Computed.Altitude != altitude {
@@ -110,18 +110,18 @@ func dataRate(stream FlightData) float64 {
 func computeDataSegment(stream FlightData, raw RawDataSegment) (ComputedDataSegment, float64, Coordinate) {
 	bp := stream.BasePressure()
 	if bp == 0 {
-		bp = basePressure(stream)
+		bp = DetermineBasePressure(stream)
 	}
 	origin := stream.Origin()
 	if origin.Lat == 0 && origin.Lon == 0 && raw.Coordinate.Lat != 0 && raw.Coordinate.Lon != 0 {
 		origin = raw.Coordinate
 	}
 	return ComputedDataSegment{
-		Altitude:           altitude(bp, raw),
+		Altitude:           DetermineAltitude(bp, raw),
 		Velocity:           velocity(stream, bp, raw),
 		Yaw:                yaw(raw),
 		Pitch:              pitch(raw),
-		NormalizedPressure: normalizedPressure(raw),
+		NormalizedPressure: NormalizedPressure(raw),
 		Bearing:            bearing(origin, raw),
 		Distance:           distance(origin, raw),
 		DataRate:           dataRate(stream),

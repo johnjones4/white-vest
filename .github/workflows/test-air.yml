@@ -22,26 +22,3 @@ jobs:
       run: cd air && make lint
     - name: Test Python
       run: cd air && make test
-    # - name: Use Node.js ${{ matrix.node-version }}
-    #   uses: actions/setup-node@v1
-    #   with:
-    #     node-version: 14.x
-    # - name: Install JS Dependencies
-    #   run: cd dashboard && npm install
-    # - name: Lint JS
-    #   run: cd dashboard && npm run lint
-    # - name: Build JS
-    #   run: cd dashboard && npm run build
-    # - name: Package Dashboard
-    #   run: make package
-    #   if: startsWith(github.ref, 'refs/tags/')
-    # - name: Publish Dependencies
-    #   uses: softprops/action-gh-release@v1
-    #   if: startsWith(github.ref, 'refs/tags/')
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     files: |
-    #       ./dist/*
-    #       ./dashboard/dist/*
-
