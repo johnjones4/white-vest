@@ -15,8 +15,9 @@ jobs:
         python-version: 3.8
     - name: Install Python Dependencies
       run: |
-        cd air && make install
-        cd air && pip3 install pytest pytest-cov pylint setuptools wheel
+        cd air
+        make install
+        pip3 install pytest pytest-cov pylint setuptools wheel
     - name: Lint Python
       run: cd air && make lint
     - name: Test Python
