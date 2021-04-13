@@ -1,0 +1,24 @@
+name: White Vest Air Tests
+on:
+  push:
+    branches: ["*"]
+    tags: ["*"]
+  pull_request:
+jobs:
+  build-test:
+    strategy:
+      matrix:
+        go-version: [1.16.x]
+        os: [ubuntu-latest, macos-latest,]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+    - name: Install Go Dependencies and Build
+      run: |
+        cd dashboard
+        make install
+        make build
