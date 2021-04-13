@@ -7,3 +7,4 @@ coverage.xml
 *.egg-info
 dist
 build
+.pytest_cache
