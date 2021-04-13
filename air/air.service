@@ -1,0 +1,13 @@
+[Unit]
+Description=Air
+After=multi-user.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/white-vest/air
+ExecStart=/usr/bin/python3 -m whitevest.bin.air
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
