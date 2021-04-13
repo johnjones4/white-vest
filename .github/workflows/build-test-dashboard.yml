@@ -1,4 +1,4 @@
-name: White Vest Air Tests
+name: White Vest Dashboard Build and Test
 on:
   push:
     branches: ["*"]
