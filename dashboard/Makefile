@@ -13,7 +13,7 @@ generate_test_data:
 	GOPATH=$(shell pwd) go run generate_test_data/generate_test_data.go $(file) > data/data.txt
 
 build:
-	GOPATH=$(shell pwd) go build -o build/dashboard .
+	GOPATH=$(shell pwd) go build -o build/dashboard-$(suffix) .
 
 test:
 	GOPATH=$(shell pwd) go test .
