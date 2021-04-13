@@ -1,6 +1,6 @@
 ![Project Icon](doc/whitevest.svg)
 
-# White Vest
+# White Vest: WARNING UNDER REWRITE
 
 [![White Vest Build](https://github.com/johnjones4/white-vest/actions/workflows/build.yml/badge.svg)](https://github.com/johnjones4/white-vest/actions/workflows/build.yml)
 

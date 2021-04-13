@@ -78,7 +78,7 @@ func StartDashboard(p DataProvider, ds FlightData, logger LoggerControl) error {
 			}
 		case bytes := <-streamChannel:
 			latestSegment, err := ds.IngestNewSegment(bytes)
-			if err != nil && len(ds.AllSegments()) > 1 {
+			if err == nil && len(ds.AllSegments()) > 1 {
 				logger.Log(latestSegment)
 
 				time := ds.Time()
