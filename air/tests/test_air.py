@@ -52,7 +52,7 @@ def test_write_sensor_log():
     data_queue = Queue()
     while data_queue.qsize() < 100:
         data_queue.put((random.random(), random.random(), random.random()))
-    write_sensor_log(start_time, runtime_limit, outfile, data_queue)
+    write_sensor_log(start_time, runtime_limit, outfile, data_queue, AtomicValue(True))
     contents = outfile.getvalue()
     assert time.time() >= start_time + runtime_limit
     assert contents
