@@ -52,3 +52,24 @@ func captureEndFrameOfData(time []float64, data []float64, length int, duration 
 	}
 	return output[:maxLength]
 }
+
+func normalize(data []float64) []float64 {
+	maxValue := -1.0 * math.MaxFloat64
+	minValue := math.MaxFloat64
+	for _, datapoint := range data {
+		if datapoint > maxValue {
+			maxValue = datapoint
+		}
+		if datapoint < minValue {
+			minValue = datapoint
+		}
+	}
+
+	valueRange := maxValue - minValue
+	normalized := make([]float64, len(data))
+	for i, datapoint := range data {
+		normalized[i] = (datapoint - minValue) / valueRange
+	}
+
+	return normalized
+}

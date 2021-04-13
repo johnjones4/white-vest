@@ -92,13 +92,13 @@ func StartDashboard(p DataProvider, ds FlightData, logger LoggerControl) error {
 				velocity.Title = fmt.Sprintf("Velocity (%.2f)", latestSegment.Computed.Velocity)
 
 				temp.Title = fmt.Sprintf("Temperature: %.2f°", latestSegment.Raw.Temperature)
-				temp.Data = captureEndFrameOfData(time, ds.Temperature(), tempPress.Inner.Dx(), SecondsWindow)
+				temp.Data = normalize(captureEndFrameOfData(time, ds.Temperature(), tempPress.Inner.Dx(), SecondsWindow))
 
 				pressure.Title = fmt.Sprintf("Pressure: %.2f mBar", latestSegment.Computed.NormalizedPressure)
-				pressure.Data = captureEndFrameOfData(time, ds.Pressure(), tempPress.Inner.Dx(), SecondsWindow)
+				pressure.Data = normalize(captureEndFrameOfData(time, ds.Pressure(), tempPress.Inner.Dx(), SecondsWindow))
 
 				gpsQuality.Title = fmt.Sprintf("GPS Signal Quality: %.2f", latestSegment.Raw.GPSInfo.Quality)
-				gpsQuality.Data = captureEndFrameOfData(time, ds.GpsQuality(), gps.Inner.Dx(), SecondsWindow)
+				gpsQuality.Data = normalize(captureEndFrameOfData(time, ds.GpsQuality(), gps.Inner.Dx(), SecondsWindow))
 
 				gpsSats.Title = fmt.Sprintf("GPS Sats: %.0f", latestSegment.Raw.GPSInfo.Sats)
 				gpsSats.Data = captureEndFrameOfData(time, ds.GpsSats(), gps.Inner.Dx(), SecondsWindow)
