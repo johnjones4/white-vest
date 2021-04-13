@@ -33,7 +33,11 @@ def digest_next_sensor_reading(
 
 
 def write_sensor_log(
-    start_time: float, runtime_limit: float, outfile, data_queue: Queue, continue_running: AtomicValue
+    start_time: float,
+    runtime_limit: float,
+    outfile,
+    data_queue: Queue,
+    continue_running: AtomicValue,
 ):
     """Write the queue to the log for a specified period"""
     lines_written = 0

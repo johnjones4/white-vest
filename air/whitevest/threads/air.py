@@ -23,7 +23,11 @@ if not TESTING_MODE:
     import picamera  # pylint: disable=import-error
 
 
-def altimeter_reading_loop(configuration: Configuration, altimeter_value: AtomicValue, continue_running: AtomicValue):
+def altimeter_reading_loop(
+    configuration: Configuration,
+    altimeter_value: AtomicValue,
+    continue_running: AtomicValue,
+):
     """Continually read the altimeter and set it to the atomic var"""
     try:
         bmp = init_altimeter(configuration)
@@ -37,7 +41,9 @@ def altimeter_reading_loop(configuration: Configuration, altimeter_value: Atomic
 
 
 def magnetometer_accelerometer_reading_loop(
-    configuration: Configuration, magnetometer_accelerometer_value: AtomicValue, continue_running: AtomicValue
+    configuration: Configuration,
+    magnetometer_accelerometer_value: AtomicValue,
+    continue_running: AtomicValue,
 ):
     """Continually read the accelerometer/magnetometer and set it to the atomic var"""
     try:
@@ -61,14 +67,21 @@ def sensor_reading_loop(
     gps_value: AtomicValue,
     altimeter_value: AtomicValue,
     magnetometer_accelerometer_value: AtomicValue,
-    continue_running: AtomicValue
+    continue_running: AtomicValue,
 ):
     """Read from the sensors on and infinite loop and queue it for transmission and logging"""
     try:
         logging.info("Starting sensor measurement loop")
         while continue_running.get_value():
             try:
-                digest_next_sensor_reading(start_time, data_queue, current_reading, gps_value, altimeter_value, magnetometer_accelerometer_value)
+                digest_next_sensor_reading(
+                    start_time,
+                    data_queue,
+                    current_reading,
+                    gps_value,
+                    altimeter_value,
+                    magnetometer_accelerometer_value,
+                )
                 time.sleep(0.03)
             except Exception as ex:  # pylint: disable=broad-except
                 handle_exception("Telemetry measurement point reading failure", ex)
@@ -77,7 +90,10 @@ def sensor_reading_loop(
 
 
 def sensor_log_writing_loop(
-    configuration: Configuration, start_time: float, data_queue: Queue, continue_running: AtomicValue
+    configuration: Configuration,
+    start_time: float,
+    data_queue: Queue,
+    continue_running: AtomicValue,
 ):
     """Loop through clearing the data queue until RUNTIME_LIMIT has passed"""
     try:
@@ -87,14 +103,19 @@ def sensor_log_writing_loop(
         with open(
             os.path.join(output_directory, f"sensor_log_{int(start_time)}.csv"), "w"
         ) as outfile:
-            write_sensor_log(start_time, runtime_limit, outfile, data_queue, continue_running)
+            write_sensor_log(
+                start_time, runtime_limit, outfile, data_queue, continue_running
+            )
         logging.info("Telemetry log writing loop complete")
     except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Telemetry log line writing failure", ex)
 
 
 def camera_thread(
-    configuration: Configuration, start_time: float, camera_is_running: AtomicValue, continue_running: AtomicValue
+    configuration: Configuration,
+    start_time: float,
+    camera_is_running: AtomicValue,
+    continue_running: AtomicValue,
 ):
     """Start the camera and log the video"""
     try:

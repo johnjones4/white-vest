@@ -68,13 +68,20 @@ def main():
 
     transmitter_thread_handle = Thread(
         target=transmitter_thread,
-        args=(configuration, start_time, current_reading, camera_is_running, continue_running),
+        args=(
+            configuration,
+            start_time,
+            current_reading,
+            camera_is_running,
+            continue_running,
+        ),
         daemon=True,
     )
     transmitter_thread_handle.start()
 
     altimeter_thread = Thread(
-        target=altimeter_reading_loop, args=(configuration, altimeter_value, continue_running)
+        target=altimeter_reading_loop,
+        args=(configuration, altimeter_value, continue_running),
     )
     altimeter_thread.start()
 
@@ -91,7 +98,7 @@ def main():
         gps_value,
         altimeter_value,
         magnetometer_accelerometer_value,
-        continue_running
+        continue_running,
     )
 
     gps_thread.join()

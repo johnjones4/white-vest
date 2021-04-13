@@ -63,7 +63,9 @@ def gps_reception_loop(sio, gps_value: AtomicValue, continue_running: AtomicValu
         time.sleep(0)
 
 
-def create_gps_thread(configuration: Configuration, value: AtomicValue, continue_running: AtomicValue):
+def create_gps_thread(
+    configuration: Configuration, value: AtomicValue, continue_running: AtomicValue
+):
     """Create a thread for tracking GPS"""
     return Thread(
         target=gps_reception_loop,
