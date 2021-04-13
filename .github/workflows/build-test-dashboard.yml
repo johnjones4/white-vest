@@ -17,10 +17,11 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: ${{ matrix.go-version }}
-    - name: Install Go Dependencies and Build
+    - name: Install Go Dependencies, Test, and Build
       run: |
         cd dashboard
         make install
+        make test
         make build
     # - name: Publish Dependencies
     #   uses: softprops/action-gh-release@v1

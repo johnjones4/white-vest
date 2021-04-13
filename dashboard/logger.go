@@ -1,4 +1,4 @@
-package whitevest
+package main
 
 import (
 	"fmt"

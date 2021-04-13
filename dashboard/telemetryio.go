@@ -1,9 +1,10 @@
-package whitevest
+package main
 
 import (
 	"bytes"
 	"encoding/base64"
 	"encoding/binary"
+	"errors"
 	"math"
 	"strings"
 )
@@ -40,16 +41,24 @@ func telemetryIntFromBytes(b []byte) int16 {
 	return val
 }
 
-func bytesToDataSegment(stream FlightData, bytes []byte) (DataSegment, float64, Coordinate, error) {
+func decodeTelemetryBytes(bytes []byte) ([]byte, []byte, error) {
 	parts := strings.Split(string(bytes), ",")
 	if parts[0] != "T" || len(parts) != 3 {
-		return DataSegment{}, 0, Coordinate{}, nil
+		return nil, nil, errors.New("bad telemetry")
 	}
 	telemetryBytes, err := base64.StdEncoding.DecodeString(parts[1])
 	if err != nil {
-		return DataSegment{}, 0, Coordinate{}, err
+		return nil, nil, err
 	}
 	rssiBytes, err := base64.StdEncoding.DecodeString(parts[2])
+	if err != nil {
+		return nil, nil, err
+	}
+	return telemetryBytes, rssiBytes, nil
+}
+
+func bytesToDataSegment(stream FlightData, bytes []byte) (DataSegment, float64, Coordinate, error) {
+	telemetryBytes, rssiBytes, err := decodeTelemetryBytes(bytes)
 	if err != nil {
 		return DataSegment{}, 0, Coordinate{}, err
 	}

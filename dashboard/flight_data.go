@@ -1,4 +1,4 @@
-package whitevest
+package main
 
 func NewFlightData() FlightDataConcrete {
 	return FlightDataConcrete{0, make([]DataSegment, 0), Coordinate{}}
@@ -7,7 +7,7 @@ func NewFlightData() FlightDataConcrete {
 func (f *FlightDataConcrete) IngestNewSegment(bytes []byte) (DataSegment, error) {
 	segment, basePressure, origin, err := bytesToDataSegment(f, bytes)
 	if err != nil {
-		return DataSegment{}, err
+		return segment, err
 	}
 	f.Segments = append(f.Segments, segment)
 	f.Base = basePressure
