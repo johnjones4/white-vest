@@ -112,10 +112,12 @@ func computeDataSegment(stream FlightData, raw RawDataSegment) (ComputedDataSegm
 	if bp == 0 {
 		bp = basePressure(stream)
 	}
+
 	origin := stream.Origin()
 	if origin.Lat == 0 && origin.Lon == 0 && raw.Coordinate.Lat != 0 && raw.Coordinate.Lon != 0 {
 		origin = raw.Coordinate
 	}
+
 	return ComputedDataSegment{
 		Altitude:           altitude(bp, raw),
 		Velocity:           velocity(stream, bp, raw),
