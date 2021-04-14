@@ -80,8 +80,6 @@ The ground hardware, much more simply, is wired to the following Arduino pins:
 
 ## Software
 
-![Software Design Graphic](doc/software.png)
-
 ### Air
 
 The air software logs all sensor readings to a timestamped CSV file under `data` and transmits them using a LoRA transceiver, and data logging cuts off after 30 minutes. The transmitted data is a simple binary sequence of doubles in the following order:
