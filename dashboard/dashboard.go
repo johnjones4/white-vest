@@ -13,7 +13,7 @@ func main() {
 		var providerSerial DataProviderSerial
 		providerSerial, err = NewDataProviderSerial(input, 9600)
 		provider = providerSerial
-		defer providerSerial.Port.Close()
+//		defer providerSerial.Port.Close()
 	} else {
 		provider, err = NewDataProviderFile(input)
 	}
