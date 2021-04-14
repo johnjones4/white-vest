@@ -78,9 +78,7 @@ The ground hardware, much more simply, is wired to the following Arduino pins:
   * CS -> Arduino 4
   * RST -> Arduino 2
 
-## Software
-
-### Air
+## Telemetry
 
 The air software logs all sensor readings to a timestamped CSV file under `data` and transmits them using a LoRA transceiver, and data logging cuts off after 30 minutes. The transmitted data is a simple binary sequence of doubles in the following order:
 
@@ -98,9 +96,11 @@ The air software logs all sensor readings to a timestamped CSV file under `data`
 * GPS Signal Quality
 * Number of GPS sats
 
+## Setup
+
 ### Ground
 
-The ground Arduino software receives transmitted packets and echos them out to serial encoded in base 64.
+The ground Arduino software receives transmitted packets and echos them out to serial encoded in base 64. Install the `ground.ino` file using the Arduino IDE.
 
 ### Dashboard
 
@@ -116,7 +116,7 @@ $ make build
 
 Then, run the dashboard using the following `build/dashboard-Darwin-i386 /dev/cu.usbmodem143101`. Note that `dashboard-Darwin-i386` will change based on the system you are using and `/dev/cu.usbmodem143101` is the path to the Arduino serial connection.
 
-### Installation
+### Air
 
 This software requires [I2C](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c), [SPI0](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/), SPI1, and [Serial](https://maker.pro/raspberry-pi/tutorial/how-to-use-a-gps-receiver-with-raspberry-pi-4) to be enabled on a Raspberry Pi. (To enable SPI1, add `dtoverlay=spi1-3cs` to the file `/boot/config.txt`.)
 
