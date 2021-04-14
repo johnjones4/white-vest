@@ -1,16 +1,16 @@
 ![Project Icon](doc/whitevest.svg)
 
-# White Vest: WARNING UNDER REWRITE
+# White Vest:
 
 [![White Vest Build](https://github.com/johnjones4/white-vest/actions/workflows/build.yml/badge.svg)](https://github.com/johnjones4/white-vest/actions/workflows/build.yml)
 
 ![Telemetry](doc/telemetry.gif)
 
-White Vest is a project for collecting, logging, emitting, and visualizing telemetry from a model rocket containing an inboard Raspberry Pi Zero with another Raspberry Pi receiving telemetry. To learn more about this project, visit my [blog post](https://johnjonesfour.com/2020/10/03/model-rocket-telemetry-part-1/) documenting it. This project is named after the iconic [white vest that flight director Gene Kranz wore during Apollo 13](https://airandspace.si.edu/stories/editorial/gene-kranz%E2%80%99s-apollo-13-vest). 
+White Vest is a project for collecting, logging, emitting, and visualizing telemetry from a model rocket containing an inboard Raspberry Pi Zero with an Arduino receiving telemetry. To learn more about this project, visit my [blog post](https://johnjonesfour.com/2020/10/03/model-rocket-telemetry-part-1/) documenting it. This project is named after the iconic [white vest that flight director Gene Kranz wore during Apollo 13](https://airandspace.si.edu/stories/editorial/gene-kranz%E2%80%99s-apollo-13-vest). 
 
 ## Hardware
 
-This project requires two Raspberry Pis: one for inboard the rocket, ideally a Pi Zero, and one for ground telemetry reception.
+This project requires a Raspberry Pi Zero for the inboard systems and an Arduino for ground telemetry reception.
 
 ### Inboard 
 
@@ -27,9 +27,8 @@ The inboard system records video and measures pressure, temperature, altitude, a
 
 ### Ground
 
-* [Raspberry Pi Zero W](https://www.adafruit.com/product/3400)
-* [Adafruit RFM95W LoRa Radio Transceiver Breakout - 868 or 915 MHz - RadioFruit](https://www.adafruit.com/product/3072)
-* [GPS Module](https://www.amazon.com/gp/product/B084MK8BS2/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1)
+* [Arduino Uno Rev3](https://store.arduino.cc/usa/arduino-uno-rev3)
+* [Adafruit RFM95W LoRa Radio Transceiver Breakout - 868 or 915 MHz - RadioFruit](https://store.arduino.cc/usa/arduino-uno-rev3)
 
 ### Wiring
 
@@ -58,8 +57,8 @@ The air hardware is wired to the following Raspberry Pi pins:
   * VIN -> Pi 3V
   * GND -> Pi GND
   * SCK -> Pi SPI1 SCLK
-  * SDI -> Pi SPI1 MOSI
-  * SDO -> Pi SPI1 MISO
+  * MOSI -> Pi SPI1 MOSI
+  * MISO -> Pi SPI1 MISO
   * CS -> Pi D24
   * RST -> CE0
 * **GPS Module (Serial)**
@@ -68,21 +67,16 @@ The air hardware is wired to the following Raspberry Pi pins:
   * TX -> Pi RX
   * RX -> Pi TX
 
-The ground hardware, much more simply, is wired to the following Raspberry Pi pins:
+The ground hardware, much more simply, is wired to the following Arduino pins:
 
 * **RFM95W (SPI 1)**
-  * VIN -> Pi 3V
-  * GND -> Pi GND
-  * SCK -> Pi SCLK
-  * SDI -> Pi MOSI
-  * SDO -> Pi MISO
-  * CS -> Pi CE1
-  * RST -> Pi D25
-* **GPS Module (Serial)**
-  * VIN -> Pi 5V
-  * GND -> Pi GND
-  * TX -> Pi RX
-  * RX -> Pi TX
+  * VIN -> Arduino 5v
+  * GND -> Arduino GND
+  * G0 -> Arduino 13
+  * MISO -> Arduino 12
+  * MOSI -> Arduino 11
+  * CS -> Arduino 4
+  * RST -> Arduino 2
 
 ## Software
 
@@ -108,7 +102,21 @@ The air software logs all sensor readings to a timestamped CSV file under `data`
 
 ### Ground
 
-The ground software listens for transmitted data packets from air and also logs that data to a timestamped CSV file under `data`. It also exposes port 8000 as a webserver to access the telemetry dashboard. That is usually available at `http://localhost:8000/dashboard/`. It should begin picking up telemetry after a few minutes.
+The ground Arduino software receives transmitted packets and echos them out to serial encoded in base 64.
+
+### Dashboard
+
+The dashboard is a text-based tool for tracking and logging received telemetry. To activate it, download a release from the GitHub project or build the dashboard using the following steps:
+
+```bash
+$ cd ~
+$ git clone git@github.com:johnjones4/white-vest.git
+$ cd white-vest/dashboard
+$ make install
+$ make build
+```
+
+Then, run the dashboard using the following `build/dashboard-Darwin-i386 /dev/cu.usbmodem143101`. Note that `dashboard-Darwin-i386` will change based on the system you are using and `/dev/cu.usbmodem143101` is the path to the Arduino serial connection.
 
 ### Installation
 
@@ -119,12 +127,12 @@ To install this software on a Raspberry Pi, execute the following:
 ```bash
 $ cd ~
 $ git clone git@github.com:johnjones4/white-vest.git
-$ cd white-vest
+$ cd white-vest/air
 $ make install
 ```
 
-Then, depending upon whether you are setting up the ground module, run `make install-air` or `make install-ground`.
+Then, run `make install-service`
 
-To start the software in the foreground, run either `make air` or `make ground`.
+To start the software in the background, run `sudo systemctl start air`
 
-To start the software in the background, run either `sudo systemctl start air` or `sudo systemctl start ground`.
+In addition, you may verify wiring connections by running `make sensor-test`
