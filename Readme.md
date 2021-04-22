@@ -28,7 +28,7 @@ The inboard system records video and measures pressure, temperature, altitude, a
 ### Ground
 
 * [Arduino Uno Rev3](https://store.arduino.cc/usa/arduino-uno-rev3)
-* [Adafruit RFM95W LoRa Radio Transceiver Breakout - 868 or 915 MHz - RadioFruit](https://store.arduino.cc/usa/arduino-uno-rev3)
+* [Adafruit RFM95W LoRa Radio Transceiver Breakout - 868 or 915 MHz - RadioFruit](https://www.adafruit.com/product/3072)
 
 ### Wiring
 

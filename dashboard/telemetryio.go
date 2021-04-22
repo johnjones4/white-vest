@@ -29,6 +29,9 @@ const (
 func telemetryFloatFromByteIndex(bytes []byte, index int) float64 {
 	start := 8 * index
 	end := start + 8
+	if start >= len(bytes) || end >= len(bytes) {
+		return 0
+	}
 	bits := binary.LittleEndian.Uint64(bytes[start:end])
 	float := math.Float64frombits(bits)
 	return float
@@ -36,6 +39,9 @@ func telemetryFloatFromByteIndex(bytes []byte, index int) float64 {
 
 func telemetryIntFromBytes(b []byte) int16 {
 	buffer := bytes.NewReader(b)
+	if len(b) != 2 {
+		return 0
+	}
 	var val int16
 	binary.Read(buffer, binary.LittleEndian, &val)
 	return val
@@ -43,7 +49,7 @@ func telemetryIntFromBytes(b []byte) int16 {
 
 func decodeTelemetryBytes(bytes []byte) ([]byte, []byte, error) {
 	parts := strings.Split(string(bytes), ",")
-	if parts[0] != "T" || len(parts) != 3 {
+	if len(parts) != 3 || parts[0] != "T" {
 		return nil, nil, errors.New("bad telemetry")
 	}
 	telemetryBytes, err := base64.StdEncoding.DecodeString(parts[1])
