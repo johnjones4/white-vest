@@ -55,7 +55,13 @@ def main():
 
     write_thread = Thread(
         target=sensor_log_writing_loop,
-        args=(configuration, start_time, data_queue, continue_running, continue_logging),
+        args=(
+            configuration,
+            start_time,
+            data_queue,
+            continue_running,
+            continue_logging,
+        ),
         daemon=True,
     )
     write_thread.start()
@@ -89,7 +95,7 @@ def main():
             current_reading,
             gps_value,
             continue_running,
-        )
+        ),
     )
     sensor_reading_thread.start()
 

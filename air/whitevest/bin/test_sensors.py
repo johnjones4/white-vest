@@ -12,7 +12,11 @@ from whitevest.lib.hardware import (
     init_magnetometer_accelerometer,
     init_radio,
 )
-from whitevest.lib.utils import handle_exception, take_gps_reading, transmit_latest_readings
+from whitevest.lib.utils import (
+    handle_exception,
+    take_gps_reading,
+    transmit_latest_readings,
+)
 
 TEST_TIME_LENGTH = 5
 

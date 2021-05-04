@@ -1,6 +1,6 @@
 import io
-import time
 import random
+import time
 from queue import Queue
 from threading import Thread
 
@@ -8,10 +8,10 @@ from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TELEMETRY_TUPLE_LENGTH
 from whitevest.lib.utils import (
-    take_gps_reading,
-    write_queue_log,
     digest_next_sensor_reading,
+    take_gps_reading,
     transmit_latest_readings,
+    write_queue_log,
     write_sensor_log,
 )
 
@@ -86,7 +86,7 @@ def test_write_sensor_log():
     continue_running = AtomicValue(True)
     thread = Thread(
         target=write_sensor_log,
-        args=(start_time, outfile, data_queue, continue_running, continue_running)
+        args=(start_time, outfile, data_queue, continue_running, continue_running),
     )
     thread.start()
     time.sleep(5)

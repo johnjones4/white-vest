@@ -10,8 +10,7 @@ import pynmea2
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
-from whitevest.lib.const import TESTING_MODE, TELEMETRY_STRUCT_STRING
-
+from whitevest.lib.const import TELEMETRY_STRUCT_STRING, TESTING_MODE
 
 if not TESTING_MODE:
     from whitevest.lib.hardware import init_gps

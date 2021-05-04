@@ -12,7 +12,7 @@ class AtomicValue:
 
     def try_update(self, value):
         """Try to update the latest value without blocking"""
-        if self.lock.acquire(False):
+        if self.lock.acquire(False):  # pylint: disable=consider-using-with
             self.value = value
             self.lock.release()
             return True

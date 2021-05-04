@@ -4,12 +4,6 @@ import os.path
 import time
 from queue import Queue
 
-from whitevest.lib.utils import (
-    digest_next_sensor_reading,
-    transmit_latest_readings,
-    write_sensor_log,
-    handle_exception,
-)
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TESTING_MODE
@@ -17,6 +11,12 @@ from whitevest.lib.hardware import (
     init_altimeter,
     init_magnetometer_accelerometer,
     init_radio,
+)
+from whitevest.lib.utils import (
+    digest_next_sensor_reading,
+    handle_exception,
+    transmit_latest_readings,
+    write_sensor_log,
 )
 
 if not TESTING_MODE:
@@ -44,10 +44,10 @@ def sensor_reading_loop(
                     data_queue,
                     current_reading,
                     gps_value.get_value(),
-                    bmp._read(), # pylint: disable=protected-access
+                    bmp._read(),  # pylint: disable=protected-access
                     (*accel.acceleration, *mag.magnetic),
                 )
-            except Exception as ex: # pylint: disable=broad-except
+            except Exception as ex:  # pylint: disable=broad-except
                 handle_exception("Telemetry measurement point reading failure", ex)
     except Exception as ex:  # pylint: disable=broad-except
         handle_exception("Telemetry measurement point reading failure", ex)
