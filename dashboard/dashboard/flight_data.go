@@ -1,4 +1,4 @@
-package main
+package dashboard
 
 func NewFlightData() FlightDataConcrete {
 	return FlightDataConcrete{0, make([]DataSegment, 0), Coordinate{}}

@@ -1,11 +1,11 @@
-package main
+package dashboard
 
 import (
 	"fmt"
 	"time"
 
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
+	ui "github.com/johnjones4/termui"
+	"github.com/johnjones4/termui/widgets"
 )
 
 const SecondsWindow = 20

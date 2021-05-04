@@ -4,8 +4,8 @@ OS=$(shell uname)
 ARCH=$(shell arch)
 
 install:
-	go get .
-	go get -t .
+	go get ./...
+	go get -t ./...
 
 run:
 	go run . $(source)
@@ -17,7 +17,7 @@ build:
 	go build -o build/dashboard-$(OS)-$(ARCH) .
 
 test:
-	go test .
+	cd dashboard && go test .
 
 clean:
 	rm -rf build

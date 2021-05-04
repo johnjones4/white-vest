@@ -1,15 +1,15 @@
-package main
+package dashboard
 
 import (
-	"fmt"
-	"os"
-	"encoding/csv"
-	"io"
-	"strconv"
-	"encoding/binary"
 	"bytes"
 	b64 "encoding/base64"
+	"encoding/binary"
+	"encoding/csv"
+	"fmt"
+	"io"
 	"math/rand"
+	"os"
+	"strconv"
 	"strings"
 )
 
@@ -57,8 +57,8 @@ func main() {
 			return
 		}
 		sEnc1 := b64.StdEncoding.EncodeToString(buf1.Bytes())
-		
-		line := []string {"T",sEnc,sEnc1}
+
+		line := []string{"T", sEnc, sEnc1}
 
 		fmt.Println(strings.Join(line[:], ","))
 	}
