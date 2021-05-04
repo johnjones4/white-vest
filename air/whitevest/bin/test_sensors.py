@@ -3,7 +3,6 @@ import logging
 import os
 import time
 
-from whitevest.lib.air import transmit_latest_readings
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TELEMETRY_TUPLE_LENGTH
@@ -13,7 +12,7 @@ from whitevest.lib.hardware import (
     init_magnetometer_accelerometer,
     init_radio,
 )
-from whitevest.lib.utils import handle_exception, take_gps_reading
+from whitevest.lib.utils import handle_exception, take_gps_reading, transmit_latest_readings
 
 TEST_TIME_LENGTH = 5
 

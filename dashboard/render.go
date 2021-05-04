@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"time"
 
-	ui "github.com/johnjones4/termui"
-	"github.com/johnjones4/termui/widgets"
+	ui "github.com/gizak/termui/v3"
+	"github.com/gizak/termui/v3/widgets"
 )
 
 const SecondsWindow = 20
@@ -69,6 +70,50 @@ func StartDashboard(p DataProvider, ds FlightData, logger LoggerControl) error {
 
 	uiEvents := ui.PollEvents()
 	streamChannel := p.Stream()
+	ticker := time.NewTicker(time.Second).C
+	lastStreamEvent := time.Now()
+	lastEventAge := 0.0
+	lastLatestSegment := DataSegment{}
+
+	renderDashboard := func() {
+		if len(ds.AllSegments()) > 1 {
+			curtime := ds.Time()
+
+			altitude.Data[0] = captureEndFrameOfData(curtime, ds.Altitude(), altitude.Inner.Dx()-10, SecondsWindow)
+			altitude.Title = fmt.Sprintf("Altitude (%.2f)", lastLatestSegment.Computed.Altitude)
+
+			velocity.Data[0] = captureEndFrameOfData(curtime, ds.Velocity(), velocity.Inner.Dx()-10, SecondsWindow)
+			velocity.Title = fmt.Sprintf("Velocity (%.2f)", lastLatestSegment.Computed.Velocity)
+
+			temp.Title = fmt.Sprintf("Temperature: %.2f°", lastLatestSegment.Raw.Temperature)
+			temp.Data = normalize(captureEndFrameOfData(curtime, ds.Temperature(), tempPress.Inner.Dx(), SecondsWindow))
+
+			pressure.Title = fmt.Sprintf("Pressure: %.2f mBar", lastLatestSegment.Computed.NormalizedPressure)
+			pressure.Data = normalize(captureEndFrameOfData(curtime, ds.Pressure(), tempPress.Inner.Dx(), SecondsWindow))
+
+			gpsQuality.Title = fmt.Sprintf("GPS Signal Quality: %.2f", lastLatestSegment.Raw.GPSInfo.Quality)
+			gpsQuality.Data = normalize(captureEndFrameOfData(curtime, ds.GpsQuality(), gps.Inner.Dx(), SecondsWindow))
+
+			gpsSats.Title = fmt.Sprintf("GPS Sats: %.0f", lastLatestSegment.Raw.GPSInfo.Sats)
+			gpsSats.Data = captureEndFrameOfData(curtime, ds.GpsSats(), gps.Inner.Dx(), SecondsWindow)
+
+			bearingDistance.Text = fmt.Sprintf("Bearing: %.2f\nDistance: %.2f", lastLatestSegment.Computed.Bearing, lastLatestSegment.Computed.Distance)
+
+			pitchYaw.Text = fmt.Sprintf("Pitch: %.2f\nYaw: %.2f", lastLatestSegment.Computed.Pitch, lastLatestSegment.Computed.Yaw)
+
+			rssi.Data[0] = captureEndFrameOfData(curtime, ds.Rssi(), rssi.Inner.Dx()-10, SecondsWindow)
+			rssi.Title = fmt.Sprintf("RSSI (%d)", lastLatestSegment.Raw.Rssi)
+
+			gauge.Title = fmt.Sprintf("Mission Time: %s", timeString(lastLatestSegment.Raw.Timestamp))
+			gauge.Percent = int(100 * lastLatestSegment.Raw.CameraProgress)
+
+			receiving := lastEventAge < 5.0
+			dataStats.Text = fmt.Sprintf("Data Points: %d\nData Rate: %.2f/s\nLast Event Age: %.2fs\nReceiving: %t", len(ds.AllSegments()), lastLatestSegment.Computed.DataRate, lastEventAge, receiving)
+
+			ui.Render(grid)
+		}
+	}
+
 	for {
 		select {
 		case e := <-uiEvents:
@@ -78,43 +123,15 @@ func StartDashboard(p DataProvider, ds FlightData, logger LoggerControl) error {
 			}
 		case bytes := <-streamChannel:
 			latestSegment, err := ds.IngestNewSegment(bytes)
-			if err == nil && len(ds.AllSegments()) > 1 {
+			if err == nil {
+				lastStreamEvent = time.Now()
+				lastLatestSegment = latestSegment
 				logger.Log(latestSegment)
-
-				time := ds.Time()
-
-				altitude.Data[0] = captureEndFrameOfData(time, ds.Altitude(), altitude.Inner.Dx()-10, SecondsWindow)
-				altitude.Title = fmt.Sprintf("Altitude (%.2f)", latestSegment.Computed.Altitude)
-
-				velocity.Data[0] = captureEndFrameOfData(time, ds.Velocity(), velocity.Inner.Dx()-10, SecondsWindow)
-				velocity.Title = fmt.Sprintf("Velocity (%.2f)", latestSegment.Computed.Velocity)
-
-				temp.Title = fmt.Sprintf("Temperature: %.2f°", latestSegment.Raw.Temperature)
-				temp.Data = normalize(captureEndFrameOfData(time, ds.Temperature(), tempPress.Inner.Dx(), SecondsWindow))
-
-				pressure.Title = fmt.Sprintf("Pressure: %.2f mBar", latestSegment.Computed.NormalizedPressure)
-				pressure.Data = normalize(captureEndFrameOfData(time, ds.Pressure(), tempPress.Inner.Dx(), SecondsWindow))
-
-				gpsQuality.Title = fmt.Sprintf("GPS Signal Quality: %.2f", latestSegment.Raw.GPSInfo.Quality)
-				gpsQuality.Data = normalize(captureEndFrameOfData(time, ds.GpsQuality(), gps.Inner.Dx(), SecondsWindow))
-
-				gpsSats.Title = fmt.Sprintf("GPS Sats: %.0f", latestSegment.Raw.GPSInfo.Sats)
-				gpsSats.Data = captureEndFrameOfData(time, ds.GpsSats(), gps.Inner.Dx(), SecondsWindow)
-
-				bearingDistance.Text = fmt.Sprintf("Bearing: %.2f\nDistance: %.2f", latestSegment.Computed.Bearing, latestSegment.Computed.Distance)
-
-				pitchYaw.Text = fmt.Sprintf("Pitch: %.2f\nYaw: %.2f", latestSegment.Computed.Pitch, latestSegment.Computed.Yaw)
-
-				rssi.Data[0] = captureEndFrameOfData(time, ds.Rssi(), rssi.Inner.Dx()-10, SecondsWindow)
-				rssi.Title = fmt.Sprintf("RSSI (%d)", latestSegment.Raw.Rssi)
-
-				gauge.Title = fmt.Sprintf("Mission Time: %s", timeString(latestSegment.Raw.Timestamp))
-				gauge.Percent = int(100 * latestSegment.Raw.CameraProgress)
-
-				dataStats.Text = fmt.Sprintf("Data Points: %d\nData Rate: %.2f/sec", len(ds.AllSegments()), latestSegment.Computed.DataRate)
-
-				ui.Render(grid)
+				renderDashboard()
 			}
+		case <-ticker:
+			lastEventAge = float64(time.Since(lastStreamEvent)) / float64(time.Second)
+			renderDashboard()
 		}
 	}
 }

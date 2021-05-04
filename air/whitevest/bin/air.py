@@ -8,9 +8,7 @@ from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.utils import create_gps_thread
 from whitevest.threads.air import (
-    altimeter_reading_loop,
     camera_thread,
-    magnetometer_accelerometer_reading_loop,
     sensor_log_writing_loop,
     sensor_reading_loop,
     transmitter_thread,
@@ -26,7 +24,7 @@ def main():
     )
 
     # Queue to manage data synchronization between sensor reading, transmission, and data logging
-    data_queue = Queue()
+    data_queue = Queue(1000)
 
     # Timestamp to use for log files and log saving cutoff
     start_time = time.time()
@@ -37,31 +35,34 @@ def main():
     # Holds the most recent GPS data
     gps_value = AtomicValue((0.0, 0.0, 0.0, 0.0))
 
-    # Flag that the camera is running
-    camera_is_running = AtomicValue(0.0)
+    # pcnt counter to runtime limit
+    pcnt_to_limit = AtomicValue(0.0)
 
     # Thread safe place to store continue value
     continue_running = AtomicValue(True)
 
-    altimeter_value = AtomicValue()
-    altimeter_value.update((0.0, 0.0))
+    # Thread safe place to store continue value
+    continue_logging = AtomicValue(True)
 
-    magnetometer_accelerometer_value = AtomicValue()
-    magnetometer_accelerometer_value.update((0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+    # altimeter_value = AtomicValue()
+    # altimeter_value.update((0.0, 0.0))
+
+    # magnetometer_accelerometer_value = AtomicValue()
+    # magnetometer_accelerometer_value.update((0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
 
     gps_thread = create_gps_thread(configuration, gps_value, continue_running)
     gps_thread.start()
 
     write_thread = Thread(
         target=sensor_log_writing_loop,
-        args=(configuration, start_time, data_queue, continue_running),
+        args=(configuration, start_time, data_queue, continue_running, continue_logging),
         daemon=True,
     )
     write_thread.start()
 
     camera_thread_handle = Thread(
         target=camera_thread,
-        args=(configuration, start_time, camera_is_running, continue_running),
+        args=(configuration, start_time, continue_running, continue_logging),
         daemon=True,
     )
     camera_thread_handle.start()
@@ -72,41 +73,38 @@ def main():
             configuration,
             start_time,
             current_reading,
-            camera_is_running,
+            pcnt_to_limit,
             continue_running,
         ),
         daemon=True,
     )
     transmitter_thread_handle.start()
 
-    altimeter_thread = Thread(
-        target=altimeter_reading_loop,
-        args=(configuration, altimeter_value, continue_running),
+    sensor_reading_thread = Thread(
+        target=sensor_reading_loop,
+        args=(
+            configuration,
+            start_time,
+            data_queue,
+            current_reading,
+            gps_value,
+            continue_running,
+        )
     )
-    altimeter_thread.start()
+    sensor_reading_thread.start()
 
-    magnetometer_accelerometer_thread = Thread(
-        target=magnetometer_accelerometer_reading_loop,
-        args=(configuration, magnetometer_accelerometer_value, continue_running),
-    )
-    magnetometer_accelerometer_thread.start()
-
-    sensor_reading_loop(
-        start_time,
-        data_queue,
-        current_reading,
-        gps_value,
-        altimeter_value,
-        magnetometer_accelerometer_value,
-        continue_running,
-    )
+    runtime_limit = configuration.get("runtime_limit")
+    while time.time() - start_time <= runtime_limit:
+        pcnt_to_limit.update((time.time() - start_time) / runtime_limit)
+        time.sleep(1)
+        # TODO GPIO
+    continue_logging.update(False)
 
     gps_thread.join()
     write_thread.join()
     camera_thread_handle.join()
     transmitter_thread_handle.join()
-    altimeter_thread.join()
-    magnetometer_accelerometer_thread.join()
+    sensor_reading_thread.join()
 
 
 if __name__ == "__main__":
