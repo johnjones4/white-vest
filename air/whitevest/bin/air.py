@@ -1,4 +1,5 @@
 """Inboard data capture and transmission script"""
+import logging
 import os
 import time
 from queue import Queue
@@ -104,11 +105,18 @@ def main():
         pcnt_to_limit.update((time.time() - start_time) / runtime_limit)
         time.sleep(1)
         # TODO GPIO
+    logging.info("Runtime limit reached. Stopping write activities")
     continue_logging.update(False)
 
-    gps_thread.join()
     write_thread.join()
     camera_thread_handle.join()
+    pcnt_to_limit.update(1)
+
+    logging.info("Write activities ended")
+
+    # TODO GPIO or flag
+
+    gps_thread.join()
     transmitter_thread_handle.join()
     sensor_reading_thread.join()
 

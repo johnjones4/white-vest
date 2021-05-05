@@ -90,7 +90,7 @@ def camera_thread(
             os.path.join(output_directory, f"video_{int(start_time)}.h264")
         )
         while continue_running.get_value() and continue_logging.get_value():
-            camera.wait_recording(1)
+            camera.wait_recording(5)
         camera.stop_recording()
         logging.info("Video capture complete")
     except Exception as ex:  # pylint: disable=broad-except

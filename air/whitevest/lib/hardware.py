@@ -27,7 +27,7 @@ def init_radio(configuration: Configuration):
     )
     cs = DigitalInOut(assignments.get("cs"))  # pylint: disable=invalid-name
     reset = DigitalInOut(assignments.get("reset"))
-    rfm9x = adafruit_rfm9x.RFM9x(spi, cs, reset, 915.0)
+    rfm9x = adafruit_rfm9x.RFM9x(spi, cs, reset, 915.0, baudrate=10000000)
     rfm9x.tx_power = 23
     return rfm9x
 

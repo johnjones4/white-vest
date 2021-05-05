@@ -44,7 +44,7 @@ func StartDashboard(p DataProvider, ds FlightData, logger LoggerControl) error {
 	gauge := widgets.NewGauge()
 
 	dataStats := widgets.NewParagraph()
-	dataStats.Title = "Data Stats"
+	dataStats.Title = "Signal Stats"
 
 	grid := ui.NewGrid()
 	termWidth, termHeight := ui.TerminalDimensions()
@@ -59,12 +59,12 @@ func StartDashboard(p DataProvider, ds FlightData, logger LoggerControl) error {
 		ui.NewRow(5.0/16,
 			ui.NewCol(1.0/3, gps),
 			ui.NewCol(1.0/3, tempPress),
-			ui.NewCol(1.0/3, gauge),
+			ui.NewCol(1.0/3, dataStats),
 		),
 		ui.NewRow(3.0/16,
 			ui.NewCol(1.0/3, bearingDistance),
 			ui.NewCol(1.0/3, pitchYaw),
-			ui.NewCol(1.0/3, dataStats),
+			ui.NewCol(1.0/3, gauge),
 		),
 	)
 
