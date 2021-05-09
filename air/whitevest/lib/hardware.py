@@ -8,9 +8,11 @@ import adafruit_lsm303dlh_mag
 import adafruit_rfm9x
 import busio
 import digitalio
+import RPi.GPIO as GPIO
 import serial
 from digitalio import DigitalInOut
 
+from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 
 
@@ -65,3 +67,18 @@ def init_gps(configuration: Configuration):
     ser = serial.Serial(gps_serial_port, 9600, timeout=5.0)
     sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
     return sio
+
+
+def init_reset_button(configuration: Configuration, continue_running: AtomicValue):
+    """Setup a listener for reset"""
+
+    def handle_reset_button(_):
+        logging.info("Reset button pressed!")
+        continue_running.update(False)
+
+    GPIO.setmode(GPIO.BCM)
+    channel = int(configuration.get_device_configuration("reset", "pin"))
+    GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.add_event_detect(
+        channel, GPIO.RISING, callback=handle_reset_button, bouncetime=500
+    )

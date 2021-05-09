@@ -69,6 +69,7 @@ class Configuration:
                 scl="SCL",
                 sda="SDA",
             ),
+            reset=dict(pin="16"),
             gps=dict(serial_device="/dev/ttyAMA0"),
         ),
     )

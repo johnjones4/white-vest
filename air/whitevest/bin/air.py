@@ -7,6 +7,7 @@ from threading import Thread
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
+from whitevest.lib.hardware import init_reset_button
 from whitevest.lib.utils import create_gps_thread
 from whitevest.threads.air import (
     camera_thread,
@@ -45,11 +46,8 @@ def main():
     # Thread safe place to store continue value
     continue_logging = AtomicValue(True)
 
-    # altimeter_value = AtomicValue()
-    # altimeter_value.update((0.0, 0.0))
-
-    # magnetometer_accelerometer_value = AtomicValue()
-    # magnetometer_accelerometer_value.update((0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+    # Setup listener for reset button
+    init_reset_button(configuration, continue_running)
 
     gps_thread = create_gps_thread(configuration, gps_value, continue_running)
     gps_thread.start()
@@ -101,11 +99,10 @@ def main():
     sensor_reading_thread.start()
 
     runtime_limit = configuration.get("runtime_limit")
-    while time.time() - start_time <= runtime_limit:
+    while continue_running.get_value() and time.time() - start_time <= runtime_limit:
         pcnt_to_limit.update((time.time() - start_time) / runtime_limit)
         time.sleep(1)
-        # TODO GPIO
-    logging.info("Runtime limit reached. Stopping write activities")
+    logging.info("Stopping write activities")
     continue_logging.update(False)
 
     write_thread.join()
@@ -113,8 +110,6 @@ def main():
     pcnt_to_limit.update(1)
 
     logging.info("Write activities ended")
-
-    # TODO GPIO or flag
 
     gps_thread.join()
     transmitter_thread_handle.join()
