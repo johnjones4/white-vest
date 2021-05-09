@@ -76,9 +76,9 @@ def init_reset_button(configuration: Configuration, continue_running: AtomicValu
         logging.info("Reset button pressed!")
         continue_running.update(False)
 
-    GPIO.setmode(GPIO.BCM)
+    GPIO.setmode(GPIO.BCM)  # pylint: disable=no-member
     channel = int(configuration.get_device_configuration("reset", "pin"))
-    GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.add_event_detect(
-        channel, GPIO.RISING, callback=handle_reset_button, bouncetime=500
+    GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # pylint: disable=no-member
+    GPIO.add_event_detect(  # pylint: disable=no-member
+        channel, GPIO.RISING, callback=handle_reset_button, bouncetime=500   # pylint: disable=no-member
     )
