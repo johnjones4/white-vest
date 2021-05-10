@@ -45,6 +45,7 @@ def init_altimeter(configuration: Configuration):
     )
     cs = digitalio.DigitalInOut(assignments.get("cs"))  # pylint: disable=invalid-name
     bmp = adafruit_bmp3xx.BMP3XX_SPI(spi, cs)
+    bmp._wait_time = 0  # pylint: disable=protected-access
     return bmp
 
 
