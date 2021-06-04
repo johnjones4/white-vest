@@ -66,10 +66,13 @@ The air hardware is wired to the following Raspberry Pi pins:
   * GND -> Pi GND
   * TX -> Pi RX
   * RX -> Pi TX
+* **Momentary, Normally Open Switch**
+  * In -> Pi 3V
+  * Out -> Resistor -> Pi D16
 
 The ground hardware, much more simply, is wired to the following Arduino pins:
 
-* **RFM95W (SPI 1)**
+* **RFM95W**
   * VIN -> Arduino 5v
   * GND -> Arduino GND
   * G0 -> Arduino 13
