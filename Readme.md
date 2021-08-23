@@ -39,7 +39,7 @@ The air hardware is wired to the following Raspberry Pi pins:
 * **PowerBoost 500 Basic:**
   * 5v -> Pi 5V
   * Ground -> Pi Ground
-* **BMP388 (SPI 0)**
+* **BMP388 (I2C)**
   * VIN -> Pi 3V
   * GND -> Pi GND
   * SCK -> Pi SCL
@@ -51,7 +51,7 @@ The air hardware is wired to the following Raspberry Pi pins:
   * SDA -> Pi SDA
 * **Camera**
   * Pi Camera ribbon connection
-* **RFM95W (SPI 1)**
+* **RFM95W (SPI)**
   * VIN -> Pi 3V
   * GND -> Pi GND
   * SCK -> Pi SPI SCLK
