@@ -9,7 +9,7 @@ import adafruit_rfm9x
 import busio
 import serial
 from digitalio import DigitalInOut
-from RPi import GPIO
+import RPi.GPIO as GPIO # pylint: disable=consider-using-from-import
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
