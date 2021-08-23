@@ -81,7 +81,7 @@ def init_reset_button(configuration: Configuration, continue_running: AtomicValu
     )
     GPIO.add_event_detect(  # pylint: disable=no-member
         channel,
-        GPIO.RISING,
+        GPIO.RISING, # pylint: disable=no-member
         callback=handle_reset_button,
         bouncetime=500,  # pylint: disable=no-member
     )
