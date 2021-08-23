@@ -5,8 +5,8 @@ import time
 from queue import Queue
 from threading import Thread
 
-from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.atomic_buffer import AtomicBuffer
+from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.hardware import init_reset_button
 from whitevest.lib.utils import create_gps_thread

@@ -1,10 +1,11 @@
 """A thread-safe buffer to hold values"""
 from threading import Lock
 
+
 class AtomicBuffer:
     """A thread-safe buffer to hold values"""
 
-    def __init__(self, size: int = 0, default_value = None):
+    def __init__(self, size: int = 0, default_value=None):
         self.default_value = default_value
         self.buffer = [default_value] * size
         self.pointer = 0

@@ -4,8 +4,8 @@ import os.path
 import time
 from queue import Queue
 
-from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.atomic_buffer import AtomicBuffer
+from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TESTING_MODE
 from whitevest.lib.hardware import (
@@ -48,15 +48,13 @@ def sensor_reading_loop(
                     current_readings,
                     gps_value.get_value(),
                     bmp._read(),  # pylint: disable=protected-access
-                    (*accel.acceleration, *mag.magnetic)
+                    (*accel.acceleration, *mag.magnetic),
                 )
                 readings += 1.0
                 now = time.time()
                 if now - start > 10:
                     readings_per_second = readings / (now - start)
-                    logging.info(
-                        "Sample rate: %f/s", readings_per_second
-                    )
+                    logging.info("Sample rate: %f/s", readings_per_second)
                     start = time.time()
                     readings = 0
             except Exception as ex:  # pylint: disable=broad-except

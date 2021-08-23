@@ -8,8 +8,8 @@ from typing import Tuple
 
 import pynmea2
 
-from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.atomic_buffer import AtomicBuffer
+from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TELEMETRY_STRUCT_STRING, TESTING_MODE
 
@@ -124,7 +124,7 @@ def write_sensor_log(
                         "Lines written: %d in %s seconds with %d ready",
                         lines_written,
                         elapsed,
-                        data_queue.qsize()
+                        data_queue.qsize(),
                     )
             time.sleep(7)
         except Exception as ex:  # pylint: disable=broad-except
@@ -147,7 +147,8 @@ def transmit_latest_readings(
     if info:
         clean_info = [float(i) for i in info]
         encoded = struct.pack(
-            "d" + TELEMETRY_STRUCT_STRING + TELEMETRY_STRUCT_STRING, *(pcnt_to_limit.get_value(), *clean_info)
+            "d" + TELEMETRY_STRUCT_STRING + TELEMETRY_STRUCT_STRING,
+            *(pcnt_to_limit.get_value(), *clean_info)
         )
         logging.debug("Transmitting %d bytes", len(encoded))
         rfm9x.send(encoded)
@@ -155,6 +156,7 @@ def transmit_latest_readings(
         if last_check > 0 and last_check + 10.0 < time.time():
             last_check = time.time()
             logging.info(
-                "Transmit rate: %f/s", float(readings_sent) / float(last_check - start_time)
+                "Transmit rate: %f/s",
+                float(readings_sent) / float(last_check - start_time),
             )
     return readings_sent, last_check
