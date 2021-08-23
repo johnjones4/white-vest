@@ -4,6 +4,7 @@ import os
 import time
 
 from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.atomic_buffer import AtomicBuffer
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TELEMETRY_TUPLE_LENGTH
 from whitevest.lib.hardware import (
@@ -44,9 +45,9 @@ def test_rfm9x(configuration: Configuration):
         rfm9x = init_radio(configuration)
         if rfm9x:
             camera_is_running = AtomicValue(0.0)
-            current_reading = AtomicValue(
-                [0.0 for _ in range(TELEMETRY_TUPLE_LENGTH - 1)]
-            )
+            current_reading = AtomicBuffer(2)
+            current_reading.put([0.0 for _ in range(TELEMETRY_TUPLE_LENGTH)])
+            current_reading.put([0.0 for _ in range(TELEMETRY_TUPLE_LENGTH)])
             start_time = time.time()
             transmissions = 0
             while time.time() - start_time < TEST_TIME_LENGTH:

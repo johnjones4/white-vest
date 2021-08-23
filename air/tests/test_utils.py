@@ -5,6 +5,7 @@ from queue import Queue
 from threading import Thread
 
 from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.atomic_buffer import AtomicBuffer
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TELEMETRY_TUPLE_LENGTH
 from whitevest.lib.utils import (
@@ -55,7 +56,7 @@ def test_digest_next_sensor_reading():
     gps_value = [random.random() for _ in range(4)]
     magnetometer_accelerometer_value = [random.random() for _ in range(6)]
     data_queue = Queue()
-    current_reading = AtomicValue()
+    current_reading = AtomicBuffer(1)
     now = digest_next_sensor_reading(
         start_time,
         data_queue,
@@ -73,8 +74,8 @@ def test_digest_next_sensor_reading():
     )
     assert logged
     assert logged == expected_tuple
-    assert current_reading.get_value() == expected_tuple
-    assert len(logged) == TELEMETRY_TUPLE_LENGTH - 1
+    assert current_reading.read()[0] == expected_tuple
+    assert len(logged) == TELEMETRY_TUPLE_LENGTH
 
 
 def test_write_sensor_log():
@@ -103,13 +104,13 @@ def test_transmit_latest_readings():
     start_time = time.time()
     rfm9x = MockRFM9X()
     camera_is_running = AtomicValue(0.0)
-    current_reading = AtomicValue(
-        [random.random() for _ in range(TELEMETRY_TUPLE_LENGTH - 1)]
-    )
+    current_reading = AtomicBuffer(2)
+    current_reading.put([random.random() for _ in range(TELEMETRY_TUPLE_LENGTH)])
+    current_reading.put([random.random() for _ in range(TELEMETRY_TUPLE_LENGTH)])
     readings_sent_1, last_check_1 = transmit_latest_readings(
         camera_is_running, rfm9x, last_check, readings_sent, start_time, current_reading
     )
     assert readings_sent_1 > readings_sent
     assert last_check < last_check_1
     assert last_check_1 <= time.time()
-    assert len(rfm9x.sent) == (TELEMETRY_TUPLE_LENGTH * 8)
+    assert len(rfm9x.sent) == (TELEMETRY_TUPLE_LENGTH * 8 * 2) + 8
