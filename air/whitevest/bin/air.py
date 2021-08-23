@@ -6,6 +6,7 @@ from queue import Queue
 from threading import Thread
 
 from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.atomic_buffer import AtomicBuffer
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.hardware import init_reset_button
 from whitevest.lib.utils import create_gps_thread
@@ -32,7 +33,7 @@ def main():
     start_time = time.time()
 
     # Thread safe place to store altitude reading
-    current_reading = AtomicValue()
+    current_readings = AtomicBuffer(2)
 
     # Holds the most recent GPS data
     gps_value = AtomicValue((0.0, 0.0, 0.0, 0.0))
@@ -77,7 +78,7 @@ def main():
         args=(
             configuration,
             start_time,
-            current_reading,
+            current_readings,
             pcnt_to_limit,
             continue_running,
         ),
@@ -91,10 +92,11 @@ def main():
             configuration,
             start_time,
             data_queue,
-            current_reading,
+            current_readings,
             gps_value,
             continue_running,
         ),
+        daemon=True,
     )
     sensor_reading_thread.start()
 

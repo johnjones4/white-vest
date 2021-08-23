@@ -4,15 +4,15 @@ func NewFlightData() FlightDataConcrete {
 	return FlightDataConcrete{0, make([]DataSegment, 0), Coordinate{}}
 }
 
-func (f *FlightDataConcrete) IngestNewSegment(bytes []byte) (DataSegment, error) {
-	segment, basePressure, origin, err := bytesToDataSegment(f, bytes)
+func (f *FlightDataConcrete) IngestNewSegment(bytes []byte) ([]DataSegment, error) {
+	segments, basePressure, origin, err := bytesToDataSegment(f, bytes)
 	if err != nil {
-		return segment, err
+		return segments, err
 	}
-	f.Segments = append(f.Segments, segment)
+	f.Segments = append(f.Segments, segments...)
 	f.Base = basePressure
 	f.OriginCoordinate = origin
-	return segment, nil
+	return segments, nil
 }
 
 func (f *FlightDataConcrete) AllSegments() []DataSegment {

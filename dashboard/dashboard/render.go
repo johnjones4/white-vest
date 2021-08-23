@@ -10,6 +10,21 @@ import (
 
 const SecondsWindow = 20
 
+func StartTextLogger(p DataProvider, ds FlightData, logger LoggerControl) error {
+	streamChannel := p.Stream()
+	for {
+		bytes := <-streamChannel
+		latestSegments, err := ds.IngestNewSegment(bytes)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			for _, seg := range latestSegments {
+				fmt.Println(seg)
+			}
+		}
+	}
+}
+
 func StartDashboard(p DataProvider, ds FlightData, logger LoggerControl) error {
 	if err := ui.Init(); err != nil {
 		return err
@@ -122,11 +137,15 @@ func StartDashboard(p DataProvider, ds FlightData, logger LoggerControl) error {
 				return nil
 			}
 		case bytes := <-streamChannel:
-			latestSegment, err := ds.IngestNewSegment(bytes)
+			latestSegments, err := ds.IngestNewSegment(bytes)
 			if err == nil {
 				lastStreamEvent = time.Now()
-				lastLatestSegment = latestSegment
-				logger.Log(latestSegment)
+				if len(latestSegments) > 0 {
+					lastLatestSegment = latestSegments[len(latestSegments)-1]
+					for _, seg := range latestSegments {
+						logger.Log(seg)
+					}
+				}
 				renderDashboard()
 			}
 		case <-ticker:

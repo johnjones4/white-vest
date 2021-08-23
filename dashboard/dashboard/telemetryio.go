@@ -9,23 +9,6 @@ import (
 	"strings"
 )
 
-const (
-	IndexCameraProgress = 0
-	IndexTimestamp      = 1
-	IndexPressure       = 2
-	IndexTemperature    = 3
-	IndexAccelerationX  = 4
-	IndexAccelerationY  = 5
-	IndexAccelerationZ  = 6
-	IndexMagneticX      = 7
-	IndexMagneticY      = 8
-	IndexMagneticZ      = 9
-	IndexCoordinateLat  = 10
-	IndexCoordinateLon  = 11
-	IndexGpsQuality     = 12
-	IndexGpsSats        = 13
-)
-
 func telemetryFloatFromByteIndex(bytes []byte, index int) float64 {
 	start := 8 * index
 	end := start + 8
@@ -63,42 +46,51 @@ func decodeTelemetryBytes(bytes []byte) ([]byte, []byte, error) {
 	return telemetryBytes, rssiBytes, nil
 }
 
-func bytesToDataSegment(stream FlightData, bytes []byte) (DataSegment, float64, Coordinate, error) {
+func bytesToDataSegment(stream FlightData, bytes []byte) ([]DataSegment, float64, Coordinate, error) {
 	telemetryBytes, rssiBytes, err := decodeTelemetryBytes(bytes)
 	if err != nil {
-		return DataSegment{}, 0, Coordinate{}, err
+		return nil, 0, Coordinate{}, err
 	}
 
-	raw := RawDataSegment{
-		CameraProgress: telemetryFloatFromByteIndex(telemetryBytes, IndexCameraProgress),
-		Timestamp:      telemetryFloatFromByteIndex(telemetryBytes, IndexTimestamp),
-		Pressure:       telemetryFloatFromByteIndex(telemetryBytes, IndexPressure),
-		Temperature:    telemetryFloatFromByteIndex(telemetryBytes, IndexTemperature),
-		Acceleration: XYZ{
-			telemetryFloatFromByteIndex(telemetryBytes, IndexAccelerationX),
-			telemetryFloatFromByteIndex(telemetryBytes, IndexAccelerationY),
-			telemetryFloatFromByteIndex(telemetryBytes, IndexAccelerationZ),
-		},
-		Magnetic: XYZ{
-			telemetryFloatFromByteIndex(telemetryBytes, IndexMagneticX),
-			telemetryFloatFromByteIndex(telemetryBytes, IndexMagneticY),
-			telemetryFloatFromByteIndex(telemetryBytes, IndexMagneticZ),
-		},
-		Coordinate: Coordinate{
-			telemetryFloatFromByteIndex(telemetryBytes, IndexCoordinateLat),
-			telemetryFloatFromByteIndex(telemetryBytes, IndexCoordinateLon),
-		},
-		GPSInfo: GPSInfo{
-			telemetryFloatFromByteIndex(telemetryBytes, IndexGpsQuality),
-			telemetryFloatFromByteIndex(telemetryBytes, IndexGpsSats),
-		},
-		Rssi: telemetryIntFromBytes(rssiBytes),
+	segments := make([]DataSegment, PointsPerDataFrame)
+	var basePressure float64
+	var origin Coordinate
+	for i := len(segments) - 1; i >= 0; i-- {
+		offset := 1 + (i * 13)
+		raw := RawDataSegment{
+			CameraProgress: telemetryFloatFromByteIndex(telemetryBytes, 0),
+			Timestamp:      telemetryFloatFromByteIndex(telemetryBytes, offset+IndexTimestamp),
+			Pressure:       telemetryFloatFromByteIndex(telemetryBytes, offset+IndexPressure),
+			Temperature:    telemetryFloatFromByteIndex(telemetryBytes, offset+IndexTemperature),
+			Acceleration: XYZ{
+				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexAccelerationX),
+				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexAccelerationY),
+				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexAccelerationZ),
+			},
+			Magnetic: XYZ{
+				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexMagneticX),
+				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexMagneticY),
+				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexMagneticZ),
+			},
+			Coordinate: Coordinate{
+				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexCoordinateLat),
+				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexCoordinateLon),
+			},
+			GPSInfo: GPSInfo{
+				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexGpsQuality),
+				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexGpsSats),
+			},
+			Rssi: telemetryIntFromBytes(rssiBytes),
+		}
+
+		var computed ComputedDataSegment
+		computed, basePressure, origin = computeDataSegment(stream, raw)
+
+		segments[i] = DataSegment{
+			raw,
+			computed,
+		}
 	}
 
-	computed, basePressure, origin := computeDataSegment(stream, raw)
-
-	return DataSegment{
-		raw,
-		computed,
-	}, basePressure, origin, nil
+	return segments, basePressure, origin, nil
 }

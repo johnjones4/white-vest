@@ -5,6 +5,7 @@ import time
 from queue import Queue
 
 from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.atomic_buffer import AtomicBuffer
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TESTING_MODE
 from whitevest.lib.hardware import (
@@ -28,7 +29,7 @@ def sensor_reading_loop(
     configuration: Configuration,
     start_time: float,
     data_queue: Queue,
-    current_reading: AtomicValue,
+    current_readings: AtomicBuffer,
     gps_value: AtomicValue,
     continue_running: AtomicValue,
 ):
@@ -37,16 +38,27 @@ def sensor_reading_loop(
         logging.info("Starting sensor measurement loop")
         bmp = init_altimeter(configuration)
         mag, accel = init_magnetometer_accelerometer(configuration)
+        start = time.time()
+        readings = 0.0
         while continue_running.get_value():
             try:
                 digest_next_sensor_reading(
                     start_time,
                     data_queue,
-                    current_reading,
+                    current_readings,
                     gps_value.get_value(),
                     bmp._read(),  # pylint: disable=protected-access
-                    (*accel.acceleration, *mag.magnetic),
+                    (*accel.acceleration, *mag.magnetic)
                 )
+                readings += 1.0
+                now = time.time()
+                if now - start > 10:
+                    readings_per_second = readings / (now - start)
+                    logging.info(
+                        "Sample rate: %f/s", readings_per_second
+                    )
+                    start = time.time()
+                    readings = 0
             except Exception as ex:  # pylint: disable=broad-except
                 handle_exception("Telemetry measurement point reading failure", ex)
     except Exception as ex:  # pylint: disable=broad-except
@@ -90,7 +102,7 @@ def camera_thread(
             os.path.join(output_directory, f"video_{int(start_time)}.h264")
         )
         while continue_running.get_value() and continue_logging.get_value():
-            camera.wait_recording(5)
+            time.sleep(5)
         camera.stop_recording()
         logging.info("Video capture complete")
     except Exception as ex:  # pylint: disable=broad-except
@@ -100,7 +112,7 @@ def camera_thread(
 def transmitter_thread(
     configuration: Configuration,
     start_time: float,
-    current_reading: AtomicValue,
+    current_readings: AtomicBuffer,
     pcnt_to_limit: AtomicValue,
     continue_running: AtomicValue,
 ):
@@ -119,8 +131,9 @@ def transmitter_thread(
                     last_check,
                     readings_sent,
                     start_time,
-                    current_reading,
+                    current_readings,
                 )
+                time.sleep(0)
             except Exception as ex:  # pylint: disable=broad-except
                 handle_exception("Transmitter failure", ex)
     except Exception as ex:  # pylint: disable=broad-except

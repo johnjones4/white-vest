@@ -44,7 +44,7 @@ def test_rfm9x(configuration: Configuration):
         rfm9x = init_radio(configuration)
         if rfm9x:
             camera_is_running = AtomicValue(0.0)
-            current_reading = AtomicValue([0.0 for _ in range(TELEMETRY_TUPLE_LENGTH)])
+            current_reading = AtomicValue([0.0 for _ in range(TELEMETRY_TUPLE_LENGTH - 1)])
             start_time = time.time()
             transmissions = 0
             while time.time() - start_time < TEST_TIME_LENGTH:

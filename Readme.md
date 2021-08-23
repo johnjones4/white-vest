@@ -42,10 +42,8 @@ The air hardware is wired to the following Raspberry Pi pins:
 * **BMP388 (SPI 0)**
   * VIN -> Pi 3V
   * GND -> Pi GND
-  * SCK -> Pi SCLK
-  * SDI -> Pi MOSI
-  * SDO -> Pi MISO
-  * CS -> D5
+  * SCK -> Pi SCL
+  * SDI -> Pi SDA 
 * **LSM303 (I2C)**
   * VIN -> Pi 3V
   * GND -> Pi GND
@@ -56,11 +54,11 @@ The air hardware is wired to the following Raspberry Pi pins:
 * **RFM95W (SPI 1)**
   * VIN -> Pi 3V
   * GND -> Pi GND
-  * SCK -> Pi SPI1 SCLK
-  * MOSI -> Pi SPI1 MOSI
-  * MISO -> Pi SPI1 MISO
-  * CS -> Pi D24
-  * RST -> CE0
+  * SCK -> Pi SPI SCLK
+  * MOSI -> Pi SPI MOSI
+  * MISO -> Pi SPI MISO
+  * CS -> Pi D5
+  * RST -> Pi CE1
 * **GPS Module (Serial)**
   * VIN -> Pi 5V
   * GND -> Pi GND

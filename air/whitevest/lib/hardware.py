@@ -40,17 +40,15 @@ def init_altimeter(configuration: Configuration):
     assignments = configuration.get_pin_assignments("bmp3xx")
     if not assignments:
         return None
-    spi = busio.SPI(
-        assignments.get("sck"), assignments.get("mosi"), assignments.get("miso")
-    )
-    cs = digitalio.DigitalInOut(assignments.get("cs"))  # pylint: disable=invalid-name
-    bmp = adafruit_bmp3xx.BMP3XX_SPI(spi, cs)
+    i2c = busio.I2C(assignments.get("scl"), assignments.get("sda"))
+    bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
     bmp._wait_time = 0  # pylint: disable=protected-access
     return bmp
 
 
 def init_magnetometer_accelerometer(configuration: Configuration):
     """Initialize the sensor for magnetic and acceleration"""
+    logging.info("Initializing magnetometer/accelerometer")
     assignments = configuration.get_pin_assignments("lsm303")
     if not assignments:
         return None, None

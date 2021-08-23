@@ -9,6 +9,7 @@ from typing import Tuple
 import pynmea2
 
 from whitevest.lib.atomic_value import AtomicValue
+from whitevest.lib.atomic_buffer import AtomicBuffer
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TELEMETRY_STRUCT_STRING, TESTING_MODE
 
@@ -22,10 +23,10 @@ def handle_exception(message: str, exception: Exception):
     logging.exception(exception)
 
 
-def write_queue_log(outfile, new_data_queue: Queue) -> int:
+def write_queue_log(outfile, new_data_queue: Queue, max_lines: int = 1000) -> int:
     """If there is data in the queue, write it to the file"""
     i = 0
-    while not new_data_queue.empty():
+    while not new_data_queue.empty() and i < max_lines:
         info = new_data_queue.get()
         row_str = ",".join([str(v) for v in info])
         logging.debug(row_str)
@@ -59,7 +60,7 @@ def gps_reception_loop(sio, gps_value: AtomicValue, continue_running: AtomicValu
         try:
             take_gps_reading(sio, gps_value)
         except Exception as ex:  # pylint: disable=broad-except
-            handle_exception("Telemetry reading failure", ex)
+            handle_exception("GPS reading failure", ex)
         time.sleep(0)
 
 
@@ -82,7 +83,7 @@ def create_gps_thread(
 def digest_next_sensor_reading(
     start_time: float,
     data_queue: Queue,
-    current_reading: AtomicValue,
+    current_readings: AtomicBuffer,
     gps_value,
     altimeter_value,
     magnetometer_accelerometer_value,
@@ -95,8 +96,9 @@ def digest_next_sensor_reading(
         *magnetometer_accelerometer_value,
         *gps_value,
     )
-    data_queue.put(info)
-    current_reading.try_update(info)
+    if not data_queue.full():
+        data_queue.put(info)
+    current_readings.put(info)
     return now
 
 
@@ -112,18 +114,19 @@ def write_sensor_log(
     last_queue_check = time.time()
     while continue_running.get_value() and continue_logging.get_value():
         try:
-            new_lines_written = write_queue_log(outfile, data_queue)
+            new_lines_written = write_queue_log(outfile, data_queue, 300)
             if new_lines_written > 0:
                 lines_written += new_lines_written
                 if last_queue_check + 10.0 < time.time():
                     last_queue_check = time.time()
                     elapsed = last_queue_check - start_time
                     logging.info(
-                        "Lines written: %d / %s seconds",
+                        "Lines written: %d in %s seconds with %d ready",
                         lines_written,
                         elapsed,
+                        data_queue.qsize()
                     )
-            time.sleep(5)
+            time.sleep(7)
         except Exception as ex:  # pylint: disable=broad-except
             handle_exception("Telemetry log line writing failure", ex)
 
@@ -134,14 +137,17 @@ def transmit_latest_readings(
     last_check: float,
     readings_sent: int,
     start_time: float,
-    current_reading: AtomicValue,
+    current_readings: AtomicBuffer,
 ) -> Tuple[int, float]:
     """Get the latest value from the sensor store and transmit it as a byte array"""
-    info = current_reading.get_value()
+    infos = current_readings.read()
+    info = []
+    for i in infos:
+        info += i
     if info:
         clean_info = [float(i) for i in info]
         encoded = struct.pack(
-            TELEMETRY_STRUCT_STRING, *(pcnt_to_limit.get_value(), *clean_info)
+            "d" + TELEMETRY_STRUCT_STRING + TELEMETRY_STRUCT_STRING, *(pcnt_to_limit.get_value(), *clean_info)
         )
         logging.debug("Transmitting %d bytes", len(encoded))
         rfm9x.send(encoded)
@@ -149,6 +155,6 @@ def transmit_latest_readings(
         if last_check > 0 and last_check + 10.0 < time.time():
             last_check = time.time()
             logging.info(
-                "Readings sent: %d / %d seconds", readings_sent, last_check - start_time
+                "Transmit rate: %f/s", float(readings_sent) / float(last_check - start_time)
             )
     return readings_sent, last_check

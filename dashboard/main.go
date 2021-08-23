@@ -25,6 +25,7 @@ func main() {
 	logger := NewLogger()
 	defer logger.Kill()
 	err = StartDashboard(provider, &df, logger)
+	// err = StartTextLogger(provider, &df, logger)
 	if err != nil {
 		panic(err)
 	}

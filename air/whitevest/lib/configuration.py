@@ -53,17 +53,15 @@ class Configuration:
         output_directory="./data",
         devices=dict(
             rfm9x=dict(
-                sck="SCK_1",
-                mosi="MOSI_1",
-                miso="MISO_1",
-                cs="D24",
-                reset="CE1",
-            ),
-            bmp3xx=dict(
                 sck="SCK",
                 mosi="MOSI",
                 miso="MISO",
                 cs="D5",
+                reset="CE1",
+            ),
+            bmp3xx=dict(
+                scl="SCL",
+                sda="SDA",
             ),
             lsm303=dict(
                 scl="SCL",

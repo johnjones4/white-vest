@@ -68,7 +68,7 @@ type DataProviderSerial struct {
 }
 
 type FlightData interface {
-	IngestNewSegment(bytes []byte) (DataSegment, error)
+	IngestNewSegment(bytes []byte) ([]DataSegment, error)
 	AllSegments() []DataSegment
 	BasePressure() float64
 	Origin() Coordinate
