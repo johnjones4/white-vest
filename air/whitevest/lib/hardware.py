@@ -7,10 +7,9 @@ import adafruit_lsm303_accel
 import adafruit_lsm303dlh_mag
 import adafruit_rfm9x
 import busio
-import digitalio
-import RPi.GPIO as GPIO
 import serial
 from digitalio import DigitalInOut
+from RPi import GPIO
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration

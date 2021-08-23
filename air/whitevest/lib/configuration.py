@@ -21,7 +21,7 @@ class Configuration:
         """Create a new configuration based on the supplied yml file path or a default config"""
         if config_file:
             try:
-                with open(config_file, "r") as config_file_handle:
+                with open(config_file, "r", encoding="utf8") as config_file_handle:
                     self.config = yaml.full_load(config_file_handle)
             except:  # pylint: disable=bare-except
                 pass

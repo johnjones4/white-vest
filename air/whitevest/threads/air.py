@@ -75,7 +75,9 @@ def sensor_log_writing_loop(
         logging.info("Starting sensor log writing loop")
         output_directory = configuration.get("output_directory")
         with open(
-            os.path.join(output_directory, f"sensor_log_{int(start_time)}.csv"), "w"
+            os.path.join(output_directory, f"sensor_log_{int(start_time)}.csv"),
+            "w",
+            encoding="utf8",
         ) as outfile:
             write_sensor_log(
                 start_time, outfile, data_queue, continue_running, continue_logging

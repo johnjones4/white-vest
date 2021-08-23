@@ -12,11 +12,13 @@ class AtomicBuffer:
         self.lock = Lock()
 
     def put(self, value):
+        """Add a value to the rotating buffer"""
         with self.lock:
             self.buffer[self.pointer % len(self.buffer)] = value
             self.pointer += 1
 
     def read(self):
+        """Read out from the buffer starting at the pointer"""
         with self.lock:
             output = [self.default_value] * len(self.buffer)
             for i, _ in enumerate(self.buffer):
