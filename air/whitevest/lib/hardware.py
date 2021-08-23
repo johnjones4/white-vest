@@ -9,7 +9,7 @@ import adafruit_rfm9x
 import busio
 import serial
 from digitalio import DigitalInOut
-import RPi.GPIO as GPIO # pylint: disable=consider-using-from-import
+from RPi import GPIO
 
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
@@ -76,9 +76,9 @@ def init_reset_button(configuration: Configuration, continue_running: AtomicValu
 
     GPIO.setmode(GPIO.BCM)  # pylint: disable=no-member
     channel = int(configuration.get_device_configuration("reset", "pin"))
-    GPIO.setup(
-        channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN
-    )  # pylint: disable=no-member
+    GPIO.setup( # pylint: disable=no-member
+        channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN # pylint: disable=no-member
+    )
     GPIO.add_event_detect(  # pylint: disable=no-member
         channel,
         GPIO.RISING,
