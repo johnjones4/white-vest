@@ -41,12 +41,14 @@ def take_gps_reading(sio, gps_value: AtomicValue) -> bool:
     line = sio.readline()
     gps = pynmea2.parse(line)
     if isinstance(gps, pynmea2.types.talker.GGA):
-        gps_value.update((
-            gps.latitude if gps else 0.0,
-            gps.longitude if gps else 0.0,
-            float(gps.gps_qual) if gps else 0.0,
-            float(gps.num_sats) if gps else 0.0,
-        ))
+        gps_value.update(
+            (
+                gps.latitude if gps else 0.0,
+                gps.longitude if gps else 0.0,
+                float(gps.gps_qual) if gps else 0.0,
+                float(gps.num_sats) if gps else 0.0,
+            )
+        )
         return True
     return False
 

@@ -3,8 +3,8 @@ import logging
 import os
 import time
 
-from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.atomic_buffer import AtomicBuffer
+from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 from whitevest.lib.const import TELEMETRY_TUPLE_LENGTH
 from whitevest.lib.hardware import (

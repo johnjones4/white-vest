@@ -14,18 +14,29 @@ from RPi import GPIO
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 
+
+# pylint: disable=too-few-public-methods
 class DummyBMP:
     """Dummy class for the BMP3xx sensor"""
+
+    # pylint: disable=no-self-use
     def _read(self):
         """Return dummy data"""
         return (0.0, 0.0)
 
+
+# pylint: disable=too-few-public-methods
 class DummyMag:
     """Dummy class for the Magnetometer sensor"""
+
     def __init__(self):
         self.magnetic = (0.0, 0.0, 0.0)
+
+
+# pylint: disable=too-few-public-methods
 class DummyAccel:
     """Dummy class for the Magnetometer sensor"""
+
     def __init__(self):
         self.acceleration = (0.0, 0.0, 0.0)
 
@@ -76,7 +87,7 @@ def init_magnetometer_accelerometer(configuration: Configuration):
         mag = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
         accel = adafruit_lsm303_accel.LSM303_Accel(i2c)
         return mag, accel
-    except Exception as ex:  # pylint: disable=broad-except  
+    except Exception as ex:  # pylint: disable=broad-except
         mag = DummyMag()
         accel = DummyAccel()
         logging.exception(ex)
@@ -102,12 +113,12 @@ def init_reset_button(configuration: Configuration, continue_running: AtomicValu
 
     GPIO.setmode(GPIO.BCM)  # pylint: disable=no-member
     channel = int(configuration.get_device_configuration("reset", "pin"))
-    GPIO.setup( # pylint: disable=no-member
-        channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN # pylint: disable=no-member
+    GPIO.setup(  # pylint: disable=no-member
+        channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN  # pylint: disable=no-member
     )
     GPIO.add_event_detect(  # pylint: disable=no-member
         channel,
-        GPIO.RISING, # pylint: disable=no-member
+        GPIO.RISING,  # pylint: disable=no-member
         callback=handle_reset_button,
         bouncetime=500,  # pylint: disable=no-member
     )
