@@ -131,15 +131,15 @@ func TestComputeDataSegment(t *testing.T) {
 		Segments:         segments,
 		OriginCoordinate: Coordinate{37, -76},
 	}, RawDataSegment{
-		CameraProgress: 1.0,
-		Timestamp:      float64(len(segments) + 1),
-		Pressure:       1014.0,
-		Temperature:    30.0,
-		Acceleration:   XYZ{1, 2, 3},
-		Magnetic:       XYZ{1, 2, 3},
-		Coordinate:     Coordinate{38, -77},
-		GPSInfo:        GPSInfo{0.0, 0.0},
-		Rssi:           0,
+		WriteProgress: 1.0,
+		Timestamp:     float64(len(segments) + 1),
+		Pressure:      1014.0,
+		Temperature:   30.0,
+		Acceleration:  XYZ{1, 2, 3},
+		Magnetic:      XYZ{1, 2, 3},
+		Coordinate:    Coordinate{38, -77},
+		GPSInfo:       GPSInfo{0.0, 0.0},
+		Rssi:          0,
 	})
 	assert.Equal(t, bp, avg)
 	assert.NotEqual(t, origin.Lat, 0.0)
@@ -148,7 +148,6 @@ func TestComputeDataSegment(t *testing.T) {
 	assert.NotEqual(t, segment.Velocity, 0.0)
 	assert.NotEqual(t, segment.Yaw, 0.0)
 	assert.NotEqual(t, segment.Pitch, 0.0)
-	assert.NotEqual(t, segment.NormalizedPressure, 0.0)
 	assert.NotEqual(t, segment.Bearing, 0.0)
 	assert.NotEqual(t, segment.Distance, 0.0)
 	assert.NotEqual(t, segment.DataRate, 0.0)
@@ -166,7 +165,6 @@ func makeDataSeries(bp float64) ([]DataSegment, float64) {
 				Pressure:  val * 100.0,
 			},
 			ComputedDataSegment{
-				NormalizedPressure: val,
 				Altitude: altitude(bp, RawDataSegment{
 					Pressure: val * 100.0,
 				}),

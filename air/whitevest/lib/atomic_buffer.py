@@ -24,3 +24,9 @@ class AtomicBuffer:
             for i, _ in enumerate(self.buffer):
                 output[i] = self.buffer[(i + self.pointer) % len(self.buffer)]
             return output
+
+    def clear(self):
+        """Empty all of the data in buffer"""
+        with self.lock:
+            self.buffer = [self.default_value] * len(self.buffer)
+            self.pointer = 0

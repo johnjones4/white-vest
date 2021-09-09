@@ -7,8 +7,8 @@ import (
 func basePressure(stream FlightData) float64 {
 	pressures := make([]float64, 0)
 	for _, segment := range stream.AllSegments() {
-		if segment.Computed.NormalizedPressure > 0 {
-			pressures = append(pressures, segment.Computed.NormalizedPressure)
+		if segment.Computed.SmoothedPressure > 0 {
+			pressures = append(pressures, segment.Computed.SmoothedPressure)
 		}
 		if len(pressures) >= 10 {
 			var sum float64 = 0
@@ -104,7 +104,53 @@ func dataRate(stream FlightData) float64 {
 	for _, secondTotal := range totalsMap {
 		total += secondTotal
 	}
-	return total / float64(len(totalsMap))
+	rate := total / float64(len(totalsMap))
+	if math.IsNaN(rate) {
+		return 0
+	}
+	return rate
+}
+
+func averageComputedValue(seconds float64, stream FlightData, raw RawDataSegment, computed ComputedDataSegment, accessor func(seg ComputedDataSegment) float64) float64 {
+	total := accessor(computed)
+	n := 1.0
+	i := len(stream.AllSegments()) - 1
+	for i >= 0 && raw.Timestamp-stream.Time()[i] <= seconds {
+		total += accessor(stream.AllSegments()[i].Computed)
+		n++
+		i--
+	}
+	return total / n
+}
+
+func determineFlightMode(stream FlightData, raw RawDataSegment, computed ComputedDataSegment) FlightMode {
+	length := len(stream.AllSegments())
+	if length == 0 {
+		return ModePrelaunch
+	}
+	lastMode := stream.AllSegments()[length-1].Computed.FlightMode
+	avgVelocity := averageComputedValue(1, stream, raw, computed, func(seg ComputedDataSegment) float64 {
+		return seg.SmoothedVelocity
+	})
+	avgAcceleration := averageComputedValue(1, stream, raw, computed, func(seg ComputedDataSegment) float64 {
+		return seg.SmoothedVerticalAcceleration
+	})
+	if lastMode == ModePrelaunch && avgVelocity > 1 {
+		return ModeAscentPowered
+	}
+	if lastMode == ModeAscentPowered && avgAcceleration < 0 && avgVelocity > 0 {
+		return ModeAscentUnpowered
+	}
+	if (lastMode == ModeAscentPowered || lastMode == ModeAscentUnpowered) && avgVelocity < 0 {
+		return ModeDescentFreefall
+	}
+	if lastMode == ModeDescentFreefall && math.Abs(avgAcceleration) < 0.5 {
+		return ModeDescentParachute
+	}
+	if (lastMode == ModeDescentFreefall || lastMode == ModeDescentParachute) && math.Abs(avgVelocity) < 0.5 {
+		return ModeRecovery
+	}
+	return lastMode
 }
 
 func computeDataSegment(stream FlightData, raw RawDataSegment) (ComputedDataSegment, float64, Coordinate) {
@@ -118,14 +164,41 @@ func computeDataSegment(stream FlightData, raw RawDataSegment) (ComputedDataSegm
 		origin = raw.Coordinate
 	}
 
-	return ComputedDataSegment{
-		Altitude:           altitude(bp, raw),
-		Velocity:           velocity(stream, bp, raw),
-		Yaw:                yaw(raw),
-		Pitch:              pitch(raw),
-		NormalizedPressure: normalizedPressure(raw),
-		Bearing:            bearing(origin, raw),
-		Distance:           distance(origin, raw),
-		DataRate:           dataRate(stream),
-	}, bp, origin
+	alt := altitude(bp, raw)
+	vel := velocity(stream, bp, raw)
+	press := normalizedPressure(raw)
+
+	smoothedAlt := alt
+	smoothedVel := vel
+	smoothedVertAccel := 0.0
+	smoothedPress := press
+	smoothedTemp := raw.Temperature
+	s := len(stream.AllSegments())
+	if s > 0 {
+		alpha := 0.5
+		smoothedAlt = smoothed(alpha, alt, stream.SmoothedAltitude()[s-1])
+		smoothedVel = smoothed(alpha, vel, stream.SmoothedVelocity()[s-1])
+		smoothedPress = smoothed(alpha, press, stream.SmoothedPressure()[s-1])
+		smoothedTemp = smoothed(alpha, raw.Temperature, stream.SmoothedTemperature()[s-1])
+		smoothedVertAccel = (smoothedVel - stream.SmoothedVelocity()[s-1]) / (raw.Timestamp - stream.Time()[s-1])
+	}
+
+	computed := ComputedDataSegment{
+		Altitude:                     alt,
+		Velocity:                     vel,
+		Yaw:                          yaw(raw),
+		Pitch:                        pitch(raw),
+		Bearing:                      bearing(origin, raw),
+		Distance:                     distance(origin, raw),
+		DataRate:                     dataRate(stream),
+		SmoothedAltitude:             smoothedAlt,
+		SmoothedVelocity:             smoothedVel,
+		SmoothedPressure:             smoothedPress,
+		SmoothedTemperature:          smoothedTemp,
+		SmoothedVerticalAcceleration: smoothedVertAccel,
+	}
+
+	computed.FlightMode = determineFlightMode(stream, raw, computed)
+
+	return computed, bp, origin
 }

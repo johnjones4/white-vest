@@ -19,7 +19,7 @@ from whitevest.lib.utils import (
     transmit_latest_readings,
 )
 
-TEST_TIME_LENGTH = 5
+TEST_TIME_LENGTH = 30
 
 
 def main():
@@ -134,7 +134,7 @@ def test_gps(configuration: Configuration):
             gps_value = AtomicValue()
             start_time = time.time()
             readings = 0
-            while readings == 0 or time.time() - start_time < TEST_TIME_LENGTH:
+            while readings < 10 or time.time() - start_time < TEST_TIME_LENGTH:
                 try:
                     if take_gps_reading(gps, gps_value):
                         readings += 1

@@ -115,7 +115,7 @@ $ make install
 $ make build
 ```
 
-Then, run the dashboard using the following `build/dashboard-Darwin-i386 /dev/cu.usbmodem143101`. Note that `dashboard-Darwin-i386` will change based on the system you are using and `/dev/cu.usbmodem143101` is the path to the Arduino serial connection.
+Then, run the dashboard using the following `build/dashboard-Darwin-i386 --input /dev/cu.usbmodem143101 --output text`. Note that `dashboard-Darwin-i386` will change based on the system you are using and `/dev/cu.usbmodem143101` is the path to the Arduino serial connection. To view the web dashboard, pass in `web` for the `--output` option and open [http://localhost:8080/](http://localhost:8080/).
 
 ### Air
 

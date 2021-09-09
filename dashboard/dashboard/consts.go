@@ -19,3 +19,12 @@ const (
 const (
 	PointsPerDataFrame = 2
 )
+
+const (
+	ModePrelaunch        = "P"
+	ModeAscentPowered    = "AP"
+	ModeAscentUnpowered  = "AU"
+	ModeDescentFreefall  = "DF"
+	ModeDescentParachute = "DP"
+	ModeRecovery         = "R"
+)

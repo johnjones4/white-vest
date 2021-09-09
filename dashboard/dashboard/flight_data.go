@@ -23,27 +23,27 @@ func (f *FlightDataConcrete) BasePressure() float64 {
 	return f.Base
 }
 
-func (f *FlightDataConcrete) Altitude() []float64 {
+func (f *FlightDataConcrete) SmoothedAltitude() []float64 {
 	return singleFlightDataElement(f, func(segment DataSegment) float64 {
-		return segment.Computed.Altitude
+		return segment.Computed.SmoothedAltitude
 	})
 }
 
-func (f *FlightDataConcrete) Velocity() []float64 {
+func (f *FlightDataConcrete) SmoothedVelocity() []float64 {
 	return singleFlightDataElement(f, func(segment DataSegment) float64 {
-		return segment.Computed.Velocity
+		return segment.Computed.SmoothedVelocity
 	})
 }
 
-func (f *FlightDataConcrete) Temperature() []float64 {
+func (f *FlightDataConcrete) SmoothedTemperature() []float64 {
 	return singleFlightDataElement(f, func(segment DataSegment) float64 {
-		return segment.Raw.Temperature
+		return segment.Computed.SmoothedTemperature
 	})
 }
 
-func (f *FlightDataConcrete) Pressure() []float64 {
+func (f *FlightDataConcrete) SmoothedPressure() []float64 {
 	return singleFlightDataElement(f, func(segment DataSegment) float64 {
-		return segment.Computed.NormalizedPressure
+		return segment.Computed.SmoothedPressure
 	})
 }
 

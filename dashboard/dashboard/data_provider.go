@@ -32,7 +32,7 @@ func (f DataProviderFile) Stream() <-chan []byte {
 	go func() {
 		lastLine := 0
 		for {
-			time.Sleep(time.Second / 30)
+			time.Sleep(time.Second)
 			if lastLine >= len(f.Bytes) {
 				return
 			}

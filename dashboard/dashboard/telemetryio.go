@@ -58,10 +58,10 @@ func bytesToDataSegment(stream FlightData, bytes []byte) ([]DataSegment, float64
 	for i := len(segments) - 1; i >= 0; i-- {
 		offset := 1 + (i * 13)
 		raw := RawDataSegment{
-			CameraProgress: telemetryFloatFromByteIndex(telemetryBytes, 0),
-			Timestamp:      telemetryFloatFromByteIndex(telemetryBytes, offset+IndexTimestamp),
-			Pressure:       telemetryFloatFromByteIndex(telemetryBytes, offset+IndexPressure),
-			Temperature:    telemetryFloatFromByteIndex(telemetryBytes, offset+IndexTemperature),
+			WriteProgress: telemetryFloatFromByteIndex(telemetryBytes, 0),
+			Timestamp:     telemetryFloatFromByteIndex(telemetryBytes, offset+IndexTimestamp),
+			Pressure:      telemetryFloatFromByteIndex(telemetryBytes, offset+IndexPressure),
+			Temperature:   telemetryFloatFromByteIndex(telemetryBytes, offset+IndexTemperature),
 			Acceleration: XYZ{
 				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexAccelerationX),
 				telemetryFloatFromByteIndex(telemetryBytes, offset+IndexAccelerationY),

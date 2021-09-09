@@ -1,0 +1,162 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-gap: 10px;
+  font-family: 'Courier New', Courier, monospace;
+  border: solid 5px red;
+  padding: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: scroll;
+}
+
+.dashboard.receiving {
+  border-color: green;
+}
+
+.widget {
+  border: solid 1px black;
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: column;
+}
+
+.widget-header {
+  padding: 5px;
+  background: black;
+  color: white;
+  display: flex;
+  flex-direction: row;
+}
+
+.widget-title {
+  font-weight: bold;
+}
+
+.widget-details {
+  text-align: right;
+  flex-grow: 1;
+}
+
+.widget-content {
+  padding: 5px;
+  flex-grow: 1;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-content table {
+  width: 100%;
+}
+
+.widget-content table th {
+  width: 50%;
+}
+
+.map-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.attitude-container {
+  position: absolute;
+  right: 10px;
+  left: 10px;
+  height: 0;
+  padding-bottom: 100%;
+  background: gray;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.attitude-arrow {
+  width: 0;
+  height: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-bottom: 200px solid white;
+  margin-top: 100%;
+}
+
+.mission-info-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.mission-info-time {
+  font-size: 5em;
+}
+
+.mission-info-mode {
+  padding: 5px;
+  min-width: 75%;
+  text-align: center;
+  font-size: 1.5em;
+  color: black;
+}
+
+.mission-info-mode-p {
+  background-color: gray;
+}
+
+.mission-info-mode-ap {
+  background-color: green;
+}
+
+.mission-info-mode-au {
+  background-color: yellow;
+}
+
+.mission-info-mode-df {
+  background-color: red;
+}
+
+.mission-info-mode-dp {
+  background-color: orange;
+}
+
+.mission-info-mode-r {
+  background-color: blue;
+}
+
+.kv-table td {
+  border: solid 1px gray;
+}
+
+.kv-table thead {
+  background: black;
+  color: white;
+}
+
+.kv-table-value {
+  text-align: center;
+  background: red;
+}
+
+.kv-table-value.normal {
+  background: green;
+}

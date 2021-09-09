@@ -1,5 +1,6 @@
 """Functions shared between air and ground runtimes"""
 import logging
+import math
 import struct
 import time
 from queue import Queue
@@ -38,16 +39,14 @@ def write_queue_log(outfile, new_data_queue: Queue, max_lines: int = 1000) -> in
 def take_gps_reading(sio, gps_value: AtomicValue) -> bool:
     """Grab the most recent data from GPS feed"""
     line = sio.readline()
-    if line[0:6] == "$GPGGA":
-        gps = pynmea2.parse(line)
-        gps_value.update(
-            (
-                gps.latitude if gps else 0.0,
-                gps.longitude if gps else 0.0,
-                float(gps.gps_qual) if gps else 0.0,
-                float(gps.num_sats) if gps else 0.0,
-            )
-        )
+    gps = pynmea2.parse(line)
+    if isinstance(gps, pynmea2.types.talker.GGA):
+        gps_value.update((
+            gps.latitude if gps else 0.0,
+            gps.longitude if gps else 0.0,
+            float(gps.gps_qual) if gps else 0.0,
+            float(gps.num_sats) if gps else 0.0,
+        ))
         return True
     return False
 
@@ -141,22 +140,26 @@ def transmit_latest_readings(
 ) -> Tuple[int, float]:
     """Get the latest value from the sensor store and transmit it as a byte array"""
     infos = current_readings.read()
-    info = []
-    for i in infos:
-        info += i
-    if info:
-        clean_info = [float(i) for i in info]
-        encoded = struct.pack(
-            "d" + TELEMETRY_STRUCT_STRING + TELEMETRY_STRUCT_STRING,
-            *(pcnt_to_limit.get_value(), *clean_info)
+    if len(infos) < 2:
+        return readings_sent, last_check
+    info1 = infos[0]
+    info2 = infos[int(math.ceil(len(infos) / 2))]
+    if not info1 or not info2:
+        return readings_sent, last_check
+    info = (*info1, *info2)
+    clean_info = [float(i) for i in info]
+    encoded = struct.pack(
+        "d" + TELEMETRY_STRUCT_STRING + TELEMETRY_STRUCT_STRING,
+        *(pcnt_to_limit.get_value(), *clean_info)
+    )
+    current_readings.clear()
+    logging.debug("Transmitting %d bytes", len(encoded))
+    rfm9x.send(encoded)
+    readings_sent += 1
+    if last_check > 0 and last_check + 10.0 < time.time():
+        last_check = time.time()
+        logging.info(
+            "Transmit rate: %f/s",
+            float(readings_sent) / float(last_check - start_time),
         )
-        logging.debug("Transmitting %d bytes", len(encoded))
-        rfm9x.send(encoded)
-        readings_sent += 1
-        if last_check > 0 and last_check + 10.0 < time.time():
-            last_check = time.time()
-            logging.info(
-                "Transmit rate: %f/s",
-                float(readings_sent) / float(last_check - start_time),
-            )
     return readings_sent, last_check

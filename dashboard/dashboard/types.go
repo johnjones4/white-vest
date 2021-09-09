@@ -5,48 +5,55 @@ import (
 	"sync"
 )
 
+type FlightMode string
+
 type Coordinate struct {
-	Lat float64
-	Lon float64
+	Lat float64 `json:"lat"`
+	Lon float64 `json:"lon"`
 }
 
 type GPSInfo struct {
-	Quality float64
-	Sats    float64
+	Quality float64 `json:"quality"`
+	Sats    float64 `json:"sats"`
 }
 
 type XYZ struct {
-	X float64
-	Y float64
-	Z float64
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+	Z float64 `json:"z"`
 }
 
 type RawDataSegment struct {
-	CameraProgress float64
-	Timestamp      float64
-	Pressure       float64
-	Temperature    float64
-	Acceleration   XYZ
-	Magnetic       XYZ
-	Coordinate     Coordinate
-	GPSInfo        GPSInfo
-	Rssi           int16
+	WriteProgress float64    `json:"writeProgress"`
+	Timestamp     float64    `json:"timestamp"`
+	Pressure      float64    `json:"pressure"`
+	Temperature   float64    `json:"temperature"`
+	Acceleration  XYZ        `json:"acceleration"`
+	Magnetic      XYZ        `json:"magnetic"`
+	Coordinate    Coordinate `json:"coordinate"`
+	GPSInfo       GPSInfo    `json:"gpsInfo"`
+	Rssi          int16      `json:"rssi"`
 }
 
 type ComputedDataSegment struct {
-	Altitude           float64
-	Velocity           float64
-	Yaw                float64
-	Pitch              float64
-	NormalizedPressure float64
-	Bearing            float64
-	Distance           float64
-	DataRate           float64
+	Altitude                     float64    `json:"altitude"`
+	Velocity                     float64    `json:"velocity"`
+	SmoothedVerticalAcceleration float64    `json:"smoothedVerticalAcceleration"`
+	Yaw                          float64    `json:"yaw"`
+	Pitch                        float64    `json:"pitch"`
+	Bearing                      float64    `json:"bearing"`
+	Distance                     float64    `json:"distance"`
+	DataRate                     float64    `json:"dataRate"`
+	SmoothedAltitude             float64    `json:"smoothedAltitude"`
+	SmoothedVelocity             float64    `json:"smoothedVelocity"`
+	SmoothedPressure             float64    `json:"smoothedPressure"`
+	SmoothedTemperature          float64    `json:"smoothedTemperature"`
+	FlightMode                   FlightMode `json:"flightMode"`
 }
 
 type DataSegment struct {
-	Raw      RawDataSegment
-	Computed ComputedDataSegment
+	Raw      RawDataSegment      `json:"raw"`
+	Computed ComputedDataSegment `json:"computed"`
 }
 
 type DataProvider interface {
@@ -73,10 +80,10 @@ type FlightData interface {
 	BasePressure() float64
 	Origin() Coordinate
 	Time() []float64
-	Altitude() []float64
-	Velocity() []float64
-	Temperature() []float64
-	Pressure() []float64
+	SmoothedAltitude() []float64
+	SmoothedVelocity() []float64
+	SmoothedTemperature() []float64
+	SmoothedPressure() []float64
 	GpsQuality() []float64
 	GpsSats() []float64
 	Rssi() []float64

@@ -14,6 +14,21 @@ from RPi import GPIO
 from whitevest.lib.atomic_value import AtomicValue
 from whitevest.lib.configuration import Configuration
 
+class DummyBMP:
+    """Dummy class for the BMP3xx sensor"""
+    def _read(self):
+        """Return dummy data"""
+        return (0.0, 0.0)
+
+class DummyMag:
+    """Dummy class for the Magnetometer sensor"""
+    def __init__(self):
+        self.magnetic = (0.0, 0.0, 0.0)
+class DummyAccel:
+    """Dummy class for the Magnetometer sensor"""
+    def __init__(self):
+        self.acceleration = (0.0, 0.0, 0.0)
+
 
 def init_radio(configuration: Configuration):
     """Initialize the radio"""
@@ -35,26 +50,37 @@ def init_radio(configuration: Configuration):
 
 def init_altimeter(configuration: Configuration):
     """Initialize the sensor for pressure, temperature, and altitude"""
-    logging.info("Initializing altimeter")
-    assignments = configuration.get_pin_assignments("bmp3xx")
-    if not assignments:
-        return None
-    i2c = busio.I2C(assignments.get("scl"), assignments.get("sda"))
-    bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
-    bmp._wait_time = 0  # pylint: disable=protected-access
-    return bmp
+    try:
+        logging.info("Initializing altimeter")
+        assignments = configuration.get_pin_assignments("bmp3xx")
+        if not assignments:
+            return None
+        i2c = busio.I2C(assignments.get("scl"), assignments.get("sda"))
+        bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
+        bmp._wait_time = 0  # pylint: disable=protected-access
+        return bmp
+    except Exception as ex:  # pylint: disable=broad-except
+        bmp = DummyBMP()
+        logging.exception(ex)
+        return bmp
 
 
 def init_magnetometer_accelerometer(configuration: Configuration):
     """Initialize the sensor for magnetic and acceleration"""
-    logging.info("Initializing magnetometer/accelerometer")
-    assignments = configuration.get_pin_assignments("lsm303")
-    if not assignments:
-        return None, None
-    i2c = busio.I2C(assignments.get("scl"), assignments.get("sda"))
-    mag = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
-    accel = adafruit_lsm303_accel.LSM303_Accel(i2c)
-    return mag, accel
+    try:
+        logging.info("Initializing magnetometer/accelerometer")
+        assignments = configuration.get_pin_assignments("lsm303")
+        if not assignments:
+            return None, None
+        i2c = busio.I2C(assignments.get("scl"), assignments.get("sda"))
+        mag = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
+        accel = adafruit_lsm303_accel.LSM303_Accel(i2c)
+        return mag, accel
+    except Exception as ex:  # pylint: disable=broad-except  
+        mag = DummyMag()
+        accel = DummyAccel()
+        logging.exception(ex)
+        return mag, accel
 
 
 def init_gps(configuration: Configuration):

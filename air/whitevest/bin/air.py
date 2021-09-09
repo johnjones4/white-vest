@@ -33,7 +33,7 @@ def main():
     start_time = time.time()
 
     # Thread safe place to store altitude reading
-    current_readings = AtomicBuffer(2)
+    current_readings = AtomicBuffer(50)
 
     # Holds the most recent GPS data
     gps_value = AtomicValue((0.0, 0.0, 0.0, 0.0))

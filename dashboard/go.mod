@@ -3,6 +3,8 @@ module main
 go 1.16
 
 require (
+	github.com/gizak/termui/v3 v3.1.0
+	github.com/gorilla/websocket v1.4.2
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
 	github.com/johnjones4/termui v0.1.0
 	github.com/stretchr/testify v1.7.0
