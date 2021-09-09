@@ -168,6 +168,7 @@ func makeDataSeries(bp float64) ([]DataSegment, float64) {
 				Altitude: altitude(bp, RawDataSegment{
 					Pressure: val * 100.0,
 				}),
+				SmoothedPressure: val,
 			},
 		}
 	}

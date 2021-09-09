@@ -67,7 +67,7 @@ class Dashboard {
       },
       {
         key: 'Last Event Age',
-        value: lastEventAge === null ? 'Never' : lastEventAge + 's',
+        value: lastEventAge === null ? 'Never' : (lastEventAge / 1000).toFixed(2) + 's',
         normal: lastEventAge !== null && lastEventAge < signalTimeout
       },
       {
