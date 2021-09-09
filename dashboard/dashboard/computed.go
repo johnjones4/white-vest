@@ -15,7 +15,7 @@ func basePressure(stream FlightData) float64 {
 			for _, v := range pressures {
 				sum += v
 			}
-			return sum / float64(len(pressures))
+			return nanSafe(sum / float64(len(pressures)))
 		}
 	}
 	return 0
@@ -25,11 +25,11 @@ func altitude(bp float64, raw RawDataSegment) float64 {
 	if bp == 0 {
 		return 0
 	}
-	return 44307.7 * (1 - math.Pow((raw.Pressure/100)/bp, 0.190284))
+	return nanSafe(44307.7 * (1 - math.Pow((raw.Pressure/100)/bp, 0.190284)))
 }
 
 func normalizedPressure(raw RawDataSegment) float64 {
-	return raw.Pressure / 100.0
+	return nanSafe(raw.Pressure / 100.0)
 }
 
 func velocity(stream FlightData, bp float64, raw RawDataSegment) float64 {
@@ -37,26 +37,26 @@ func velocity(stream FlightData, bp float64, raw RawDataSegment) float64 {
 	segments := stream.AllSegments()
 	for i := len(segments) - 1; i >= 0; i -= 1 {
 		if segments[i].Computed.Altitude != altitude {
-			return (altitude - segments[i].Computed.Altitude) / (raw.Timestamp - segments[i].Raw.Timestamp)
+			return nanSafe((altitude - segments[i].Computed.Altitude) / (raw.Timestamp - segments[i].Raw.Timestamp))
 		}
 	}
 	return 0.0
 }
 
 func yaw(raw RawDataSegment) float64 {
-	return math.Atan2(-1.0*raw.Acceleration.X, raw.Acceleration.Z) * (180.0 / math.Pi)
+	return nanSafe(math.Atan2(-1.0*raw.Acceleration.X, raw.Acceleration.Z) * (180.0 / math.Pi))
 }
 
 func pitch(raw RawDataSegment) float64 {
-	return math.Atan2(-1.0*raw.Acceleration.Y, raw.Acceleration.Z) * (180.0 / math.Pi)
+	return nanSafe(math.Atan2(-1.0*raw.Acceleration.Y, raw.Acceleration.Z) * (180.0 / math.Pi))
 }
 
 func toRadians(degrees float64) float64 {
-	return degrees * math.Pi / 180
+	return nanSafe(degrees * math.Pi / 180)
 }
 
 func toDegrees(radians float64) float64 {
-	return radians * 180 / math.Pi
+	return nanSafe(radians * 180 / math.Pi)
 }
 
 func bearing(origin Coordinate, raw RawDataSegment) float64 {
@@ -73,7 +73,7 @@ func bearing(origin Coordinate, raw RawDataSegment) float64 {
 	x := math.Cos(startLat)*math.Sin(destLat) - math.Sin(startLat)*math.Cos(destLat)*math.Cos(destLng-startLng)
 	brng := math.Atan2(y, x)
 	brng = toDegrees(brng)
-	return math.Mod(brng+360, 360)
+	return nanSafe(math.Mod(brng+360, 360))
 }
 
 func distance(origin Coordinate, raw RawDataSegment) float64 {
@@ -87,7 +87,7 @@ func distance(origin Coordinate, raw RawDataSegment) float64 {
 	Δλ := (raw.Coordinate.Lon - origin.Lon) * math.Pi / 180
 	a := math.Sin(Δφ/2)*math.Sin(Δφ/2) + math.Cos(φ1)*math.Cos(φ2)*math.Sin(Δλ/2)*math.Sin(Δλ/2)
 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
-	return R * c
+	return nanSafe(R * c)
 }
 
 func dataRate(stream FlightData) float64 {
@@ -104,11 +104,7 @@ func dataRate(stream FlightData) float64 {
 	for _, secondTotal := range totalsMap {
 		total += secondTotal
 	}
-	rate := total / float64(len(totalsMap))
-	if math.IsNaN(rate) {
-		return 0
-	}
-	return rate
+	return nanSafe(total / float64(len(totalsMap)))
 }
 
 func averageComputedValue(seconds float64, stream FlightData, raw RawDataSegment, computed ComputedDataSegment, accessor func(seg ComputedDataSegment) float64) float64 {
@@ -120,7 +116,7 @@ func averageComputedValue(seconds float64, stream FlightData, raw RawDataSegment
 		n++
 		i--
 	}
-	return total / n
+	return nanSafe(total / n)
 }
 
 func determineFlightMode(stream FlightData, raw RawDataSegment, computed ComputedDataSegment) FlightMode {
