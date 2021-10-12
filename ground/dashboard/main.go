@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	. "main/dashboard"
 	"strings"
+
+	"github.com/johnjones4/model-rocket-telemetry/dashboard/core"
 )
 
 const (
@@ -31,7 +32,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	df := NewFlightData()
+	df := core.NewFlightData()
 	logger := NewLogger()
 	defer logger.Kill()
 	switch *output {

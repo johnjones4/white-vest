@@ -1,18 +1,19 @@
-package dashboard
+package core
 
 func NewFlightData() FlightDataConcrete {
 	return FlightDataConcrete{0, make([]DataSegment, 0), Coordinate{}}
 }
 
-func (f *FlightDataConcrete) IngestNewSegment(bytes []byte) ([]DataSegment, error) {
-	segments, basePressure, origin, err := bytesToDataSegment(f, bytes)
-	if err != nil {
-		return segments, err
-	}
+func (f *FlightDataConcrete) AppendData(segments []DataSegment) {
 	f.Segments = append(f.Segments, segments...)
-	f.Base = basePressure
-	f.OriginCoordinate = origin
-	return segments, nil
+}
+
+func (f *FlightDataConcrete) SetBasePressure(bp float64) {
+	f.Base = bp
+}
+
+func (f *FlightDataConcrete) SetOrigin(coord Coordinate) {
+	f.OriginCoordinate = coord
 }
 
 func (f *FlightDataConcrete) AllSegments() []DataSegment {
@@ -73,4 +74,12 @@ func (f *FlightDataConcrete) Rssi() []float64 {
 
 func (f *FlightDataConcrete) Origin() Coordinate {
 	return f.OriginCoordinate
+}
+
+func (f *FlightDataConcrete) FlightModes() []FlightMode {
+	data := make([]FlightMode, len(f.AllSegments()))
+	for i, segment := range f.AllSegments() {
+		data[i] = segment.Computed.FlightMode
+	}
+	return data
 }

@@ -10,14 +10,11 @@ install:
 run:
 	go run . $(source)
 
-generate_test_data:
-	go run generate_test_data/generate_test_data.go $(file) > data/data.txt
-
 build:
-	go build -o build/dashboard-$(OS)-$(ARCH) .
+	go build -o build/white-vest-tools-$(OS)-$(ARCH) .
 
 test:
-	cd dashboard && go test .
+	go test .
 
 clean:
 	rm -rf build

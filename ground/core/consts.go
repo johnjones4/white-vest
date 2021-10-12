@@ -1,4 +1,13 @@
-package dashboard
+package core
+
+const (
+	ModePrelaunch        = "P"
+	ModeAscentPowered    = "AP"
+	ModeAscentUnpowered  = "AU"
+	ModeDescentFreefall  = "DF"
+	ModeDescentParachute = "DP"
+	ModeRecovery         = "R"
+)
 
 const (
 	IndexTimestamp     = 0
@@ -14,17 +23,4 @@ const (
 	IndexCoordinateLon = 10
 	IndexGpsQuality    = 11
 	IndexGpsSats       = 12
-)
-
-const (
-	PointsPerDataFrame = 2
-)
-
-const (
-	ModePrelaunch        = "P"
-	ModeAscentPowered    = "AP"
-	ModeAscentUnpowered  = "AU"
-	ModeDescentFreefall  = "DF"
-	ModeDescentParachute = "DP"
-	ModeRecovery         = "R"
 )

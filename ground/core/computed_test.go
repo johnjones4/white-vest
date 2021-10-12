@@ -1,4 +1,4 @@
-package dashboard
+package core
 
 import (
 	"math"
@@ -127,7 +127,7 @@ func TestDataRate(t *testing.T) {
 
 func TestComputeDataSegment(t *testing.T) {
 	segments, avg := makeDataSeries(0)
-	segment, bp, origin := computeDataSegment(&FlightDataConcrete{
+	segment, bp, origin := ComputeDataSegment(&FlightDataConcrete{
 		Segments:         segments,
 		OriginCoordinate: Coordinate{37, -76},
 	}, RawDataSegment{

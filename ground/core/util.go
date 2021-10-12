@@ -1,4 +1,4 @@
-package dashboard
+package core
 
 import "math"
 

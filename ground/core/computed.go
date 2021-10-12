@@ -1,4 +1,4 @@
-package dashboard
+package core
 
 import (
 	"math"
@@ -131,7 +131,7 @@ func determineFlightMode(stream FlightData, raw RawDataSegment, computed Compute
 	avgAcceleration := averageComputedValue(1, stream, raw, computed, func(seg ComputedDataSegment) float64 {
 		return seg.SmoothedVerticalAcceleration
 	})
-	if lastMode == ModePrelaunch && avgVelocity > 1 {
+	if lastMode == ModePrelaunch && avgVelocity > 5 {
 		return ModeAscentPowered
 	}
 	if lastMode == ModeAscentPowered && avgAcceleration < 0 && avgVelocity > 0 {
@@ -143,13 +143,13 @@ func determineFlightMode(stream FlightData, raw RawDataSegment, computed Compute
 	if lastMode == ModeDescentFreefall && math.Abs(avgAcceleration) < 0.5 {
 		return ModeDescentParachute
 	}
-	if (lastMode == ModeDescentFreefall || lastMode == ModeDescentParachute) && math.Abs(avgVelocity) < 0.5 {
+	if (lastMode == ModeDescentFreefall || lastMode == ModeDescentParachute) && math.Abs(avgAcceleration) < 0.5 && math.Abs(avgVelocity) < 0.5 {
 		return ModeRecovery
 	}
 	return lastMode
 }
 
-func computeDataSegment(stream FlightData, raw RawDataSegment) (ComputedDataSegment, float64, Coordinate) {
+func ComputeDataSegment(stream FlightData, raw RawDataSegment) (ComputedDataSegment, float64, Coordinate) {
 	bp := stream.BasePressure()
 	if bp == 0 {
 		bp = basePressure(stream)

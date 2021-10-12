@@ -19,9 +19,11 @@ jobs:
         go-version: ${{ matrix.go-version }}
     - name: Install Go Dependencies, Test, and Build
       run: |
-        cd dashboard
+        cd ground/dashboard
         make install
-        make test
+        make build
+        cd ../tool
+        make install
         make build
     - name: Publish Artifacts
       uses: softprops/action-gh-release@v1
@@ -30,4 +32,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: |
-          ./dashboard/build/*
+          ./ground/dashboard/build/*
+          ./ground/tool/build/*
