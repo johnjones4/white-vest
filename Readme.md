@@ -105,18 +105,47 @@ The ground Arduino software receives transmitted packets and echos them out to s
 
 ### Dashboard
 
-The dashboard is a text-based tool for tracking and logging received telemetry. To activate it, download a release from the GitHub project or build the dashboard using the following steps:
+The dashboard is a text-based tool for tracking and logging received telemetry. To use it, download a release from the GitHub project or build the dashboard using the following steps:
 
 ```bash
 $ cd ~
 $ git clone git@github.com:johnjones4/white-vest.git
-$ cd white-vest/dashboard
+$ cd white-vest/ground/dashboard
 $ make install
 $ make build
 ```
 
 Then, run the dashboard using the following `build/dashboard-Darwin-i386 --input /dev/cu.usbmodem143101 --output text`. Note that `dashboard-Darwin-i386` will change based on the system you are using and `/dev/cu.usbmodem143101` is the path to the Arduino serial connection. To view the web dashboard, pass in `web` for the `--output` option and open [http://localhost:8080/](http://localhost:8080/).
 
+### Tool
+
+The tool is a utility for after-flight work. To use it, download a release from the GitHub project or build the dashboard using the following steps:
+
+```bash
+$ cd ~
+$ git clone git@github.com:johnjones4/white-vest.git
+$ cd white-vest/ground/tool
+$ make install
+$ make build
+```
+
+The overall command structure is:
+
+```bash
+$ white-vest-tool [TASK] [FLAGS]
+```
+
+Taks/Flags:
+* `convert`: Converts telemtry data to plain old JSON for analysis
+  * `--input`: The file path to the input file
+  * `--output`: The file path to output to
+  * `--type`: The "type" of data. Right now the only valid option, and the default value, is `inboard`. This is the CSV file generated on the telemetry module during flight. I recommend reviewing the data and clipping the pre-launch and post-landing useless data for faster conversion.
+  * `--progress`: `true` or `false`, print a progress bar during conversion
+* `summary`: Analyze the data and print a few summary data points like apogee, max v, etc
+  * `--input`: The file path to the input file (use the file made during `convert`)
+* `chart`: Generate altitude and velocity charts
+  * `--input`: The file path to the input file (use the file made during `convert`)
+  * `--ouput`: The directory to save the charts to
 ### Air
 
 This software requires [I2C](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c), [SPI0](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/), and [Serial](https://maker.pro/raspberry-pi/tutorial/how-to-use-a-gps-receiver-with-raspberry-pi-4) to be enabled on a Raspberry Pi.
