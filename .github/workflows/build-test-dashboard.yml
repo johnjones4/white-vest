@@ -19,7 +19,7 @@ jobs:
         go-version: ${{ matrix.go-version }}
     - name: Install Go Dependencies, Test, and Build
       run: |
-        cd dashboard
+        cd ground/dashboard
         make install
         make test
         make build
@@ -30,4 +30,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: |
-          ./dashboard/build/*
+          ./ground/dashboard/build/*

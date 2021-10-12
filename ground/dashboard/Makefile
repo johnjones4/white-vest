@@ -10,9 +10,6 @@ install:
 run:
 	go run . $(source)
 
-generate_test_data:
-	go run generate_test_data/generate_test_data.go $(file) > data/data.txt
-
 build:
 	go build -o build/dashboard-$(OS)-$(ARCH) .
 
