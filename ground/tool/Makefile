@@ -11,7 +11,7 @@ run:
 	go run . $(source)
 
 build:
-	go build -o build/white-vest-dashboard-$(OS)-$(ARCH) .
+	go build -o build/white-vest-tools-$(OS)-$(ARCH) .
 
 test:
 	go test .

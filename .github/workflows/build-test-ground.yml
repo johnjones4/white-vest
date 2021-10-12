@@ -21,7 +21,9 @@ jobs:
       run: |
         cd ground/dashboard
         make install
-        make test
+        make build
+        cd ../tool
+        make install
         make build
     - name: Publish Artifacts
       uses: softprops/action-gh-release@v1
@@ -31,3 +33,4 @@ jobs:
       with:
         files: |
           ./ground/dashboard/build/*
+          ./ground/tool/build/*
