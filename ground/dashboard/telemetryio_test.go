@@ -1,4 +1,4 @@
-package dashboard
+package main
 
 import (
 	"encoding/base64"

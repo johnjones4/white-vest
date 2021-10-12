@@ -1,4 +1,4 @@
-package dashboard
+package core
 
 func singleFlightDataElement(ds FlightData, accessor func(DataSegment) float64) []float64 {
 	data := make([]float64, len(ds.AllSegments()))

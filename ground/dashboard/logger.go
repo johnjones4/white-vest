@@ -1,4 +1,4 @@
-package dashboard
+package main
 
 import (
 	"encoding/json"
@@ -7,9 +7,11 @@ import (
 	"path"
 	"sync"
 	"time"
+
+	"github.com/johnjones4/model-rocket-telemetry/dashboard/core"
 )
 
-func dataSegmentToString(ds DataSegment) string {
+func dataSegmentToString(ds core.DataSegment) string {
 	bytes, err := json.Marshal(ds)
 	if err != nil {
 		return ""
@@ -30,7 +32,7 @@ func generateLogFilePath() (string, error) {
 
 func NewLogger() LoggerControl {
 	logger := Logger{
-		DataChannel:     make(chan DataSegment, 100),
+		DataChannel:     make(chan core.DataSegment, 100),
 		ContinueRunning: true,
 		Mutex:           sync.Mutex{},
 	}
@@ -66,6 +68,6 @@ func (l *Logger) Kill() {
 	l.Mutex.Unlock()
 }
 
-func (l *Logger) Log(ds DataSegment) {
+func (l *Logger) Log(ds core.DataSegment) {
 	l.DataChannel <- ds
 }

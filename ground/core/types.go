@@ -1,9 +1,4 @@
-package dashboard
-
-import (
-	"io"
-	"sync"
-)
+package core
 
 type FlightMode string
 
@@ -56,26 +51,17 @@ type DataSegment struct {
 	Computed ComputedDataSegment `json:"computed"`
 }
 
-type DataProvider interface {
-	Stream() <-chan []byte
-}
-
 type FlightDataConcrete struct {
 	Base             float64
 	Segments         []DataSegment
 	OriginCoordinate Coordinate
 }
 
-type DataProviderFile struct {
-	Bytes [][]byte
-}
-
-type DataProviderSerial struct {
-	Port io.ReadWriteCloser
-}
-
 type FlightData interface {
-	IngestNewSegment(bytes []byte) ([]DataSegment, error)
+	// IngestNewSegment(bytes []byte) ([]DataSegment, error)
+	AppendData(segments []DataSegment)
+	SetBasePressure(bp float64)
+	SetOrigin(coord Coordinate)
 	AllSegments() []DataSegment
 	BasePressure() float64
 	Origin() Coordinate
@@ -87,15 +73,5 @@ type FlightData interface {
 	GpsQuality() []float64
 	GpsSats() []float64
 	Rssi() []float64
-}
-
-type Logger struct {
-	DataChannel     chan DataSegment
-	ContinueRunning bool
-	Mutex           sync.Mutex
-}
-
-type LoggerControl interface {
-	Kill()
-	Log(DataSegment)
+	FlightModes() []FlightMode
 }
