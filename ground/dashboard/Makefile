@@ -14,7 +14,7 @@ build:
 	go build -o build/dashboard-$(OS)-$(ARCH) .
 
 test:
-	cd dashboard && go test .
+	go test .
 
 clean:
 	rm -rf build
